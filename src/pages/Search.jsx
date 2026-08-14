@@ -1,0 +1,12 @@
+import React,{useMemo,useState} from 'react';
+import {useSearchParams} from 'react-router-dom';
+import {useQuery} from '@tanstack/react-query';
+import {backend} from '@/api/localBackend';
+import ManhwaCard from '@/components/manhwa/ManhwaCard';
+import {Filter,Search as SearchIcon} from 'lucide-react';
+export default function Search(){
+ const [sp]=useSearchParams(); const [q,setQ]=useState(''),[type,setType]=useState('all'),[status,setStatus]=useState('all'),[filters,setFilters]=useState(true); const genre=sp.get('genre');
+ const {data:items=[]}=useQuery({queryKey:['manhwas'],queryFn:()=>backend.entities.Manhwa.list()});
+ const out=useMemo(()=>items.filter(m=>(!q||`${m.title} ${m.author} ${m.alternative_titles}`.toLowerCase().includes(q.toLowerCase()))&&(type==='all'||m.type===type)&&(status==='all'||m.status===status)&&(!genre||m.genres?.includes(genre))),[items,q,type,status,genre]);
+ return <div className="mx-auto max-w-7xl px-4 py-10"><h1 className="font-display text-3xl font-extrabold">Pesquisar</h1><div className="mt-5 flex gap-2"><div className="flex flex-1 items-center gap-2 rounded-xl border border-zinc-700 bg-zinc-900 px-3"><SearchIcon size={18}/><input value={q} onChange={e=>setQ(e.target.value)} className="w-full bg-transparent py-3 outline-none" placeholder="Título, autor ou título alternativo"/></div><button onClick={()=>setFilters(v=>!v)} className="rounded-xl border border-zinc-700 bg-zinc-900 px-4"><Filter/></button></div>{filters&&<div className="mt-3 grid gap-3 rounded-xl border border-zinc-800 bg-zinc-900 p-4 sm:grid-cols-2"><select value={type} onChange={e=>setType(e.target.value)} className="rounded-lg bg-zinc-950 p-3"><option value="all">Todos os tipos</option><option value="manhwa">Manhwa</option><option value="manga">Manga</option><option value="manhua">Manhua</option><option value="novel">Novel</option></select><select value={status} onChange={e=>setStatus(e.target.value)} className="rounded-lg bg-zinc-950 p-3"><option value="all">Todos os status</option><option value="ongoing">Em andamento</option><option value="completed">Completo</option><option value="hiatus">Hiato</option><option value="cancelled">Cancelado</option></select></div>}<p className="mt-5 text-sm text-zinc-500">{out.length} resultado(s){genre?` · gênero: ${genre}`:''}</p><div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">{out.map(m=><ManhwaCard key={m.id} m={m}/>)}</div></div>;
+}
