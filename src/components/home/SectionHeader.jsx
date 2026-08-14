@@ -1,0 +1,2 @@
+import React from 'react'; import {Link} from 'react-router-dom';
+export default function SectionHeader({eyebrow='Explorar',title,href}){return <div className="flex items-end justify-between gap-4"><div><div className="text-xs font-bold uppercase tracking-[.22em] text-violet-400">{eyebrow}</div><h2 className="mt-1 font-display text-2xl font-bold sm:text-3xl">{title}</h2></div>{href&&<Link className="text-sm text-violet-300 hover:text-white" to={href}>Ver tudo →</Link>}</div>}
