@@ -1,0 +1,1 @@
+import React from 'react';import AdminUploadEdit from './AdminUploadEdit';export default function AdminUpload(){return <AdminUploadEdit/>}
