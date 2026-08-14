@@ -1,0 +1,2 @@
+import React from 'react'; import {Link} from 'react-router-dom'; import useUserAccess from '@/lib/useUserAccess';
+export default function AdminControls(){const a=useUserAccess();if(!a.isAdmin)return null;return <div className="flex flex-wrap gap-2 text-sm"><Link className="rounded-lg bg-zinc-800 px-3 py-2" to="/AdminUploadEdit">Upload</Link><Link className="rounded-lg bg-zinc-800 px-3 py-2" to="/AdminManage">Gerenciar</Link><Link className="rounded-lg bg-zinc-800 px-3 py-2" to="/AdminStats">Stats</Link></div>}
