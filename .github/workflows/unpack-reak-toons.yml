@@ -1,0 +1,38 @@
+name: Unpack Reak toons
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'reak-toons-independent.zip.b64'
+
+permissions:
+  contents: write
+
+jobs:
+  unpack:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Decode project archive
+        run: |
+          base64 -d reak-toons-independent.zip.b64 > /tmp/reak-toons-independent.zip
+          rm -rf /tmp/reak-toons-unpacked
+          mkdir -p /tmp/reak-toons-unpacked
+          unzip -q /tmp/reak-toons-independent.zip -d /tmp/reak-toons-unpacked
+      - name: Copy project to repository root
+        run: |
+          cp -a /tmp/reak-toons-unpacked/reak-toons-independent/. .
+          rm -f reak-toons-independent.zip.b64
+      - name: Commit extracted source
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          if git diff --cached --quiet; then
+            echo 'Nothing to commit'
+          else
+            git commit -m 'Importa código completo do Reak toons'
+            git push
+          fi
