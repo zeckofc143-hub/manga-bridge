@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import App from './App';
-import CreatureEncyclopediaPage from './CreatureEncyclopediaPage';
+import CreatureEncyclopediaPageV3 from './CreatureEncyclopediaPageV3';
 
 function currentCreatureRoute(){
   const hash = window.location.hash || '#/';
@@ -10,6 +10,7 @@ function currentCreatureRoute(){
 
 export default function AppV2(){
   const [hash,setHash] = useState(()=>window.location.hash || '#/');
+
   useEffect(()=>{
     const onHash = ()=>setHash(window.location.hash || '#/');
     window.addEventListener('hashchange',onHash);
@@ -25,6 +26,6 @@ export default function AppV2(){
 
   return <>
     <App />
-    {route.active && <CreatureEncyclopediaPage routeId={route.id}/>} 
+    {route.active && <CreatureEncyclopediaPageV3 routeId={route.id}/>} 
   </>;
 }
