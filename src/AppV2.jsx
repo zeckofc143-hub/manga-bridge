@@ -95,9 +95,33 @@ export default function AppV2(){
   const [hash,setHash] = useState(()=>window.location.hash || '#/');
 
   useEffect(()=>{
-    const onHash = ()=>setHash(window.location.hash || '#/');
-    window.addEventListener('hashchange',onHash);
-    return ()=>window.removeEventListener('hashchange',onHash);
+    const syncRoute = ()=>setHash(window.location.hash || '#/');
+    const originalPushState = window.history.pushState;
+    const originalReplaceState = window.history.replaceState;
+
+    window.history.pushState = function(...args){
+      const result = originalPushState.apply(this,args);
+      window.dispatchEvent(new Event('app:navigation'));
+      return result;
+    };
+
+    window.history.replaceState = function(...args){
+      const result = originalReplaceState.apply(this,args);
+      window.dispatchEvent(new Event('app:navigation'));
+      return result;
+    };
+
+    window.addEventListener('hashchange',syncRoute);
+    window.addEventListener('popstate',syncRoute);
+    window.addEventListener('app:navigation',syncRoute);
+
+    return ()=>{
+      window.history.pushState = originalPushState;
+      window.history.replaceState = originalReplaceState;
+      window.removeEventListener('hashchange',syncRoute);
+      window.removeEventListener('popstate',syncRoute);
+      window.removeEventListener('app:navigation',syncRoute);
+    };
   },[]);
 
   const route = useMemo(currentCreatureRoute,[hash]);
