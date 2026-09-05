@@ -1,0 +1,19 @@
+{
+  "name": "Pocket Ants Wiki BR",
+  "short_name": "Ants Wiki",
+  "description": "Wiki brasileira de Pocket Ants com guias, criaturas, recursos, câmaras e calculadoras.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0b100d",
+  "theme_color": "#0b100d",
+  "lang": "pt-BR",
+  "icons": [
+    {
+      "src": "./ant-wiki-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
