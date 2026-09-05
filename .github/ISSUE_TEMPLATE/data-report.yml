@@ -1,0 +1,45 @@
+name: Reportar dado incorreto
+description: Corrigir informação desatualizada, incompleta ou errada da Pocket Ants Wiki BR
+title: "[Dado] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Obrigado por ajudar a manter a wiki confiável. Se puder, inclua a versão/data do jogo e alguma evidência.
+  - type: input
+    id: page
+    attributes:
+      label: Página ou item
+      description: Qual criatura, recurso, câmara, evento, guia ou ferramenta precisa de correção?
+      placeholder: Ex. Scorpion, Resin Chamber, Beehive...
+    validations:
+      required: true
+  - type: textarea
+    id: current
+    attributes:
+      label: O que está errado?
+      description: Explique qual informação da wiki parece incorreta ou desatualizada.
+    validations:
+      required: true
+  - type: textarea
+    id: correction
+    attributes:
+      label: Qual parece ser o valor correto?
+      description: Se souber, escreva a correção sugerida.
+  - type: input
+    id: version
+    attributes:
+      label: Versão ou data do jogo
+      placeholder: Ex. versão atual em setembro de 2026
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Fonte ou evidência
+      description: Screenshot, página oficial, wiki, vídeo ou observação feita dentro do jogo.
+  - type: checkboxes
+    id: certainty
+    attributes:
+      label: Confirmação
+      options:
+        - label: Entendo que a informação será revisada antes de entrar como dado confirmado.
+          required: true
