@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Pocket Ants Wiki BR">
+  <rect width="512" height="512" rx="116" fill="#0b100d"/>
+  <circle cx="256" cy="256" r="188" fill="#131d17" stroke="#75d46f" stroke-width="12"/>
+  <g fill="#75d46f" stroke="#75d46f" stroke-linecap="round" stroke-width="22">
+    <circle cx="256" cy="174" r="48"/>
+    <ellipse cx="256" cy="275" rx="62" ry="82"/>
+    <ellipse cx="256" cy="393" rx="54" ry="70"/>
+    <path d="M215 145l-48-54M297 145l48-54M206 241l-73-49M306 241l73-49M197 294l-85 10M315 294l85 10M207 349l-72 66M305 349l72 66" fill="none"/>
+  </g>
+  <circle cx="238" cy="164" r="7" fill="#0b100d"/>
+  <circle cx="274" cy="164" r="7" fill="#0b100d"/>
+</svg>
