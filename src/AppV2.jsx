@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import App from './App';
-import CreatureEncyclopediaPageV3 from './CreatureEncyclopediaPageV3';
+import CreatureDatabasePage from './CreatureDatabasePage';
 
 function currentCreatureRoute(){
   const hash = window.location.hash || '#/';
@@ -26,6 +26,6 @@ export default function AppV2(){
 
   return <>
     <App />
-    {route.active && <CreatureEncyclopediaPageV3 routeId={route.id}/>} 
+    {route.active && <CreatureDatabasePage routeId={route.id}/>} 
   </>;
 }
