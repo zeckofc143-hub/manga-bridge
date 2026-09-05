@@ -44,11 +44,12 @@ const imageOverrides = {
 
 export function enrichCreature(creature){
   const images = safeFiles(creature.name, imageOverrides[creature.name] || []);
-  const status = creature.id === 'crab' || creature.id === 'frog'
+  const isChristmasCrab = creature.id === 'christmas-crab';
+  const status = ['crab','frog','christmas-crab'].includes(creature.id)
     ? 'direct'
     : 'capturable';
 
-  const correction = creature.id === 'tiger-beetle'
+  const sourceConflictCorrection = creature.id === 'tiger-beetle'
     ? {
         verification:'review',
         attraction:'Conflito entre fontes comunitárias: a página individual informa qualquer horário/clima, enquanto a tabela Capturing já exibiu preferência por noite/amanhecer. Trate como dado a confirmar no jogo.',
@@ -62,16 +63,30 @@ export function enrichCreature(creature){
         }
       : {};
 
+  const christmasCrabCorrection = isChristmasCrab ? {
+    rarity:'Lendária',
+    captureTime:'Instantâneo',
+    attraction:'Não usa atração/captura comum. É adicionado diretamente ao exército após completar a barra do Christmas Crab e possuir o Crab Token da edição do evento.',
+    obtain:[
+      'Participe do Christmas Event em uma edição na qual o Christmas Crab esteja disponível.',
+      'Complete os Christmas Crab / Crab Beach co-ops necessários para encher a barra específica da criatura.',
+      'Obtenha o Crab Token exigido pela edição do evento; em edições recentes ele foi ligado à coleta de criaturas natalinas.',
+      'Com a barra cheia, o Crab Token e uma vaga livre, adicione o Christmas Crab diretamente ao exército.'
+    ],
+    eventHistory:['Christmas Event 2023','Christmas Event 2024','Christmas Event 2025']
+  } : {};
+
   return {
     ...creature,
-    ...correction,
+    ...sourceConflictCorrection,
+    ...christmasCrabCorrection,
     captureStatus: status,
     capturable: status === 'capturable',
     obtainable: true,
-    goldenAvailable: creature.category === 'normal' && !['crab','frog'].includes(creature.id),
+    goldenAvailable: !isChristmasCrab && creature.category === 'normal' && !['crab','frog'].includes(creature.id),
     imageCandidates:[...images, creature.imageUrl].filter(Boolean),
     imageUrl: images[0] || creature.imageUrl,
-    youtubeSearchUrl: creature.youtubeSearchUrl || ytSearch(creature.name, 'capture tutorial')
+    youtubeSearchUrl: creature.youtubeSearchUrl || ytSearch(creature.name, status==='capturable' ? 'capture tutorial' : 'obtain guide')
   };
 }
 
