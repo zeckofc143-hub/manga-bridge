@@ -4,6 +4,7 @@ import App from './App';
 import Enhancements from './Enhancements';
 import AdvancedPlanner from './AdvancedPlanner';
 import CommunityResearchHub from './CommunityResearchHub';
+import CreatureCatalog from './CreatureCatalog';
 import './index.css';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
@@ -12,5 +13,6 @@ ReactDOM.createRoot(document.getElementById('root')).render(
     <Enhancements />
     <AdvancedPlanner />
     <CommunityResearchHub />
+    <CreatureCatalog />
   </React.StrictMode>
 );
