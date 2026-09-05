@@ -5,7 +5,12 @@ const FALLBACK = 'https://static.wikia.nocookie.net/pocketants/images/f/fd/Creat
 const titleAliases = {
   'Asian Giant Hornet':'Hornet',
   'Crab':'Crab_(creature)',
-  'Frog':'Frog_(creature)'
+  'Frog':'Frog_(creature)',
+  'Crab Boss':'Crab_(boss)',
+  'Frog Boss':'Frog_(boss)',
+  'Farm Aphid':'Aphid_Farm',
+  'Player Ant':'Black_Ants',
+  'Queen Ant':'Black_Ants'
 };
 const cache = new Map();
 
@@ -40,6 +45,14 @@ function upgradeBox(box,name){
   resolveWikiImage(name).then(src=>{ if(img.isConnected) img.src = src || FALLBACK; });
 }
 
+function upgradeExistingImg(img,name){
+  if(!img || !name || img.dataset.wikiResolved===name) return;
+  img.dataset.wikiResolved = name;
+  resolveWikiImage(name).then(src=>{
+    if(img.isConnected && src && src!==FALLBACK) img.src = src;
+  });
+}
+
 function applyLegacyImages(){
   document.querySelectorAll('.mini-creature-card').forEach(card=>{
     const name = card.querySelector('strong')?.textContent?.trim();
@@ -53,6 +66,17 @@ function applyLegacyImages(){
   if(detail){
     const name = detail.querySelector('h1')?.textContent?.trim();
     upgradeBox(detail.querySelector('.detail-icon'),name);
+  }
+
+  document.querySelectorAll('.cc-card').forEach(card=>{
+    const name = card.querySelector('h3')?.textContent?.trim();
+    upgradeExistingImg(card.querySelector('.cc-card-image img'),name);
+  });
+  const catalogDetail = document.querySelector('.cc-detail');
+  if(catalogDetail){
+    const name = catalogDetail.querySelector('h2')?.textContent?.trim();
+    upgradeExistingImg(catalogDetail.querySelector('.cc-detail-image-wrap img'),name);
+    catalogDetail.querySelectorAll('.cc-video-thumb img').forEach(img=>upgradeExistingImg(img,name));
   }
 }
 
