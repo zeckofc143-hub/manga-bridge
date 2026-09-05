@@ -1,91 +1,110 @@
-# Reak toons — versão independente
+# 🐜 Pocket Ants Wiki BR
 
-Reconstrução funcional baseada no inventário e na documentação fornecidos pelo proprietário do projeto.
+Wiki comunitária em português para **Pocket Ants: Colony Simulator**, reconstruída sobre um repositório antigo que não era mais usado.
 
 ## Objetivo
 
-Remover a dependência obrigatória do Base44 para o funcionamento básico do site. Esta versão usa:
+Criar uma wiki realmente útil no celular, combinando informação organizada com ferramentas que uma wiki tradicional normalmente não oferece.
 
-- React 18
-- Vite 6
-- Tailwind CSS 3.4
-- React Router v6
-- TanStack React Query
-- Framer Motion
-- lucide-react
-- armazenamento local (`localStorage`) como backend independente
+## O que já está implementado
 
-## Rodar
+- Home mobile-first com atalhos por assunto
+- Busca global por criaturas, recursos, câmaras, mecânicas e guias
+- Banco inicial de criaturas com:
+  - raridade
+  - papéis
+  - vida, ataque e velocidade relativos
+  - condição de atração
+  - tempo de captura
+  - fase de progressão
+  - origem/confiança do dado
+- Lista inicial de criaturas especiais de eventos
+- Recursos e fontes de obtenção
+- Câmaras da colônia, prioridade e função
+- Páginas detalhadas de criaturas e câmaras
+- Mecânicas: captura, PvP, Red Ant Colony, Aphid Farm, Fire Ant Nest, Beehive, Co-op e Garrison
+- Biblioteca inicial de guias
+- Glossário de termos
+- Modo escuro e claro
+- Layout responsivo para Android/mobile
+
+## Ferramentas
+
+### Comparador de criaturas
+Compara HP, ataque e velocidade relativos de duas criaturas lado a lado.
+
+### Planejador de farm
+O jogador informa o que possui, a meta, sua média por run e o tempo médio. O site calcula quantas runs e quanto tempo faltam sem inventar drop rates.
+
+### Checklist diário
+Checklist salvo em `localStorage` no aparelho.
+
+### Tracker de coleção
+Permite marcar criaturas obtidas e acompanhar o progresso da coleção. Também usa `localStorage`.
+
+## Política de fontes
+
+A wiki não mistura tudo como se tivesse o mesmo nível de certeza.
+
+- **Oficial** — informação confirmada por material oficial do jogo / Ariel Games / lojas oficiais.
+- **Wiki comunitária** — números e detalhes catalogados por jogadores e revisados antes de entrar na base.
+- **Consenso da comunidade** — estratégias recorrentes de jogadores; podem mudar com o meta.
+- **A revisar** — informação com conflito entre fontes ou sem confirmação suficiente.
+
+Cada bloco relevante pode mostrar seu selo de origem.
+
+## Estrutura dos dados
+
+Os dados iniciais ficam em:
+
+```text
+src/wikiData.js
+```
+
+Eles possuem IDs estáveis, permitindo no futuro migrar para JSON separado, banco de dados ou CMS sem refazer toda a interface.
+
+## Rodar localmente
 
 ```bash
 npm install
 npm run dev
 ```
 
-Para gerar produção:
+## Gerar produção
 
 ```bash
 npm run build
 ```
 
-## O que está implementado
+O resultado fica em `dist/`.
 
-- Visual dark zinc com gradiente violeta → fuchsia
-- Home com slider de destaques e filtro por tipo
-- `featured_all`
-- Recentes, Populares, Busca
-- Página de obra
-- Biblioteca e Favoritos
-- Marcar/desmarcar capítulo como lido
-- Reader com zoom, fullscreen, navegação e comentários
-- Novel via `text_content`
-- Views únicas por usuário local
-- Comentários com respostas aninhadas, likes, spoiler e exclusão
-- Avaliações
-- Comunidade com criação de posts e likes
-- Perfil com “Sobre mim”
-- Configurações e i18n pt-BR/en/es para navegação/base
-- Temas sazonais
-- Central de Suporte com tickets, prioridade e status
-- Painéis Admin / Suporte / Tradutor / Fundador
-- Gerenciamento de destaques, badges, bans, stats e site settings
+## Hospedagem
 
-## Diferenças inevitáveis em relação ao Base44
+A aplicação usa `HashRouter` e `base: './'`, então funciona bem em hospedagem estática e em subpastas sem depender de rewrites do servidor.
 
-A documentação descreve comportamento e arquitetura, mas não contém o conteúdo integral de todos os arquivos originais. Por isso esta é uma **reconstrução funcional**, não um clone byte-a-byte.
+## Próximas expansões
 
-Sem inventar dados não fornecidos:
+### P0 — conteúdo essencial
+- completar todas as criaturas normais e especiais
+- confirmar stats ainda faltantes
+- tabelas completas de custos por nível das câmaras
+- fontes exatas por campo
+- páginas dedicadas para Resin, Honeydew, Body Parts e Pheromones
 
-- Os GIFs sazonais exatos do Giphy não foram incluídos porque as URLs originais não foram fornecidas.
-- O backend Base44 foi substituído por um adapter local persistido em `localStorage`.
-- Uploads locais são convertidos em Data URL.
-- `VisualEditAgent` era específico do ambiente Base44; não é necessário nesta versão independente.
+### P1 — ferramentas
+- calculadora real de custo de upgrades quando as tabelas forem verificadas
+- planner de formação/time
+- tracker de upgrades das câmaras
+- rotinas personalizadas de farm
+- filtros avançados por obtenção, condição, papel e fase
 
-## Dados demo
+### P2 — manutenção e comunidade
+- changelog por versão do jogo
+- indicador automático de páginas possivelmente desatualizadas
+- botão para reportar dado incorreto
+- histórico de revisão de cada entidade
+- suporte PT-BR/EN
 
-Na primeira abertura, o site cria dados de demonstração locais com quatro obras e capítulos. Eles existem só para o projeto abrir funcionalmente sem servidor.
+## Aviso
 
-## Migração futura para backend real
-
-O arquivo `src/api/localBackend.js` concentra o acesso a dados. Para migrar para Supabase, Firebase, PostgreSQL/API própria ou outro backend, mantenha a interface:
-
-- `backend.entities.<Entidade>.list()`
-- `.filter()`
-- `.get()`
-- `.create()`
-- `.update()`
-- `.delete()`
-- `backend.auth.me()`
-- `backend.auth.updateMe()`
-
-Assim as páginas precisam de poucas alterações.
-
-## Roadmap explicitamente pendente no projeto original
-
-- Grupos
-- Pastas/Coleções
-- Abas tipo navegador
-- Refino mobile dedicado
-- Menções @obras/@pessoas
-- Rank/XP E → SSS+
-- Cobertura i18n completa das páginas internas
+Este é um projeto comunitário independente. Pocket Ants e seus elementos pertencem aos respectivos criadores. Dados comunitários podem mudar após atualizações do jogo; por isso a interface identifica fonte e status de verificação.
