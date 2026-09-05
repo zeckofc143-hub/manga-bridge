@@ -1,10 +1,20 @@
 import React, { useMemo, useState } from 'react';
 import { X, Calculator, Clock3, Sparkles, FlaskConical, Info, ExternalLink } from 'lucide-react';
-import { upgradeTables, fusionBaseChance, fusionBodyPartCost, creatureLabFacts } from './upgradeData';
+import {
+  upgradeTables,
+  fusionBaseChance,
+  fusionBodyPartCost,
+  fusionHoneydewBonuses,
+  fusionClanBonuses,
+  fusionTemporaryBonuses,
+  creatureLabFacts
+} from './upgradeData';
 import './advancedPlanner.css';
 
 function formatMinutes(total) {
-  const minutes = Math.max(0, Math.round(total || 0));
+  const value = Math.max(0, Number(total || 0));
+  if (value > 0 && value < 1) return `${Math.round(value * 60)}s`;
+  const minutes = Math.round(value);
   const days = Math.floor(minutes / 1440);
   const hours = Math.floor((minutes % 1440) / 60);
   const mins = minutes % 60;
@@ -15,11 +25,21 @@ function formatMinutes(total) {
   return parts.join(' ');
 }
 
+function targetMetric(final, fallback) {
+  if (final?.soldierLevel != null) return ['Soldado na meta', final.soldierLevel];
+  if (final?.workers != null) return ['Trabalhadoras na meta', final.workers];
+  if (final?.labLevel != null) return ['Creature Lab liberado', final.labLevel];
+  if (final?.storage != null) return ['Capacidade na meta', final.storage.toLocaleString('pt-BR')];
+  return ['Nível final', fallback];
+}
+
 function UpgradeCalculator() {
   const keys = Object.keys(upgradeTables);
   const [tableId, setTableId] = useState('queen');
   const table = upgradeTables[tableId];
-  const [levels, setLevels] = useState({ queen: 1, resin: 0, seed: 0, bodyParts: 0, nursery: 0, honeydew: 0 });
+  const [levels, setLevels] = useState(() => Object.fromEntries(
+    Object.entries(upgradeTables).map(([id, item]) => [id, item.currentMin])
+  ));
   const current = Math.max(table.currentMin, Number(levels[tableId] ?? table.currentMin));
   const [target, setTarget] = useState(12);
   const safeTarget = Math.max(current + 1, Math.min(12, target));
@@ -37,6 +57,8 @@ function UpgradeCalculator() {
     if (target <= min) setTarget(Math.min(12, min + 1));
   };
 
+  const [metricLabel, metricValue] = targetMetric(result.final, safeTarget);
+
   return (
     <div className="adv-card">
       <div className="adv-card-head">
@@ -51,9 +73,16 @@ function UpgradeCalculator() {
       <div className="adv-result-grid">
         <div><span>Upgrades</span><strong>{result.rows.length}</strong></div>
         <div><span>Tempo base</span><strong>{formatMinutes(result.minutes)}</strong></div>
-        <div><span>{result.final?.soldierLevel != null ? 'Soldado na meta' : result.final?.storage != null ? 'Capacidade na meta' : 'Nível final'}</span><strong>{result.final?.soldierLevel ?? result.final?.storage?.toLocaleString('pt-BR') ?? safeTarget}</strong></div>
+        <div><span>{metricLabel}</span><strong>{metricValue}</strong></div>
       </div>
-      <div className="adv-level-list">{result.rows.map(row => <div key={row.level}><span>→ nível {row.level}</span><strong>{formatMinutes(row.minutes)}</strong></div>)}</div>
+      <div className="adv-level-list">
+        {result.rows.map(row => (
+          <div key={row.level}>
+            <span>→ nível {row.level}{row.unlock ? ` · ${row.unlock}` : ''}</span>
+            <strong>{formatMinutes(row.minutes)}</strong>
+          </div>
+        ))}
+      </div>
       <a className="adv-source-link" href={table.sourceUrl} target="_blank" rel="noreferrer">Tabela comunitária verificada em {table.verifiedAt.split('-').reverse().join('/')} <ExternalLink size={12}/></a>
     </div>
   );
@@ -64,35 +93,44 @@ function FusionCalculator() {
   const [targetStars, setTargetStars] = useState(3);
   const [honeydew, setHoneydew] = useState(0);
   const [clan, setClan] = useState(0);
+  const [bluebells, setBluebells] = useState(0);
+  const [rockSkin, setRockSkin] = useState(0);
   const [gem, setGem] = useState(0);
+
   const base = fusionBaseChance[chamberLevel]?.[targetStars] ?? 0;
-  const total = Math.min(100, base + Number(honeydew) + Number(clan) + Number(gem));
+  const bonus = Number(honeydew) + Number(clan) + Number(bluebells) + Number(rockSkin) + Number(gem);
+  const total = Math.min(100, base + bonus);
   const bodyParts = fusionBodyPartCost[targetStars] || 0;
   const expected = total > 0 ? 100 / total : null;
+  const expectedParts = expected ? expected * bodyParts : null;
 
   return (
     <div className="adv-card">
       <div className="adv-card-head">
         <div className="adv-icon"><Sparkles size={19}/></div>
-        <div><span className="adv-kicker">Creature Chamber</span><h3>Chance de fusão</h3></div>
+        <div><span className="adv-kicker">Creatures Chamber</span><h3>Chance de fusão</h3></div>
       </div>
       <div className="adv-fields fusion-fields">
         <label>Nível da Creatures Chamber<select value={chamberLevel} onChange={e=>setChamberLevel(Number(e.target.value))}>{Array.from({length:12},(_,i)=>i+1).map(v=><option key={v} value={v}>{v}</option>)}</select></label>
         <label>Tentar obter<select value={targetStars} onChange={e=>setTargetStars(Number(e.target.value))}><option value={2}>2 estrelas</option><option value={3}>3 estrelas</option><option value={4}>4 estrelas</option></select></label>
-        <label>Bônus Honeydew<select value={honeydew} onChange={e=>setHoneydew(Number(e.target.value))}>{[0,2,3,4,5,6,7,8,9,10].map(v=><option key={v} value={v}>+{v}%</option>)}</select></label>
-        <label>Bônus de clã<select value={clan} onChange={e=>setClan(Number(e.target.value))}><option value={0}>Nenhum</option><option value={2}>+2%</option><option value={3}>+3%</option></select></label>
-        <label>Extra de gemas<select value={gem} onChange={e=>setGem(Number(e.target.value))}><option value={0}>Nenhum</option><option value={25}>+25%</option><option value={50}>+50%</option></select></label>
+        <label>Honeydew Shop<select value={honeydew} onChange={e=>setHoneydew(Number(e.target.value))}>{fusionHoneydewBonuses.map(v=><option key={v} value={v}>{v ? `+${v}%` : 'Nenhum'}</option>)}</select></label>
+        <label>Bônus de clã<select value={clan} onChange={e=>setClan(Number(e.target.value))}>{fusionClanBonuses.map(v=><option key={v} value={v}>{v ? `+${v}%` : 'Nenhum'}</option>)}</select></label>
+        <label>Bluebells (Water 10+)<select value={bluebells} onChange={e=>setBluebells(Number(e.target.value))}><option value={0}>Inativa</option><option value={fusionTemporaryBonuses.bluebells}>+{fusionTemporaryBonuses.bluebells}%</option></select></label>
+        <label>Rock Skin<select value={rockSkin} onChange={e=>setRockSkin(Number(e.target.value))}><option value={0}>Não equipado</option><option value={fusionTemporaryBonuses.rockSkin}>+{fusionTemporaryBonuses.rockSkin}%</option></select></label>
+        <label>Extra de gemas<select value={gem} onChange={e=>setGem(Number(e.target.value))}>{fusionTemporaryBonuses.gems.map(v=><option key={v} value={v}>{v ? `+${v}% (uso único)` : 'Nenhum'}</option>)}</select></label>
       </div>
       <div className="adv-fusion-score">
         <div className="adv-ring" style={{'--fusion': `${total * 3.6}deg`}}><strong>{total}%</strong><span>chance</span></div>
         <div className="adv-fusion-breakdown">
           <div><span>Chance-base</span><strong>{base}%</strong></div>
-          <div><span>Bônus somados</span><strong>+{Number(honeydew)+Number(clan)+Number(gem)}%</strong></div>
+          <div><span>Bônus somados</span><strong>+{bonus}%</strong></div>
           <div><span>Body Parts / tentativa</span><strong>{bodyParts}</strong></div>
           <div><span>Tentativas médias matemáticas*</span><strong>{expected ? expected.toFixed(2) : '—'}</strong></div>
+          <div><span>Body Parts médios matemáticos*</span><strong>{expectedParts ? expectedParts.toFixed(1) : '—'}</strong></div>
+          <div><span>Chance final aplicada</span><strong>{total}%</strong></div>
         </div>
       </div>
-      <p className="adv-note"><Info size={14}/><span>*É só valor esperado matemático, não garantia. Uma fusão de 50% ainda pode falhar várias vezes. A chance-base para 2★/3★/4★ para de aumentar após a Creatures Chamber nível 4.</span></p>
+      <p className="adv-note"><Info size={14}/><span>*Valores esperados são matemática, não garantia. A chance-base para de subir após Creatures Chamber nível 4. Bluebells adiciona +5%, Rock Skin +1%, o bônus de clã pode chegar a +5% e o bônus de gemas é de uso único.</span></p>
     </div>
   );
 }
