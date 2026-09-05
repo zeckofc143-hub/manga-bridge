@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import './creatureAuditRuntime';
 import App from './App';
 import Enhancements from './Enhancements';
 import AdvancedPlanner from './AdvancedPlanner';
