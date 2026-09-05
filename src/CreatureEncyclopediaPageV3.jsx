@@ -287,14 +287,30 @@ const categoryShortcuts = [
   {id:'ally',label:'Pets / Aliados'}
 ];
 
+const RARITY_ORDER = ['Comum','Incomum','Rara','Lendária','Especial'];
+const RARITY_RANK = new Map(RARITY_ORDER.map((rarity,index)=>[rarity,index]));
+
+function creatureOrderRank(creature){
+  if(creature.entityType === 'boss') return 6;
+  if(creature.captureStatus === 'noncapturable') return 7;
+  if(creature.captureStatus === 'ally') return 8;
+  if(creature.category === 'event' || creature.rarity === 'Especial') return 4;
+  return RARITY_RANK.get(creature.rarity) ?? 5;
+}
+
 function EncyclopediaList(){
   const [query,setQuery] = useState('');
   const [shortcut,setShortcut] = useState('all');
   const [rarity,setRarity] = useState('all');
   const [acquisition,setAcquisition] = useState('all');
-  const [sort,setSort] = useState('name');
+  const [sort,setSort] = useState('rarity');
 
-  const rarities = useMemo(()=>['all',...new Set(encyclopediaCreatures.map(c=>c.rarity).filter(Boolean))],[]);
+  const rarities = useMemo(()=>{
+    const present = new Set(encyclopediaCreatures.map(c=>c.rarity).filter(Boolean));
+    const known = RARITY_ORDER.filter(r=>present.has(r));
+    const other = [...present].filter(r=>!RARITY_RANK.has(r)).sort((a,b)=>String(a).localeCompare(String(b),'pt-BR'));
+    return ['all',...known,...other];
+  },[]);
 
   const filtered = useMemo(()=>{
     const q = normalize(query.trim());
@@ -324,7 +340,9 @@ function EncyclopediaList(){
     });
 
     return [...list].sort((a,b)=>{
-      if(sort === 'rarity') return String(a.rarity).localeCompare(String(b.rarity),'pt-BR') || a.name.localeCompare(b.name,'pt-BR');
+      if(sort === 'rarity') {
+        return creatureOrderRank(a)-creatureOrderRank(b) || a.name.localeCompare(b.name,'pt-BR');
+      }
       if(sort === 'newest') {
         const ay = Number(a.eventHistory?.[0]?.match(/\d{4}/)?.[0]) || 0;
         const by = Number(b.eventHistory?.[0]?.match(/\d{4}/)?.[0]) || 0;
@@ -357,7 +375,7 @@ function EncyclopediaList(){
         <div>
           <label><span>Raridade</span><select value={rarity} onChange={e=>setRarity(e.target.value)}>{rarities.map(r=><option key={r} value={r}>{r==='all'?'Todas':r}</option>)}</select></label>
           <label><span>Como consegue</span><select value={acquisition} onChange={e=>setAcquisition(e.target.value)}><option value="all">Todos</option><option value="pheromone">Feromônios</option><option value="event">Evento</option><option value="coop">Co-op / barra</option><option value="world">Mapa / NPC</option></select></label>
-          <label><span>Ordenar</span><select value={sort} onChange={e=>setSort(e.target.value)}><option value="name">Nome A–Z</option><option value="rarity">Raridade</option><option value="newest">Mais recentes</option></select></label>
+          <label><span>Ordenar</span><select value={sort} onChange={e=>setSort(e.target.value)}><option value="rarity">Raridade · comum → lendária</option><option value="name">Nome A–Z</option><option value="newest">Mais recentes</option></select></label>
         </div>
       </details>
     </div>
