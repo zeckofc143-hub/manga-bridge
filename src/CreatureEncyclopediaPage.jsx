@@ -1,8 +1,7 @@
 import React, { useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
 import { Search, ChevronLeft, ChevronRight, ExternalLink, ShieldCheck, AlertTriangle, SlidersHorizontal, Sparkles, MapPin, Clock3, PackageOpen, Swords, Info, ImageOff } from 'lucide-react';
 import './creatureAuditRuntime';
-import { allCatalogCreatures, catalogMeta, acquisitionKind } from './creatureCatalogData';
+import { allCatalogCreatures, acquisitionKind } from './creatureCatalogData';
 import { enrichCreature, nonCapturableCreatures, captureStatusMeta } from './creatureCatalogExtras';
 import './creatureEncyclopedia.css';
 
@@ -111,14 +110,39 @@ function CreatureCard({creature}){
   </a>;
 }
 
+const categoryShortcuts = [
+  {id:'all', label:'Visão geral'},
+  {id:'capturable', label:'Capturáveis'},
+  {id:'special', label:'Especiais / Eventos'},
+  {id:'legendary', label:'Lendárias / Co-op'},
+  {id:'boss', label:'Bosses'},
+  {id:'hostile', label:'Hostis / NPCs'},
+  {id:'ally', label:'Pets / Aliados'}
+];
+
 function EncyclopediaList(){
   const [query,setQuery] = useState('');
   const [status,setStatus] = useState('all');
   const [rarity,setRarity] = useState('all');
   const [acquisition,setAcquisition] = useState('all');
   const [sort,setSort] = useState('name');
+  const [shortcut,setShortcut] = useState('all');
 
   const rarities = useMemo(()=>['all',...new Set(encyclopediaCreatures.map(c=>c.rarity).filter(Boolean))],[]);
+
+  const activateShortcut = (id) => {
+    setShortcut(id);
+    setQuery('');
+    setSort('name');
+    if(id === 'all') { setStatus('all'); setRarity('all'); setAcquisition('all'); return; }
+    if(id === 'capturable') { setStatus('capturable'); setRarity('all'); setAcquisition('all'); return; }
+    if(id === 'special') { setStatus('all'); setRarity('all'); setAcquisition('event'); return; }
+    if(id === 'legendary') { setStatus('direct'); setRarity('all'); setAcquisition('coop'); return; }
+    if(id === 'boss') { setStatus('boss'); setRarity('all'); setAcquisition('all'); return; }
+    if(id === 'hostile') { setStatus('hostile'); setRarity('all'); setAcquisition('world'); return; }
+    if(id === 'ally') { setStatus('ally'); setRarity('all'); setAcquisition('world'); }
+  };
+
   const filtered = useMemo(()=>{
     const q = normalize(query.trim());
     const list = encyclopediaCreatures.filter(c=>{
@@ -127,6 +151,8 @@ function EncyclopediaList(){
         (status === 'capturable' && c.captureStatus === 'capturable') ||
         (status === 'direct' && c.captureStatus === 'direct') ||
         (status === 'boss' && c.entityType === 'boss') ||
+        (status === 'hostile' && c.captureStatus === 'noncapturable' && c.entityType !== 'boss') ||
+        (status === 'ally' && c.captureStatus === 'ally') ||
         (status === 'world' && ['noncapturable','ally'].includes(c.captureStatus));
       const rarityOk = rarity === 'all' || c.rarity === rarity;
       const kind = acquisitionKind(c);
@@ -150,9 +176,13 @@ function EncyclopediaList(){
 
   return <main className="ce-page">
     <section className="ce-hero">
-      <div className="ce-hero-copy"><span className="ce-kicker"><Sparkles size={14}/> Criaturas · navegação principal</span><h1>Enciclopédia de criaturas</h1><p>Uma única base para criaturas normais, especiais, lendárias, bosses, hostis, NPCs e aliados — com descrição revisada e <b>Como obter</b> em todas as fichas.</p></div>
+      <div className="ce-hero-copy"><span className="ce-kicker"><Sparkles size={14}/> Categoria · Criaturas</span><h1>Enciclopédia de criaturas</h1><p>Entre pela categoria Criaturas e escolha uma subárea. A lista completa fica aqui dentro — nunca na página inicial.</p></div>
       <div className="ce-summary"><div><strong>{count}</strong><span>entidades</span></div><div><strong>{specials}</strong><span>especiais</span></div><div><strong>{bosses}</strong><span>bosses</span></div></div>
     </section>
+
+    <nav className="ce-category-tabs" aria-label="Subcategorias de criaturas">
+      {categoryShortcuts.map(item=><button key={item.id} className={shortcut===item.id?'active':''} onClick={()=>activateShortcut(item.id)}>{item.label}</button>)}
+    </nav>
 
     <section className="ce-research-note"><ShieldCheck size={18}/><div><b>Revisão 05/09/2026</b><span>O jogo oficial foi atualizado em 25/08/2026. Dados finos vêm da PocketAnts Wiki; quando páginas comunitárias discordam, a ficha mostra o conflito em vez de inventar uma resposta.</span></div></section>
 
@@ -162,13 +192,13 @@ function EncyclopediaList(){
       <div><Sparkles/><span><b>Especiais:</b> dependem de evento/mini-evento e da barra de atividade correspondente.</span></div>
     </section>
 
-    <details className="ce-filter-shell" open>
-      <summary><SlidersHorizontal size={17}/><span>Pesquisar e filtrar</span><small>{filtered.length} resultados</small></summary>
+    <details className="ce-filter-shell">
+      <summary><SlidersHorizontal size={17}/><span>Filtros avançados</span><small>{filtered.length} resultados</small></summary>
       <div className="ce-filter-grid">
-        <label className="ce-search"><Search size={17}/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Buscar criatura, habilidade, evento, condição..."/></label>
-        <label><span>Tipo</span><select value={status} onChange={e=>setStatus(e.target.value)}><option value="all">Todos</option><option value="capturable">Capturáveis</option><option value="direct">Obtidas direto</option><option value="boss">Bosses</option><option value="world">Hostis / NPCs / aliados</option></select></label>
-        <label><span>Raridade</span><select value={rarity} onChange={e=>setRarity(e.target.value)}>{rarities.map(r=><option key={r} value={r}>{r==='all'?'Todas':r}</option>)}</select></label>
-        <label><span>Como consegue</span><select value={acquisition} onChange={e=>setAcquisition(e.target.value)}><option value="all">Todos os métodos</option><option value="pheromone">Feromônios</option><option value="event">Eventos</option><option value="coop">Co-op / barra</option><option value="world">Mapa / NPC</option></select></label>
+        <label className="ce-search"><Search size={17}/><input value={query} onChange={e=>{setQuery(e.target.value);setShortcut('custom')}} placeholder="Buscar criatura, habilidade, evento, condição..."/></label>
+        <label><span>Tipo</span><select value={status} onChange={e=>{setStatus(e.target.value);setShortcut('custom')}}><option value="all">Todos</option><option value="capturable">Capturáveis</option><option value="direct">Obtidas direto</option><option value="boss">Bosses</option><option value="hostile">Hostis / NPCs</option><option value="ally">Pets / aliados</option></select></label>
+        <label><span>Raridade</span><select value={rarity} onChange={e=>{setRarity(e.target.value);setShortcut('custom')}}>{rarities.map(r=><option key={r} value={r}>{r==='all'?'Todas':r}</option>)}</select></label>
+        <label><span>Como consegue</span><select value={acquisition} onChange={e=>{setAcquisition(e.target.value);setShortcut('custom')}}><option value="all">Todos os métodos</option><option value="pheromone">Feromônios</option><option value="event">Eventos</option><option value="coop">Co-op / barra</option><option value="world">Mapa / NPC</option></select></label>
         <label><span>Ordenar</span><select value={sort} onChange={e=>setSort(e.target.value)}><option value="name">Nome A–Z</option><option value="rarity">Raridade</option><option value="newest">Eventos mais recentes</option></select></label>
       </div>
     </details>
