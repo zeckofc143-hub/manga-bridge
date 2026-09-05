@@ -2,6 +2,7 @@ import React from 'react';
 import { Database, Filter, Search, Rows3 } from 'lucide-react';
 import CreatureEncyclopediaPageV3, { encyclopediaCreatures } from './CreatureEncyclopediaPageV3';
 import { CreatureToolsHub, CreatureRecordPanel } from './CreatureToolsHub';
+import CreatureAdvancedPanel from './CreatureAdvancedPanel';
 import './creatureDatabasePage.css';
 
 export default function CreatureDatabasePage({ routeId = null }) {
@@ -26,6 +27,7 @@ export default function CreatureDatabasePage({ routeId = null }) {
 
     {!routeId && <CreatureToolsHub creatures={encyclopediaCreatures}/>} 
     <CreatureEncyclopediaPageV3 routeId={routeId}/>
+    {routeId && activeCreature && <CreatureAdvancedPanel creature={activeCreature}/>} 
     {routeId && activeCreature && <CreatureRecordPanel creature={activeCreature} creatures={encyclopediaCreatures}/>} 
   </div>;
 }
