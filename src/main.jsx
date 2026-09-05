@@ -9,10 +9,26 @@ const Enhancements = lazy(() => import('./Enhancements'));
 const AdvancedPlanner = lazy(() => import('./AdvancedPlanner'));
 const CommunityResearchHub = lazy(() => import('./CommunityResearchHub'));
 
+function isCreatureDatabaseRoute(){
+  return /^#\/creatures(?:\/|$|\?)/i.test(window.location.hash || '#/');
+}
+
 function DeferredExtras(){
   const [ready,setReady] = useState(false);
+  const [blocked,setBlocked] = useState(()=>isCreatureDatabaseRoute());
 
   useEffect(()=>{
+    const onHashChange = () => setBlocked(isCreatureDatabaseRoute());
+    window.addEventListener('hashchange',onHashChange);
+    return ()=>window.removeEventListener('hashchange',onHashChange);
+  },[]);
+
+  useEffect(()=>{
+    if(blocked){
+      setReady(false);
+      return;
+    }
+
     let timeoutId;
     let idleId;
     const show = () => setReady(true);
@@ -27,9 +43,9 @@ function DeferredExtras(){
       if(idleId && 'cancelIdleCallback' in window) window.cancelIdleCallback(idleId);
       if(timeoutId) window.clearTimeout(timeoutId);
     };
-  },[]);
+  },[blocked]);
 
-  if(!ready) return null;
+  if(blocked || !ready) return null;
   return <Suspense fallback={null}>
     <Enhancements />
     <AdvancedPlanner />
