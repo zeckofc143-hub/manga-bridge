@@ -1,7 +1,8 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { Suspense, lazy, useEffect, useMemo, useState } from 'react';
 import { Menu, Moon, Search, Sun, X } from 'lucide-react';
-import App from './App';
 import CreatureDatabasePage from './CreatureDatabasePage';
+
+const LegacyApp = lazy(() => import('./App'));
 
 const creatureNav = [
   ['#/', 'Início'],
@@ -108,5 +109,5 @@ export default function AppV2(){
   },[route.active]);
 
   if(route.active) return <CreatureDatabaseShell routeId={route.id}/>;
-  return <App/>;
+  return <Suspense fallback={null}><LegacyApp/></Suspense>;
 }
