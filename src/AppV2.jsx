@@ -6,8 +6,9 @@ import ChamberDatabasePage from './ChamberDatabasePage';
 import MechanicDatabasePage from './MechanicDatabasePage';
 import GuideDatabasePage from './GuideDatabasePage';
 import ToolDatabasePage from './ToolDatabasePage';
+import GlobalSearchPage from './GlobalSearchPage';
 import { useLanguage } from './LanguageProviderLite';
-import { DATABASE_KINDS, getDatabaseRoute } from './routeUtils';
+import { DATABASE_KINDS, databaseRouteClass, getDatabaseRoute } from './routeUtils';
 
 const LegacyApp = lazy(() => import('./App'));
 
@@ -27,7 +28,8 @@ const databaseConfig = {
   chambers:{href:'#/chambers',route:'chambers',shell:'chamber-database-shell',main:'chamber-db-main',footer:'chamber-db-footer',search:['Buscar no banco de câmaras...','Search the chamber database...'],aria:['Buscar câmaras','Search chambers']},
   mechanics:{href:'#/mechanics',route:'mechanics',shell:'mechanic-database-shell',main:'mechanic-db-main',footer:'mechanic-db-footer',search:['Buscar mecânica, sistema ou farm...','Search mechanics, systems or farms...'],aria:['Buscar mecânicas','Search mechanics']},
   guides:{href:'#/guides',route:'guides',shell:'guide-database-shell',main:'guide-db-main',footer:'guide-db-footer',search:['Buscar guia, objetivo ou gargalo...','Search guides, goals or bottlenecks...'],aria:['Buscar guias','Search guides']},
-  tools:{href:'#/tools',route:'tools',shell:'tool-database-shell',main:'tool-db-main',footer:'tool-db-footer',search:['Buscar ferramenta, cálculo ou tracker...','Search tools, calculations or trackers...'],aria:['Buscar ferramentas','Search tools']}
+  tools:{href:'#/tools',route:'tools',shell:'tool-database-shell',main:'tool-db-main',footer:'tool-db-footer',search:['Buscar ferramenta, cálculo ou tracker...','Search tools, calculations or trackers...'],aria:['Buscar ferramentas','Search tools']},
+  search:{href:'#/search',route:'search',shell:'search-database-shell',main:'search-db-main',footer:'search-db-footer',search:['Buscar em toda a wiki...','Search the whole wiki...'],aria:['Busca global','Global search']}
 };
 
 function safeGet(key,fallback){
@@ -50,6 +52,7 @@ function DatabaseContent({kind,routeId}){
   if(kind==='mechanics') return <MechanicDatabasePage routeId={routeId}/>;
   if(kind==='guides') return <GuideDatabasePage routeId={routeId}/>;
   if(kind==='tools') return <ToolDatabasePage routeId={routeId}/>;
+  if(kind==='search') return <GlobalSearchPage/>;
   return <CreatureDatabasePage routeId={routeId}/>;
 }
 
@@ -59,6 +62,7 @@ function DatabaseFooter({kind,t}){
   if(kind==='mechanics') return t('Central de Mecânicas · Pocket Ants Wiki BR · sistemas, timers, fluxos e fontes organizadas.','Mechanics Hub · Pocket Ants Wiki EN · systems, timers, flows and sources organized.');
   if(kind==='guides') return t('Central de Guias · Pocket Ants Wiki BR · rotas por fase, objetivo e gargalo.','Guides Hub · Pocket Ants Wiki EN · routes by stage, goal and bottleneck.');
   if(kind==='tools') return t('Central de Ferramentas · Pocket Ants Wiki BR · calculadoras, planners e trackers.','Tools Hub · Pocket Ants Wiki EN · calculators, planners and trackers.');
+  if(kind==='search') return t('Busca Global · Pocket Ants Wiki BR · todas as bases modernas em um único índice.','Global Search · Pocket Ants Wiki EN · every modern database in one index.');
   return t('Banco de Dados de Criaturas · Pocket Ants Wiki BR · dados comunitários revisados e conflitos sinalizados.','Creature Database · Pocket Ants Wiki EN · community data reviewed and conflicts flagged.');
 }
 
@@ -114,9 +118,9 @@ export default function AppV2(){
   const route=useMemo(()=>getDatabaseRoute(hash),[hash]);
 
   useEffect(()=>{
-    for(const kind of DATABASE_KINDS) document.body.classList.toggle(`${kind.slice(0,-1)}-database-route`,route.active&&route.kind===kind);
+    for(const kind of DATABASE_KINDS) document.body.classList.toggle(databaseRouteClass(kind),route.active&&route.kind===kind);
     document.body.classList.remove('encyclopedia-route');
-    return()=>{DATABASE_KINDS.forEach(kind=>document.body.classList.remove(`${kind.slice(0,-1)}-database-route`));};
+    return()=>{DATABASE_KINDS.forEach(kind=>document.body.classList.remove(databaseRouteClass(kind)));};
   },[route.active,route.kind]);
 
   if(route.active) return <DatabaseShell kind={route.kind} routeId={route.id}/>;
