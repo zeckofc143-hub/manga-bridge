@@ -4,7 +4,8 @@ export const DATABASE_KINDS = Object.freeze([
   'chambers',
   'mechanics',
   'guides',
-  'tools'
+  'tools',
+  'search'
 ]);
 
 export const NATIVE_I18N_KINDS = Object.freeze([
@@ -12,8 +13,13 @@ export const NATIVE_I18N_KINDS = Object.freeze([
   'chambers',
   'mechanics',
   'guides',
-  'tools'
+  'tools',
+  'search'
 ]);
+
+const ROUTE_CLASS_STEMS = Object.freeze({
+  creatures:'creature',resources:'resource',chambers:'chamber',mechanics:'mechanic',guides:'guide',tools:'tool',search:'search'
+});
 
 const escapeRegExp = value => String(value).replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
 const databasePattern = DATABASE_KINDS.map(escapeRegExp).join('|');
@@ -37,6 +43,10 @@ export function isNativeI18nRoute(hash=currentHash()){
 
 export function isCreatureRoute(hash=currentHash()){
   return CREATURE_ROUTE_RE.test(hash || '#/');
+}
+
+export function databaseRouteClass(kind){
+  return `${ROUTE_CLASS_STEMS[kind] || kind}-database-route`;
 }
 
 export function getDatabaseRoute(hash=currentHash()){
