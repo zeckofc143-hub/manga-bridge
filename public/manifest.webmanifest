@@ -1,13 +1,38 @@
 {
+  "id": "./",
   "name": "Pocket Ants Wiki BR",
   "short_name": "Ants Wiki",
   "description": "Wiki brasileira de Pocket Ants com guias, criaturas, recursos, câmaras e calculadoras.",
-  "start_url": "./",
+  "start_url": "./#/",
   "scope": "./",
   "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
   "background_color": "#0b100d",
   "theme_color": "#0b100d",
   "lang": "pt-BR",
+  "dir": "ltr",
+  "categories": ["games", "education", "utilities"],
+  "prefer_related_applications": false,
+  "shortcuts": [
+    {
+      "name": "Criaturas",
+      "short_name": "Criaturas",
+      "description": "Abrir o banco de dados de criaturas",
+      "url": "./#/creatures"
+    },
+    {
+      "name": "Guias",
+      "short_name": "Guias",
+      "description": "Abrir os guias de progressão e farm",
+      "url": "./#/guides"
+    },
+    {
+      "name": "Ferramentas",
+      "short_name": "Ferramentas",
+      "description": "Abrir calculadoras e ferramentas da wiki",
+      "url": "./#/tools"
+    }
+  ],
   "icons": [
     {
       "src": "./ant-wiki-icon.svg",
