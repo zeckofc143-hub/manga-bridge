@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 import './creatureAuditRuntime';
 import AppV2 from './AppV2';
 import CreatureLanguageRuntime from './CreatureLanguageRuntime';
+import TranslationCoverage from './TranslationCoverage';
 import { LanguageProvider, SiteSettings } from './i18n';
 import './index.css';
 import './sitePolish.css';
@@ -60,6 +61,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
     <LanguageProvider>
       <AppV2 />
       <CreatureLanguageRuntime />
+      <TranslationCoverage />
       <DeferredExtras />
       <SiteSettings />
     </LanguageProvider>
