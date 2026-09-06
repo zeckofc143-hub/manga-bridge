@@ -20,6 +20,18 @@ function currentCreatureRoute(){
   return match ? { active:true, id:match[1] ? decodeURIComponent(match[1]) : null } : { active:false, id:null };
 }
 
+function PageLoadingState(){
+  return <main className="site-main ux-page-loading" role="status" aria-live="polite" aria-label="Carregando conteúdo">
+    <div className="ux-loading-card">
+      <div className="ux-loading-title" aria-hidden="true"/>
+      <div className="ux-loading-line" aria-hidden="true"/>
+      <div className="ux-loading-line" aria-hidden="true"/>
+      <div className="ux-loading-line" aria-hidden="true"/>
+      <span className="ux-loading-note">Organizando o conteúdo da wiki…</span>
+    </div>
+  </main>;
+}
+
 function CreatureDatabaseShell({ routeId }){
   const [mobileOpen,setMobileOpen] = useState(false);
   const [theme,setTheme] = useState(()=>localStorage.getItem('pa-theme') || 'dark');
@@ -147,5 +159,5 @@ export default function AppV2(){
   },[route.active]);
 
   if(route.active) return <CreatureDatabaseShell routeId={route.id}/>;
-  return <Suspense fallback={null}><LegacyApp/></Suspense>;
+  return <Suspense fallback={<PageLoadingState/>}><LegacyApp/></Suspense>;
 }
