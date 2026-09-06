@@ -2,7 +2,7 @@ import React,{useEffect,useMemo,useState} from 'react';
 import {BookOpen,ExternalLink,Image as ImageIcon,Maximize2} from 'lucide-react';
 import {useLanguage} from './LanguageProviderLite';
 import {siteVisualMedia} from './siteVisualMediaData';
-import {mediaLoadTimeoutMs,robustMediaCandidates} from './mediaCandidateUtils';
+import {robustMediaCandidates} from './mediaCandidateUtils';
 import './siteVisualMedia.css';
 
 const tr=(value,language)=>value&&typeof value==='object'?(language==='en'?(value.en??value.pt):(value.pt??value.en)):value;
@@ -12,27 +12,16 @@ function MediaAsset({item,index,onStatus,compact}){
   const candidates=useMemo(()=>robustMediaCandidates(item.candidates||[]),[item]);
   const [candidate,setCandidate]=useState(0);
   const [failed,setFailed]=useState(false);
-  const [loaded,setLoaded]=useState(false);
   const src=candidates[candidate];
 
-  useEffect(()=>{setCandidate(0);setFailed(false);setLoaded(false);onStatus(index,'loading');},[candidates,index,onStatus]);
-  useEffect(()=>{
-    if(!src||failed||loaded)return;
-    const timer=window.setTimeout(()=>{
-      if(candidate<candidates.length-1){setCandidate(value=>value+1);setLoaded(false);}
-      else{setFailed(true);onStatus(index,'failed');}
-    },mediaLoadTimeoutMs());
-    return()=>window.clearTimeout(timer);
-  },[src,candidate,candidates.length,failed,loaded,index,onStatus]);
-
+  useEffect(()=>{setCandidate(0);setFailed(false);onStatus(index,'loading');},[candidates,index,onStatus]);
   if(!src||failed)return null;
 
   const fail=()=>{
-    setLoaded(false);
     if(candidate<candidates.length-1){setCandidate(value=>value+1);return;}
     setFailed(true);onStatus(index,'failed');
   };
-  const success=()=>{setLoaded(true);onStatus(index,'loaded');};
+  const success=()=>onStatus(index,'loaded');
 
   return <figure className={`svm-item${compact?' compact':''}`}>
     <a className="svm-image-link" href={src} target="_blank" rel="noreferrer" aria-label={t('Abrir captura em tamanho maior','Open larger screenshot')}>
