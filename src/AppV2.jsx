@@ -3,6 +3,7 @@ import { Menu, Moon, Search, Sun, X } from 'lucide-react';
 import CreatureDatabasePage from './CreatureDatabasePage';
 import ResourceDatabasePage from './ResourceDatabasePage';
 import ChamberDatabasePage from './ChamberDatabasePage';
+import MechanicDatabasePage from './MechanicDatabasePage';
 import { useLanguage } from './LanguageProviderLite';
 
 const LegacyApp = lazy(() => import('./App'));
@@ -20,12 +21,13 @@ const mainNav = [
 const databaseConfig = {
   creatures:{href:'#/creatures',route:'creatures',shell:'creature-database-shell',main:'creature-db-main',footer:'creature-db-footer',search:['Buscar no banco de criaturas...','Search the creature database...'],aria:['Buscar criaturas','Search creatures']},
   resources:{href:'#/resources',route:'resources',shell:'resource-database-shell',main:'resource-db-main',footer:'resource-db-footer',search:['Buscar no banco de recursos...','Search the resource database...'],aria:['Buscar recursos','Search resources']},
-  chambers:{href:'#/chambers',route:'chambers',shell:'chamber-database-shell',main:'chamber-db-main',footer:'chamber-db-footer',search:['Buscar no banco de câmaras...','Search the chamber database...'],aria:['Buscar câmaras','Search chambers']}
+  chambers:{href:'#/chambers',route:'chambers',shell:'chamber-database-shell',main:'chamber-db-main',footer:'chamber-db-footer',search:['Buscar no banco de câmaras...','Search the chamber database...'],aria:['Buscar câmaras','Search chambers']},
+  mechanics:{href:'#/mechanics',route:'mechanics',shell:'mechanic-database-shell',main:'mechanic-db-main',footer:'mechanic-db-footer',search:['Buscar mecânica, sistema ou farm...','Search mechanics, systems or farms...'],aria:['Buscar mecânicas','Search mechanics']}
 };
 
 function currentDatabaseRoute(hash){
   const value = hash || window.location.hash || '#/';
-  for(const kind of ['creatures','resources','chambers']){
+  for(const kind of ['creatures','resources','chambers','mechanics']){
     const match = value.match(new RegExp(`^#\\/${kind}(?:\\/([^?/#]+))?`,'i'));
     if(match) return {active:true,kind,id:match[1]?decodeURIComponent(match[1]):null};
   }
@@ -41,12 +43,14 @@ function PageLoadingState(){
 function DatabaseContent({kind,routeId}){
   if(kind==='resources') return <ResourceDatabasePage routeId={routeId}/>;
   if(kind==='chambers') return <ChamberDatabasePage routeId={routeId}/>;
+  if(kind==='mechanics') return <MechanicDatabasePage routeId={routeId}/>;
   return <CreatureDatabasePage routeId={routeId}/>;
 }
 
 function DatabaseFooter({kind,t}){
   if(kind==='resources') return t('Banco de Dados de Recursos · Pocket Ants Wiki BR · obtenção, usos, prioridade e fontes organizadas.','Resource Database · Pocket Ants Wiki EN · acquisition, uses, priority and sources organized.');
   if(kind==='chambers') return t('Central de Câmaras · Pocket Ants Wiki BR · níveis, gargalos, dependências e fontes organizadas.','Chamber Hub · Pocket Ants Wiki EN · levels, bottlenecks, dependencies and sources organized.');
+  if(kind==='mechanics') return t('Central de Mecânicas · Pocket Ants Wiki BR · sistemas, timers, fluxos e fontes organizadas.','Mechanics Hub · Pocket Ants Wiki EN · systems, timers, flows and sources organized.');
   return t('Banco de Dados de Criaturas · Pocket Ants Wiki BR · dados comunitários revisados e conflitos sinalizados.','Creature Database · Pocket Ants Wiki EN · community data reviewed and conflicts flagged.');
 }
 
@@ -98,9 +102,9 @@ export default function AppV2(){
   const route=useMemo(()=>currentDatabaseRoute(hash),[hash]);
 
   useEffect(()=>{
-    for(const kind of ['creatures','resources','chambers']) document.body.classList.toggle(`${kind.slice(0,-1)}-database-route`,route.active&&route.kind===kind);
+    for(const kind of ['creatures','resources','chambers','mechanics']) document.body.classList.toggle(`${kind.slice(0,-1)}-database-route`,route.active&&route.kind===kind);
     document.body.classList.remove('encyclopedia-route');
-    return()=>{document.body.classList.remove('creature-database-route','resource-database-route','chamber-database-route');};
+    return()=>{document.body.classList.remove('creature-database-route','resource-database-route','chamber-database-route','mechanic-database-route');};
   },[route.active,route.kind]);
 
   if(route.active) return <DatabaseShell kind={route.kind} routeId={route.id}/>;
