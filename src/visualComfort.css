@@ -241,6 +241,43 @@ html[data-ux-effects="reduced"] :where(*,*::before,*::after){
     justify-content:center;
     min-height:48px;
   }
+
+  /* Progressive disclosure: cards keep the summary visible and reveal dense secondary details on demand. */
+  .ux-disclosure-card{
+    position:relative;
+    cursor:pointer;
+    padding-bottom:64px!important;
+  }
+  .ux-disclosure-card::after{
+    content:attr(data-ux-disclosure-label);
+    position:absolute;
+    left:14px;
+    right:14px;
+    bottom:12px;
+    min-height:42px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:8px 12px;
+    border:1px solid color-mix(in srgb,var(--accent,#62d889) 34%,var(--line,#2b3c33));
+    border-radius:11px;
+    background:color-mix(in srgb,var(--panel,#132019) 90%,var(--accent,#62d889) 10%);
+    color:var(--text,#eef3ef);
+    font-size:.86rem;
+    font-weight:800;
+    letter-spacing:.005em;
+  }
+  .ux-disclosure-card[aria-expanded="true"]::after{
+    background:color-mix(in srgb,var(--panel,#132019) 96%,transparent);
+    color:color-mix(in srgb,var(--text,#eef3ef) 76%,var(--muted,#9aa8a0));
+  }
+  .ux-disclosure-card[aria-expanded="false"] :where(.resource-columns,ul[hidden]){
+    margin-top:0!important;
+  }
+  .ux-disclosure-card:focus-visible::after{
+    border-color:var(--ux-focus,var(--accent,#62d889));
+  }
+
   .ux-page-loading{min-height:52vh;padding-inline:14px}
 }
 
