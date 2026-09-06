@@ -1,5 +1,5 @@
 import React,{useEffect,useMemo,useState} from 'react';
-import {AlertTriangle,BookOpen,ChevronLeft,ChevronRight,ExternalLink,Filter,Info,Search,ShieldCheck,Sparkles} from 'lucide-react';
+import {AlertTriangle,BookOpen,ChevronLeft,ChevronRight,ExternalLink,Filter,Image as ImageIcon,Info,Search,ShieldCheck,Sparkles} from 'lucide-react';
 import {useLanguage} from './LanguageProviderLite';
 import {REFERENCE_META,REFERENCE_SECTIONS,referenceRecord} from './referenceResearchData';
 import './resourceDatabasePage.css';
@@ -8,6 +8,16 @@ import './referenceDatabasePage.css';
 const tr=(value,language)=>value&&typeof value==='object'?(language==='en'?(value.en??value.pt):(value.pt??value.en)):value;
 const normalize=(value='')=>String(value).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
 const readQuery=()=>new URLSearchParams((window.location.hash.split('?')[1]||'')).get('dbq')||'';
+
+const REFERENCE_VISUALS={
+  'world:environment':{
+    src:'https://pocketants.fandom.com/wiki/Special:Redirect/file/Sandbox_Map_3.png',
+    source:'https://pocketants.fandom.com/wiki/Screenshots_Guide',
+    alt:{pt:'Mapa normal do mundo principal de Pocket Ants',en:'Normal main-world map in Pocket Ants'},
+    title:{pt:'Mapa normal do mundo principal',en:'Normal main-world map'},
+    caption:{pt:'Imagem real do jogo catalogada pela PocketAnts Wiki como “Sandbox Map 3”. Use para localizar visualmente as áreas principais do mapa.',en:'Real in-game image cataloged by the PocketAnts Wiki as “Sandbox Map 3”. Use it to visually locate the main areas of the map.'}
+  }
+};
 
 function confidenceLabel(value,t){
   return ({high:t('Revisado','Reviewed'),medium:t('Parcialmente revisado','Partly reviewed'),review:t('Em revisão','Under review')})[value]||t('Revisado','Reviewed');
@@ -25,6 +35,17 @@ function SourceList({sources,t}){
   return <div className="ref-sources">{sources.map((href,index)=><a key={`${href}-${index}`} href={href} target="_blank" rel="noreferrer"><BookOpen size={14}/>{t('Fonte','Source')} {index+1}<ExternalLink size={11}/></a>)}</div>;
 }
 
+function ReferenceVisual({kind,id,language,t}){
+  const visual=REFERENCE_VISUALS[`${kind}:${id}`];
+  const [failed,setFailed]=useState(false);
+  if(!visual)return null;
+  return <figure className="ref-visual-card">
+    <div className="ref-visual-head"><ImageIcon size={17}/><div><small>{t('Imagem real do jogo','Real in-game image')}</small><b>{tr(visual.title,language)}</b></div></div>
+    {!failed?<a className="ref-visual-image-link" href={visual.src} target="_blank" rel="noreferrer" aria-label={t('Abrir imagem em tamanho maior','Open larger image')}><img src={visual.src} alt={tr(visual.alt,language)} loading="eager" decoding="async" referrerPolicy="no-referrer" onError={()=>setFailed(true)}/></a>:<div className="ref-visual-fallback"><ImageIcon size={26}/><b>{t('A imagem não carregou neste navegador','The image did not load in this browser')}</b><span>{t('Abra a fonte abaixo para ver o arquivo original.','Open the source below to view the original file.')}</span></div>}
+    <figcaption><p>{tr(visual.caption,language)}</p><a href={visual.source} target="_blank" rel="noreferrer"><BookOpen size={14}/>{t('Página-fonte da imagem','Image source page')}<ExternalLink size={11}/></a></figcaption>
+  </figure>;
+}
+
 function ReferenceDetail({kind,id}){
   const {language,t}=useLanguage();
   const section=REFERENCE_SECTIONS[kind];
@@ -39,6 +60,8 @@ function ReferenceDetail({kind,id}){
       <div className="rdb-detail-icon">{item.icon}</div>
       <div className="rdb-detail-copy"><div className="rdb-detail-badges"><span>{categoryLabel(item.category,t)}</span><span><ShieldCheck size={13}/>{confidenceLabel(item.confidence,t)}</span><span>{stageLabel(item.stage,t)}</span></div><h1>{tr(item.title,language)}</h1><p>{tr(item.summary,language)}</p></div>
     </section>
+
+    <ReferenceVisual kind={kind} id={id} language={language} t={t}/>
 
     <section className="ref-scan" aria-label={t('Resumo rápido','Quick summary')}>
       <div className="ref-scan-head"><Sparkles size={17}/><div><small>{t('Em 20 segundos','In 20 seconds')}</small><b>{t('O que vale guardar na cabeça','What is worth remembering')}</b></div></div>
