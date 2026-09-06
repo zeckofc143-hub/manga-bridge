@@ -25,7 +25,7 @@ const AdvancedPlanner = lazy(() => import('./AdvancedPlanner'));
 const CommunityResearchHub = lazy(() => import('./CommunityResearchHub'));
 
 function isDedicatedDatabaseRoute(){
-  return /^#\/(?:creatures|resources)(?:\/|$|\?)/i.test(window.location.hash || '#/');
+  return /^#\/(?:creatures|resources|chambers)(?:\/|$|\?)/i.test(window.location.hash || '#/');
 }
 
 function DeferredExtras(){
@@ -39,27 +39,15 @@ function DeferredExtras(){
   },[]);
 
   useEffect(()=>{
-    if(blocked){
-      setStage(0);
-      return;
-    }
-
-    let idleId;
-    let firstTimer;
-    let secondTimer;
-    let thirdTimer;
+    if(blocked){setStage(0);return;}
+    let idleId;let firstTimer;let secondTimer;let thirdTimer;
     const begin = () => {
       setStage(1);
       secondTimer = window.setTimeout(()=>setStage(2),700);
       thirdTimer = window.setTimeout(()=>setStage(3),1500);
     };
-
-    if('requestIdleCallback' in window){
-      idleId = window.requestIdleCallback(begin,{timeout:2200});
-    }else{
-      firstTimer = window.setTimeout(begin,1200);
-    }
-
+    if('requestIdleCallback' in window) idleId = window.requestIdleCallback(begin,{timeout:2200});
+    else firstTimer = window.setTimeout(begin,1200);
     return ()=>{
       if(idleId && 'cancelIdleCallback' in window) window.cancelIdleCallback(idleId);
       if(firstTimer) window.clearTimeout(firstTimer);
@@ -69,11 +57,7 @@ function DeferredExtras(){
   },[blocked]);
 
   if(blocked || stage===0) return null;
-  return <Suspense fallback={null}>
-    {stage>=1 && <Enhancements />}
-    {stage>=2 && <AdvancedPlanner />}
-    {stage>=3 && <CommunityResearchHub />}
-  </Suspense>;
+  return <Suspense fallback={null}>{stage>=1 && <Enhancements />}{stage>=2 && <AdvancedPlanner />}{stage>=3 && <CommunityResearchHub />}</Suspense>;
 }
 
 ReactDOM.createRoot(document.getElementById('root')).render(
