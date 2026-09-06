@@ -1,0 +1,237 @@
+/* Fluid motion layer for the Creature database.
+   Kept transform/opacity-heavy for mobile performance and disabled when the OS asks for reduced motion. */
+
+:root{
+  --creature-ease:cubic-bezier(.22,.8,.24,1);
+  --creature-ease-snappy:cubic-bezier(.2,.75,.25,1);
+  --creature-fast:160ms;
+  --creature-mid:260ms;
+  --creature-slow:420ms;
+}
+
+@keyframes creature-enter{
+  from{opacity:0;transform:translate3d(0,12px,0) scale(.992)}
+  to{opacity:1;transform:translate3d(0,0,0) scale(1)}
+}
+
+@keyframes creature-fade{
+  from{opacity:0}
+  to{opacity:1}
+}
+
+@keyframes creature-pop{
+  0%{opacity:0;transform:translate3d(0,6px,0) scale(.97)}
+  100%{opacity:1;transform:translate3d(0,0,0) scale(1)}
+}
+
+@keyframes creature-menu-in{
+  from{opacity:0;transform:translate3d(0,-7px,0) scale(.985)}
+  to{opacity:1;transform:translate3d(0,0,0) scale(1)}
+}
+
+.creature-db-root{
+  scroll-behavior:smooth;
+}
+
+.creature-db-identity,
+.cth-root,
+.cap-root,
+.ce3-detail-hero,
+.cth-record{
+  animation:creature-enter var(--creature-slow) var(--creature-ease) both;
+}
+
+.cth-panel,
+.cap-card,
+.ce3-panel,
+.cth-record-grid>article,
+.cth-noncollectible,
+.ce3-empty{
+  animation:creature-pop var(--creature-mid) var(--creature-ease) both;
+}
+
+.cap-grid>.cap-card:nth-child(2),
+.cth-record-grid>article:nth-child(2){animation-delay:35ms}
+.cap-grid>.cap-card:nth-child(3),
+.cth-record-grid>article:nth-child(3){animation-delay:70ms}
+.cap-grid>.cap-card:nth-child(4){animation-delay:105ms}
+.cap-grid>.cap-card:nth-child(5){animation-delay:140ms}
+
+.cth-tabs button,
+.cth-view button,
+.cth-mode button,
+.cth-backup button,
+.cth-progress-cards button,
+.cth-record-actions button,
+.cth-check,
+.cth-heart,
+.cth-golden,
+.cap-stars button,
+.ce3-tabs button,
+.ce3-open,
+.ce3-tutorial,
+.ce3-hero-actions a,
+.ce3-back,
+.creature-db-principles span{
+  transition:
+    transform var(--creature-fast) var(--creature-ease-snappy),
+    background-color var(--creature-mid) ease,
+    border-color var(--creature-mid) ease,
+    color var(--creature-mid) ease,
+    box-shadow var(--creature-mid) ease,
+    opacity var(--creature-mid) ease;
+  -webkit-tap-highlight-color:transparent;
+}
+
+.cth-panel,
+.cap-card,
+.ce3-panel,
+.cth-record-grid>article,
+.cth-subcard,
+.cth-attract,
+.cth-collection-row,
+.cth-summary-grid>div,
+.cth-progress-cards article,
+.ce3-summary>div,
+.ce3-quick-grid>div,
+.ce3-mini-stat{
+  transition:
+    transform var(--creature-mid) var(--creature-ease),
+    border-color var(--creature-mid) ease,
+    background-color var(--creature-mid) ease,
+    box-shadow var(--creature-mid) ease,
+    opacity var(--creature-mid) ease;
+}
+
+.cth-tabs button:active,
+.cth-view button:active,
+.cth-mode button:active,
+.cth-backup button:active,
+.cth-progress-cards button:active,
+.cth-record-actions button:active,
+.cth-check:active,
+.cth-heart:active,
+.cth-golden:active,
+.cap-stars button:active,
+.ce3-tabs button:active,
+.ce3-open:active,
+.ce3-tutorial:active,
+.ce3-hero-actions a:active{
+  transform:scale(.965);
+}
+
+.cth-tabs button.active,
+.cth-view button.active,
+.cth-mode button.active,
+.cth-record-actions button.active,
+.cap-stars button.active,
+.ce3-tabs button.active{
+  box-shadow:0 5px 18px rgba(58,220,140,.10);
+}
+
+.ce3-filters[open]>div{
+  transform-origin:top right;
+  animation:creature-menu-in 190ms var(--creature-ease) both;
+}
+
+.cth-progressbar i,
+.ce3-stat-track i{
+  transition:width var(--creature-slow) var(--creature-ease);
+}
+
+.cap-big-number strong{
+  display:inline-block;
+  animation:creature-pop 210ms var(--creature-ease) both;
+}
+
+.cap-gallery a,
+.ce3-image-host img{
+  animation:creature-fade 300ms ease both;
+}
+
+.cap-gallery a{
+  transition:transform var(--creature-mid) var(--creature-ease),border-color var(--creature-mid) ease,box-shadow var(--creature-mid) ease;
+}
+
+.cap-gallery img,
+.ce3-image-host img{
+  transition:transform var(--creature-slow) var(--creature-ease),opacity var(--creature-mid) ease;
+}
+
+.cth-search:focus-within,
+.ce3-search:focus-within{
+  border-color:color-mix(in srgb,var(--accent,#67dc8d) 60%,var(--border,#2b3b33));
+  box-shadow:0 0 0 3px color-mix(in srgb,var(--accent,#67dc8d) 14%,transparent);
+  transition:border-color var(--creature-mid) ease,box-shadow var(--creature-mid) ease;
+}
+
+.creature-db-root button:focus-visible,
+.creature-db-root a:focus-visible,
+.creature-db-root select:focus-visible,
+.creature-db-root input:focus-visible,
+.creature-db-root summary:focus-visible{
+  outline:2px solid var(--accent,#67dc8d);
+  outline-offset:3px;
+}
+
+@media (hover:hover) and (pointer:fine){
+  .cth-tabs button:hover,
+  .cth-view button:hover,
+  .cth-mode button:hover,
+  .cth-backup button:hover,
+  .cth-record-actions button:hover,
+  .cap-stars button:hover,
+  .ce3-tabs button:hover,
+  .ce3-hero-actions a:hover,
+  .ce3-tutorial:hover{
+    transform:translateY(-1px);
+  }
+
+  .cap-card:hover,
+  .cth-subcard:hover,
+  .cth-progress-cards article:hover{
+    transform:translateY(-2px);
+    border-color:color-mix(in srgb,var(--accent,#67dc8d) 24%,rgba(255,255,255,.08));
+    box-shadow:0 16px 34px rgba(0,0,0,.16);
+  }
+
+  .cap-gallery a:hover{
+    transform:translateY(-2px) scale(1.01);
+    border-color:color-mix(in srgb,var(--accent,#67dc8d) 35%,rgba(255,255,255,.08));
+    box-shadow:0 12px 28px rgba(0,0,0,.20);
+  }
+
+  .cap-gallery a:hover img,
+  .ce3-card-cover:hover .ce3-image-host img{
+    transform:scale(1.025);
+  }
+}
+
+@media(max-width:560px){
+  :root{
+    --creature-fast:140ms;
+    --creature-mid:220ms;
+    --creature-slow:330ms;
+  }
+
+  .creature-db-identity,
+  .cth-root,
+  .cap-root,
+  .ce3-detail-hero,
+  .cth-record{
+    animation-distance:8px;
+  }
+}
+
+@media(prefers-reduced-motion:reduce){
+  .creature-db-root,
+  .creature-db-root *,
+  .creature-db-root *::before,
+  .creature-db-root *::after{
+    animation-duration:.001ms!important;
+    animation-delay:0ms!important;
+    animation-iteration-count:1!important;
+    transition-duration:.001ms!important;
+    scroll-behavior:auto!important;
+  }
+}
