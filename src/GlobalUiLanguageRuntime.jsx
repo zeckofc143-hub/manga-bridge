@@ -19,6 +19,7 @@ function routeTitle(language){
     [/^#\/tools/i,en?'Tools':'Ferramentas'],
     [/^#\/farms/i,'Farms'],
     [/^#\/strategies/i,en?'Strategies':'Estratégias'],
+    [/^#\/clans/i,en?'Clans & Social':'Clãs & Social'],
     [/^#\/world/i,en?'World & Environment':'Mundo & Ambiente'],
     [/^#\/upgrades/i,en?'Shops & Upgrades':'Lojas & Upgrades'],
     [/^#\/events/i,en?'Events & History':'Eventos & Histórico'],
