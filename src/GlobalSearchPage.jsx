@@ -11,6 +11,7 @@ import {GUIDE_RECORDS} from './guideResearchData';
 import {TOOL_RECORDS} from './toolResearchData';
 import {FARM_RECORDS} from './farmResearchData';
 import {STRATEGY_RECORDS} from './strategyResearchData';
+import {CLAN_RECORDS} from './clanResearchData';
 import {REFERENCE_SECTIONS} from './referenceResearchData';
 import './resourceDatabasePage.css';
 import './globalSearchPage.css';
@@ -24,7 +25,7 @@ function queryFromHash(){
 }
 
 function typeLabel(type,t){
-  return ({creature:t('Criatura','Creature'),resource:t('Recurso','Resource'),chamber:t('Câmara','Chamber'),mechanic:t('Mecânica','Mechanic'),guide:t('Guia','Guide'),tool:t('Ferramenta','Tool'),farm:'Farm',strategy:t('Estratégia','Strategy'),world:t('Mundo','World'),upgrades:t('Upgrade','Upgrade'),events:t('Evento','Event'),quests:t('Quest/Recompensa','Quest/Reward')})[type]||type;
+  return ({creature:t('Criatura','Creature'),resource:t('Recurso','Resource'),chamber:t('Câmara','Chamber'),mechanic:t('Mecânica','Mechanic'),guide:t('Guia','Guide'),tool:t('Ferramenta','Tool'),farm:'Farm',strategy:t('Estratégia','Strategy'),clan:t('Clã / Social','Clan / Social'),world:t('Mundo','World'),upgrades:t('Upgrade','Upgrade'),events:t('Evento','Event'),quests:t('Quest/Recompensa','Quest/Reward')})[type]||type;
 }
 
 function buildIndex(language){
@@ -40,8 +41,9 @@ function buildIndex(language){
   const tools=TOOL_RECORDS.map(item=>({id:`tool:${item.id}`,type:'tool',icon:item.icon,title:tr(item.title,language),text:tr(item.desc,language),extra:`${item.keywords||''} ${item.category||''} ${tr(item.outcome,language)||''}`,path:`#/tools/${item.id}`}));
   const farms=FARM_RECORDS.map(item=>({id:`farm:${item.id}`,type:'farm',icon:item.icon,title:tr(item.name,language),text:tr(item.summary,language),extra:[item.category,item.stage,item.confidence,...(item.facts||[]).map(v=>tr(v,language)),...(item.communityTips||[]).map(v=>tr(v,language))].join(' '),path:`#/farms/${item.id}`}));
   const strategies=STRATEGY_RECORDS.map(item=>({id:`strategy:${item.id}`,type:'strategy',icon:item.icon,title:tr(item.title,language),text:tr(item.summary,language),extra:[item.category,item.stage,item.status,...(item.actions||[]).map(v=>tr(v,language)),...(item.why||[]).map(v=>tr(v,language))].join(' '),path:`#/strategies/${item.id}`}));
+  const clans=CLAN_RECORDS.map(item=>({id:`clan:${item.id}`,type:'clan',icon:item.icon,title:tr(item.title,language),text:tr(item.summary,language),extra:[item.category,...(item.facts||[]).map(v=>tr(v,language)),'guild guilda clan clã social donation doação bonus bônus war guerra coop'].join(' '),path:`#/clans/${item.id}`}));
   const references=Object.entries(REFERENCE_SECTIONS).flatMap(([kind,section])=>section.records.map(item=>({id:`${kind}:${item.id}`,type:kind,icon:item.icon,title:tr(item.title,language),text:tr(item.summary,language),extra:[item.category,item.stage,item.confidence,...(item.facts||[]).map(v=>tr(v,language)),...(item.details||[]).map(v=>tr(v,language))].join(' '),path:`#/${kind}/${item.id}`})));
-  return [...creatures,...resources,...chambers,...mechanics,...guides,...tools,...farms,...strategies,...references];
+  return [...creatures,...resources,...chambers,...mechanics,...guides,...tools,...farms,...strategies,...clans,...references];
 }
 
 function scoreItem(item,tokens){
@@ -78,8 +80,8 @@ export default function GlobalSearchPage(){
   },[index,query,language]);
 
   const suggestions=language==='en'
-    ? [['resin farm','Resin farm'],['garden flowers','Garden flowers'],['daily rewards','Daily rewards'],['gem shop','Gem Shop'],['events 2026','Events 2026'],['clan wars','Clan Wars']]
-    : [['farm resina','Farm de Resin'],['flores garden','Flores do Garden'],['recompensas diárias','Recompensas diárias'],['gem shop','Gem Shop'],['eventos 2026','Eventos 2026'],['clan wars','Clan Wars']];
+    ? [['resin farm','Resin farm'],['clan donations','Clan donations'],['clan bonuses','Clan bonuses'],['garden flowers','Garden flowers'],['daily rewards','Daily rewards'],['clan wars','Clan Wars']]
+    : [['farm resina','Farm de Resin'],['doação clã','Doações de clã'],['bônus clã','Bônus do clã'],['flores garden','Flores do Garden'],['recompensas diárias','Recompensas diárias'],['clan wars','Clan Wars']];
 
   const submit=event=>{
     event.preventDefault();
@@ -95,17 +97,17 @@ export default function GlobalSearchPage(){
   return <div className="rdb-page gs-page">
     <section className="rdb-identity gs-identity">
       <div className="rdb-title-row"><span className="rdb-db-icon"><Search size={22}/></span><div><span className="rdb-kicker">{t('Busca unificada','Unified search')}</span><h1>{t('Busca Global','Global Search')}</h1></div></div>
-      <p>{t('Pesquisa todas as áreas modernas: Criaturas, Recursos, Câmaras, Mecânicas, Guias, Ferramentas, Farms, Estratégias, Mundo, Upgrades, Eventos e Quests.','Searches every modern area: Creatures, Resources, Chambers, Mechanics, Guides, Tools, Farms, Strategies, World, Upgrades, Events and Quests.')}</p>
-      <div className="rdb-principles"><span><Sparkles size={15}/>{t('Dados atuais','Current data')}</span><span><BookOpen size={15}/>{t('12 áreas em um índice','12 areas in one index')}</span></div>
+      <p>{t('Pesquisa todas as áreas modernas: Criaturas, Recursos, Câmaras, Mecânicas, Guias, Ferramentas, Farms, Estratégias, Clãs, Mundo, Upgrades, Eventos e Quests.','Searches every modern area: Creatures, Resources, Chambers, Mechanics, Guides, Tools, Farms, Strategies, Clans, World, Upgrades, Events and Quests.')}</p>
+      <div className="rdb-principles"><span><Sparkles size={15}/>{t('Dados atuais','Current data')}</span><span><BookOpen size={15}/>{t('13 áreas em um índice','13 areas in one index')}</span></div>
     </section>
 
     <form className="gs-search" onSubmit={submit} role="search">
-      <Search size={20} aria-hidden="true"/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder={t('Ex.: Garden, Resin, Daily Rewards, Fire Ant Nest…','E.g.: Garden, Resin, Daily Rewards, Fire Ant Nest…')} aria-label={t('Buscar em toda a wiki','Search the whole wiki')} autoComplete="off" enterKeyHint="search" inputMode="search"/>
+      <Search size={20} aria-hidden="true"/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder={t('Ex.: Resin, doação do clã, Garden, Daily Rewards…','E.g.: Resin, clan donations, Garden, Daily Rewards…')} aria-label={t('Buscar em toda a wiki','Search the whole wiki')} autoComplete="off" enterKeyHint="search" inputMode="search"/>
       <div className="gs-search-actions">{query&&<button className="gs-clear" type="button" onClick={clear} aria-label={t('Limpar busca','Clear search')} title={t('Limpar','Clear')}><X size={17}/></button>}<button className="gs-submit" type="submit">{t('Buscar','Search')}</button></div>
     </form>
 
     {!query.trim()&&<section className="gs-start" aria-label={t('Buscas rápidas','Quick searches')}><span>{t('Comece por algo comum','Start with something common')}</span><div>{suggestions.map(([q,label])=><a key={q} href={`#/search?q=${encodeURIComponent(q)}`}>{label}</a>)}</div></section>}
-    {query.trim()?<div className="gs-count"><b>{results.length}</b> {t('resultados','results')}</div>:<div className="gs-hint">{t('Busque recurso, criatura, mapa, loja, evento, quest, farm, estratégia ou ferramenta.','Search for a resource, creature, map, shop, event, quest, farm, strategy or tool.')}</div>}
+    {query.trim()?<div className="gs-count"><b>{results.length}</b> {t('resultados','results')}</div>:<div className="gs-hint">{t('Busque recurso, criatura, clã, mapa, loja, evento, quest, farm, estratégia ou ferramenta.','Search for a resource, creature, clan, map, shop, event, quest, farm, strategy or tool.')}</div>}
 
     {results.length>0&&<section className="gs-results">{results.map(item=><a href={item.path} key={item.id} className="gs-result"><span className="gs-icon">{item.icon||'🐜'}</span><div><small>{typeLabel(item.type,t)}</small><strong>{item.title}</strong><p>{item.text||t('Abrir ficha','Open profile')}</p></div><ChevronRight size={18}/></a>)}</section>}
     {query.trim()&&results.length===0&&<div className="rdb-empty"><Search size={28}/><b>{t('Nada encontrado','Nothing found')}</b><span>{t('Tente outro nome, termo ou objetivo.','Try another name, term or goal.')}</span></div>}
