@@ -9,6 +9,8 @@ import {CHAMBER_RECORDS} from './chamberResearchData';
 import {MECHANIC_RECORDS} from './mechanicResearchData';
 import {GUIDE_RECORDS} from './guideResearchData';
 import {TOOL_RECORDS} from './toolResearchData';
+import {FARM_RECORDS} from './farmResearchData';
+import {STRATEGY_RECORDS} from './strategyResearchData';
 import './resourceDatabasePage.css';
 import './globalSearchPage.css';
 
@@ -21,7 +23,7 @@ function queryFromHash(){
 }
 
 function typeLabel(type,t){
-  return ({creature:t('Criatura','Creature'),resource:t('Recurso','Resource'),chamber:t('Câmara','Chamber'),mechanic:t('Mecânica','Mechanic'),guide:t('Guia','Guide'),tool:t('Ferramenta','Tool')})[type]||type;
+  return ({creature:t('Criatura','Creature'),resource:t('Recurso','Resource'),chamber:t('Câmara','Chamber'),mechanic:t('Mecânica','Mechanic'),guide:t('Guia','Guide'),tool:t('Ferramenta','Tool'),farm:'Farm',strategy:t('Estratégia','Strategy')})[type]||type;
 }
 
 function buildIndex(language){
@@ -35,7 +37,9 @@ function buildIndex(language){
   const mechanics=MECHANIC_RECORDS.map(item=>({id:`mechanic:${item.id}`,type:'mechanic',icon:item.icon,title:tr(item.name,language),text:tr(item.summary,language),extra:[item.category,item.stage,item.kind,item.search,...(item.facts||[]).map(v=>tr(v,language))].join(' '),path:`#/mechanics/${item.id}`}));
   const guides=GUIDE_RECORDS.map(item=>({id:`guide:${item.id}`,type:'guide',icon:item.icon,title:tr(item.title,language),text:tr(item.summary,language),extra:[item.category,item.stage,tr(item.outcome,language),...(item.steps||[]).map(v=>tr(v,language))].join(' '),path:`#/guides/${item.id}`}));
   const tools=TOOL_RECORDS.map(item=>({id:`tool:${item.id}`,type:'tool',icon:item.icon,title:tr(item.title,language),text:tr(item.desc,language),extra:`${item.keywords||''} ${item.category||''} ${tr(item.outcome,language)||''}`,path:`#/tools/${item.id}`}));
-  return [...creatures,...resources,...chambers,...mechanics,...guides,...tools];
+  const farms=FARM_RECORDS.map(item=>({id:`farm:${item.id}`,type:'farm',icon:item.icon,title:tr(item.name,language),text:tr(item.summary,language),extra:[item.category,item.stage,item.confidence,...(item.facts||[]).map(v=>tr(v,language)),...(item.communityTips||[]).map(v=>tr(v,language))].join(' '),path:`#/farms/${item.id}`}));
+  const strategies=STRATEGY_RECORDS.map(item=>({id:`strategy:${item.id}`,type:'strategy',icon:item.icon,title:tr(item.title,language),text:tr(item.summary,language),extra:[item.category,item.stage,item.status,...(item.actions||[]).map(v=>tr(v,language)),...(item.why||[]).map(v=>tr(v,language))].join(' '),path:`#/strategies/${item.id}`}));
+  return [...creatures,...resources,...chambers,...mechanics,...guides,...tools,...farms,...strategies];
 }
 
 function scoreItem(item,tokens){
@@ -72,8 +76,8 @@ export default function GlobalSearchPage(){
   },[index,query,language]);
 
   const suggestions=language==='en'
-    ? [['resin','Resin'],['fusion','Fusion'],['frog','Frog'],['battle tokens','Battle Tokens'],['queen','Queen'],['collection','Collection']]
-    : [['resina','Resina'],['fusão','Fusão'],['frog','Frog'],['battle tokens','Battle Tokens'],['queen','Queen'],['coleção','Coleção']];
+    ? [['resin farm','Resin farm'],['gems','Gems'],['clan wars','Clan Wars'],['fusion','Fusion'],['frog','Frog'],['beginner','Beginner']]
+    : [['farm resina','Farm de Resin'],['gems','Gems'],['clan wars','Clan Wars'],['fusão','Fusão'],['frog','Frog'],['iniciante','Iniciante']];
 
   const submit=event=>{
     event.preventDefault();
@@ -89,17 +93,17 @@ export default function GlobalSearchPage(){
   return <div className="rdb-page gs-page">
     <section className="rdb-identity gs-identity">
       <div className="rdb-title-row"><span className="rdb-db-icon"><Search size={22}/></span><div><span className="rdb-kicker">{t('Busca unificada','Unified search')}</span><h1>{t('Busca Global','Global Search')}</h1></div></div>
-      <p>{t('Pesquisa as bases atuais de Criaturas, Recursos, Câmaras, Mecânicas, Guias e Ferramentas — já no idioma selecionado.','Searches the current Creatures, Resources, Chambers, Mechanics, Guides and Tools databases — in the selected language.')}</p>
-      <div className="rdb-principles"><span><Sparkles size={15}/>{t('Dados atuais','Current data')}</span><span><BookOpen size={15}/>{t('Todas as categorias','All categories')}</span></div>
+      <p>{t('Pesquisa Criaturas, Recursos, Câmaras, Mecânicas, Guias, Ferramentas, Farms e Estratégias — tudo no idioma selecionado.','Searches Creatures, Resources, Chambers, Mechanics, Guides, Tools, Farms and Strategies — all in the selected language.')}</p>
+      <div className="rdb-principles"><span><Sparkles size={15}/>{t('Dados atuais','Current data')}</span><span><BookOpen size={15}/>{t('8 bases em um índice','8 databases in one index')}</span></div>
     </section>
 
     <form className="gs-search" onSubmit={submit} role="search">
-      <Search size={20} aria-hidden="true"/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder={t('Ex.: resina, escorpião, fusão, clã…','E.g.: resin, scorpion, fusion, clan…')} aria-label={t('Buscar em toda a wiki','Search the whole wiki')} autoComplete="off" enterKeyHint="search" inputMode="search"/>
+      <Search size={20} aria-hidden="true"/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder={t('Ex.: farm resina, Gems, escorpião, defesa, clã…','E.g.: resin farm, Gems, scorpion, defense, clan…')} aria-label={t('Buscar em toda a wiki','Search the whole wiki')} autoComplete="off" enterKeyHint="search" inputMode="search"/>
       <div className="gs-search-actions">{query&&<button className="gs-clear" type="button" onClick={clear} aria-label={t('Limpar busca','Clear search')} title={t('Limpar','Clear')}><X size={17}/></button>}<button className="gs-submit" type="submit">{t('Buscar','Search')}</button></div>
     </form>
 
     {!query.trim()&&<section className="gs-start" aria-label={t('Buscas rápidas','Quick searches')}><span>{t('Comece por algo comum','Start with something common')}</span><div>{suggestions.map(([q,label])=><a key={q} href={`#/search?q=${encodeURIComponent(q)}`}>{label}</a>)}</div></section>}
-    {query.trim()?<div className="gs-count"><b>{results.length}</b> {t('resultados','results')}</div>:<div className="gs-hint">{t('Digite um recurso, criatura, sistema, objetivo ou ferramenta.','Type a resource, creature, system, goal or tool.')}</div>}
+    {query.trim()?<div className="gs-count"><b>{results.length}</b> {t('resultados','results')}</div>:<div className="gs-hint">{t('Busque recurso, criatura, farm, sistema, dica, objetivo ou ferramenta.','Search for a resource, creature, farm, system, tip, goal or tool.')}</div>}
 
     {results.length>0&&<section className="gs-results">{results.map(item=><a href={item.path} key={item.id} className="gs-result"><span className="gs-icon">{item.icon||'🐜'}</span><div><small>{typeLabel(item.type,t)}</small><strong>{item.title}</strong><p>{item.text||t('Abrir ficha','Open profile')}</p></div><ChevronRight size={18}/></a>)}</section>}
     {query.trim()&&results.length===0&&<div className="rdb-empty"><Search size={28}/><b>{t('Nada encontrado','Nothing found')}</b><span>{t('Tente outro nome, termo ou objetivo.','Try another name, term or goal.')}</span></div>}
