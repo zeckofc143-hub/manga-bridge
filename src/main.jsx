@@ -14,6 +14,7 @@ import './sitePolish.css';
 import './uxProfessional.css';
 import './visualComfort.css';
 import './interactionMotion.css';
+import './responsiveComfort.css';
 
 const Enhancements = lazy(() => import('./Enhancements'));
 const AdvancedPlanner = lazy(() => import('./AdvancedPlanner'));
