@@ -26,22 +26,34 @@ function SourceList({sources,t}){
   return <div className="ref-sources">{sources.map((href,index)=><a key={`${href}-${index}`} href={href} target="_blank" rel="noreferrer"><BookOpen size={14}/>{t('Fonte','Source')} {index+1}<ExternalLink size={11}/></a>)}</div>;
 }
 
-function ReferenceMedia({media,language,t}){
-  const [src,setSrc]=useState(media?.image||'');
+function MediaTile({item,language,t}){
+  const sources=item?.candidates?.length?item.candidates:[item?.image].filter(Boolean);
+  const [index,setIndex]=useState(0);
   const [failed,setFailed]=useState(false);
-  useEffect(()=>{setSrc(media?.image||'');setFailed(false);},[media]);
-  if(!media)return null;
-
+  useEffect(()=>{setIndex(0);setFailed(false);},[item]);
+  if(!item)return null;
+  const src=sources[index]||item.image||'';
   const onError=()=>{
-    if(media.fallback&&src!==media.fallback){setSrc(media.fallback);return;}
+    if(index<sources.length-1){setIndex(value=>value+1);return;}
     setFailed(true);
   };
+  return <article className="ref-media-tile">
+    {!failed&&src?<a className="ref-media-image-link" href={src} target="_blank" rel="noreferrer" aria-label={t('Abrir imagem em tamanho maior','Open larger image')}><img src={src} alt={tr(item.alt,language)} loading="lazy" decoding="async" onError={onError}/></a>:<div className="ref-media-fallback"><ImageIcon size={24}/><b>{t('Prévia indisponível','Preview unavailable')}</b><span>{t('Use o link da fonte para ver a imagem original.','Use the source link to view the original image.')}</span></div>}
+    <div className="ref-media-copy"><p>{tr(item.caption,language)}</p><div className="ref-media-links">{!failed&&src&&<a href={src} target="_blank" rel="noreferrer"><ImageIcon size={13}/>{t('Ampliar','Enlarge')}</a>}{item.source&&<a href={item.source} target="_blank" rel="noreferrer"><BookOpen size={13}/>{tr(item.sourceLabel,language)||t('Fonte','Source')}<ExternalLink size={10}/></a>}</div></div>
+  </article>;
+}
 
-  return <figure className={`ref-visual-card${media.featured?' ref-visual-featured':''}`}>
-    <div className="ref-visual-head"><ImageIcon size={17}/><div><small>{t('Imagem real do jogo','Real in-game image')}</small><b>{tr(media.sourceLabel,language)||t('Referência visual','Visual reference')}</b></div></div>
-    {!failed?<a className="ref-visual-image-link" href={media.image} target="_blank" rel="noreferrer" aria-label={t('Abrir imagem em tamanho maior','Open larger image')}><img src={src} alt={tr(media.alt,language)} loading={media.featured?'eager':'lazy'} decoding="async" fetchPriority={media.featured?'high':'auto'} onError={onError}/></a>:<div className="ref-visual-fallback"><ImageIcon size={26}/><b>{t('A prévia não carregou neste navegador','The preview did not load in this browser')}</b><span>{t('A fonte continua disponível no botão abaixo.','The source is still available through the button below.')}</span></div>}
-    <figcaption><div><p>{tr(media.caption,language)}</p><small>{t('Imagem real/documentada — nenhuma imagem desta seção foi gerada por IA.','Real/documented image — no image in this section was AI-generated.')}</small></div><div className="ref-visual-actions"><a href={media.image} target="_blank" rel="noreferrer"><ImageIcon size={14}/>{t('Abrir imagem','Open image')}</a>{media.source&&<a href={media.source} target="_blank" rel="noreferrer"><BookOpen size={14}/>{t('Ver fonte','View source')}<ExternalLink size={11}/></a>}</div></figcaption>
-  </figure>;
+function ReferenceMedia({media,language,t}){
+  if(!media)return null;
+  const groups=media.groups?.length?media.groups:[{title:media.sourceLabel||t('Referência visual','Visual reference'),items:[media]}];
+  return <section className={`ref-visual-library${media.featured?' ref-visual-featured':''}`} aria-label={t('Referências visuais reais','Real visual references')}>
+    <div className="ref-visual-library-head"><ImageIcon size={18}/><div><small>{t('Referências visuais do jogo','In-game visual references')}</small><b>{t('Imagens reais e documentadas','Real documented images')}</b></div></div>
+    <div className="ref-media-groups">{groups.map((group,index)=><section className="ref-media-group" key={index}>
+      <div className="ref-media-group-head"><b>{tr(group.title,language)}</b>{group.note&&<p>{tr(group.note,language)}</p>}</div>
+      <div className="ref-media-strip">{group.items.map((item,itemIndex)=><MediaTile key={`${index}-${itemIndex}`} item={item} language={language} t={t}/>)}</div>
+    </section>)}</div>
+    <p className="ref-media-note">{t('As imagens vêm das páginas/fontes indicadas e são usadas como referência visual do conteúdo.','Images come from the indicated pages/sources and are used as visual references for the content.')}</p>
+  </section>;
 }
 
 function ReferenceDetail({kind,id}){
