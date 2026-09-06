@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { Check, Eye, Languages, Settings, X } from 'lucide-react';
 import { creatureDescription, creatureName } from './i18nCore';
 import './settings.css';
@@ -13,9 +13,16 @@ const defaultComfort = {
   effects: 'normal'
 };
 
+function safeGet(key,fallback=null){
+  try{return localStorage.getItem(key) ?? fallback;}catch{return fallback;}
+}
+function safeSet(key,value){
+  try{localStorage.setItem(key,value);}catch{}
+}
+function readLanguage(){ return safeGet(STORAGE_KEY)==='en' ? 'en' : 'pt'; }
 function readComfort(){
   try{
-    const parsed = JSON.parse(localStorage.getItem(COMFORT_KEY) || '{}');
+    const parsed = JSON.parse(safeGet(COMFORT_KEY,'{}') || '{}');
     return {
       text: parsed.text === 'large' ? 'large' : 'standard',
       density: parsed.density === 'compact' ? 'compact' : 'comfortable',
@@ -27,24 +34,30 @@ function readComfort(){
 }
 
 export function LanguageProvider({ children }) {
-  const [language,setLanguageState] = useState(()=>localStorage.getItem(STORAGE_KEY) === 'en' ? 'en' : 'pt');
-  const setLanguage = next => setLanguageState(next === 'en' ? 'en' : 'pt');
+  const [language,setLanguageState] = useState(readLanguage);
+  const setLanguage = useCallback(next=>setLanguageState(next === 'en' ? 'en' : 'pt'),[]);
+  const t = useCallback((pt,en)=>language === 'en' ? (en ?? pt) : pt,[language]);
+  const name = useCallback((id,fallback)=>creatureName(id,fallback,language),[language]);
+  const description = useCallback((id,fallback)=>creatureDescription(id,fallback,language),[language]);
 
   useEffect(()=>{
-    localStorage.setItem(STORAGE_KEY,language);
+    safeSet(STORAGE_KEY,language);
     document.documentElement.lang = language === 'en' ? 'en' : 'pt-BR';
     document.documentElement.dataset.language = language;
     window.dispatchEvent(new CustomEvent('pa:language',{detail:{language}}));
   },[language]);
 
-  const value = useMemo(()=>({
-    language,
-    setLanguage,
-    t:(pt,en)=>language === 'en' ? (en ?? pt) : pt,
-    name:(id,fallback)=>creatureName(id,fallback,language),
-    description:(id,fallback)=>creatureDescription(id,fallback,language)
-  }),[language]);
+  useEffect(()=>{
+    const onStorage=event=>{
+      if(event.key!==STORAGE_KEY) return;
+      const next=event.newValue==='en'?'en':'pt';
+      setLanguageState(current=>current===next?current:next);
+    };
+    window.addEventListener('storage',onStorage);
+    return()=>window.removeEventListener('storage',onStorage);
+  },[]);
 
+  const value = useMemo(()=>({language,setLanguage,t,name,description}),[language,setLanguage,t,name,description]);
   return <LanguageContext.Provider value={value}>{children}</LanguageContext.Provider>;
 }
 
@@ -61,16 +74,21 @@ export function SiteSettings(){
 
   useEffect(()=>{
     if(!open) return;
+    const previousOverflow=document.body.style.overflow;
+    document.body.style.overflow='hidden';
     const onKey = e => { if(e.key === 'Escape') setOpen(false); };
     window.addEventListener('keydown',onKey);
-    return ()=>window.removeEventListener('keydown',onKey);
+    return ()=>{
+      document.body.style.overflow=previousOverflow;
+      window.removeEventListener('keydown',onKey);
+    };
   },[open]);
 
   useEffect(()=>{
     document.documentElement.dataset.uxText = comfort.text;
     document.documentElement.dataset.uxDensity = comfort.density;
     document.documentElement.dataset.uxEffects = comfort.effects;
-    try{ localStorage.setItem(COMFORT_KEY,JSON.stringify(comfort)); }catch{}
+    safeSet(COMFORT_KEY,JSON.stringify(comfort));
   },[comfort]);
 
   const updateComfort = (key,value) => setComfort(current=>({...current,[key]:value}));
