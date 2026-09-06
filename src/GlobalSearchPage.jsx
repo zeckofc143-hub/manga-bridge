@@ -8,18 +8,9 @@ import {RESOURCE_RECORDS} from './resourceResearchData';
 import {CHAMBER_RECORDS} from './chamberResearchData';
 import {MECHANIC_RECORDS} from './mechanicResearchData';
 import {GUIDE_RECORDS} from './guideResearchData';
+import {TOOL_RECORDS} from './toolResearchData';
 import './resourceDatabasePage.css';
 import './globalSearchPage.css';
-
-const TOOL_RECORDS=[
-  {id:'fusion',icon:'🧬',name:{pt:'Calculadora de fusão',en:'Fusion calculator'},summary:{pt:'Chance de fusão com Chamber, Honeydew, Clan, flores, skin e Gems.',en:'Fusion chance with Chamber, Honeydew, Clan, flowers, skin and Gems.'}},
-  {id:'queen-resin',icon:'👑',name:{pt:'Planner Queen ↔ Resin',en:'Queen ↔ Resin planner'},summary:{pt:'Custos, tempo e capacidade de Resin necessária para subir a Queen.',en:'Costs, time and Resin capacity required to upgrade the Queen.'}},
-  {id:'farm',icon:'🌾',name:{pt:'Planejador de farm',en:'Farm planner'},summary:{pt:'Estime runs e tempo usando sua média real.',en:'Estimate runs and time using your real average.'}},
-  {id:'battle-tokens',icon:'🎟️',name:{pt:'Planner de Battle Tokens',en:'Battle Token planner'},summary:{pt:'Planeje entradas, saldo e reset diário.',en:'Plan entries, balance and daily reset.'}},
-  {id:'daily',icon:'📅',name:{pt:'Ganhos diários',en:'Daily gains'},summary:{pt:'Some recompensas fixas das rotinas diárias e co-ops.',en:'Add fixed rewards from daily routines and co-ops.'}},
-  {id:'legions',icon:'🛡️',name:{pt:'Planner de Legions',en:'Legions planner'},summary:{pt:'Calcule Resin e Silk para slots e novas espécies.',en:'Calculate Resin and Silk for slots and new ant species.'}},
-  {id:'collection',icon:'🪲',name:{pt:'Tracker de coleção',en:'Collection tracker'},summary:{pt:'Marque criaturas obtidas e acompanhe sua coleção.',en:'Mark owned creatures and track your collection.'}}
-];
 
 const tr=(value,language)=>value&&typeof value==='object'?(language==='en'?(value.en??value.pt):(value.pt??value.en)):value;
 const normalize=(value='')=>String(value).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
@@ -43,7 +34,7 @@ function buildIndex(language){
   const chambers=CHAMBER_RECORDS.map(item=>({id:`chamber:${item.id}`,type:'chamber',icon:item.icon,title:tr(item.name,language),text:tr(item.summary,language),extra:[item.category,item.priority,item.stage,...(item.effects||[]).map(v=>tr(v,language))].join(' '),path:`#/chambers/${item.id}`}));
   const mechanics=MECHANIC_RECORDS.map(item=>({id:`mechanic:${item.id}`,type:'mechanic',icon:item.icon,title:tr(item.name,language),text:tr(item.summary,language),extra:[item.category,item.stage,item.kind,item.search,...(item.facts||[]).map(v=>tr(v,language))].join(' '),path:`#/mechanics/${item.id}`}));
   const guides=GUIDE_RECORDS.map(item=>({id:`guide:${item.id}`,type:'guide',icon:item.icon,title:tr(item.title,language),text:tr(item.summary,language),extra:[item.category,item.stage,tr(item.outcome,language),...(item.steps||[]).map(v=>tr(v,language))].join(' '),path:`#/guides/${item.id}`}));
-  const tools=TOOL_RECORDS.map(item=>({id:`tool:${item.id}`,type:'tool',icon:item.icon,title:tr(item.name,language),text:tr(item.summary,language),extra:item.id.replaceAll('-',' '),path:`#/tools/${item.id}`}));
+  const tools=TOOL_RECORDS.map(item=>({id:`tool:${item.id}`,type:'tool',icon:item.icon,title:tr(item.title,language),text:tr(item.desc,language),extra:`${item.keywords||''} ${item.category||''} ${tr(item.outcome,language)||''}`,path:`#/tools/${item.id}`}));
   return [...creatures,...resources,...chambers,...mechanics,...guides,...tools];
 }
 
