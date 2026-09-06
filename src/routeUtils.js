@@ -31,6 +31,7 @@ const nativePattern = NATIVE_I18N_KINDS.map(escapeRegExp).join('|');
 const DATABASE_ROUTE_RE = new RegExp(`^#\\/(?:${databasePattern})(?:\\/|$|\\?)`,'i');
 const NATIVE_I18N_ROUTE_RE = new RegExp(`^#\\/(?:${nativePattern})(?:\\/|$|\\?)`,'i');
 const CREATURE_ROUTE_RE = /^#\/creatures(?:\/|$|\?)/i;
+const MODERN_HOME_RE = /^#\/(?:\?.*)?$/i;
 
 export function currentHash(){
   if(typeof window==='undefined') return '#/';
@@ -41,8 +42,13 @@ export function isDedicatedDatabaseRoute(hash=currentHash()){
   return DATABASE_ROUTE_RE.test(hash || '#/');
 }
 
+export function isModernHomeRoute(hash=currentHash()){
+  return MODERN_HOME_RE.test(hash || '#/');
+}
+
 export function isNativeI18nRoute(hash=currentHash()){
-  return NATIVE_I18N_ROUTE_RE.test(hash || '#/');
+  const value=hash || '#/';
+  return MODERN_HOME_RE.test(value) || NATIVE_I18N_ROUTE_RE.test(value);
 }
 
 export function isCreatureRoute(hash=currentHash()){
