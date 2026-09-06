@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useLanguage } from './LanguageProviderLite';
 import { CREATURE_NAMES } from './i18nCore';
+import { isCreatureRoute } from './routeUtils';
 
 const CREATURE_PATH = /#\/creatures\/([^?/#]+)/i;
 
@@ -112,6 +113,7 @@ function syncDetailVideos(language){
 }
 
 function sync(language){
+  if(!isCreatureRoute()) return;
   document.querySelectorAll('.ce3-tutorial').forEach(anchor=>setTutorialButton(anchor,language));
   syncDetailVideos(language);
 }
@@ -121,30 +123,29 @@ export default function LocalizedTutorialRuntime(){
 
   useEffect(()=>{
     let raf = 0;
-    let timer = 0;
 
     const schedule = () => {
+      if(!isCreatureRoute()) return;
       cancelAnimationFrame(raf);
-      window.clearTimeout(timer);
       raf = requestAnimationFrame(()=>{
-        requestAnimationFrame(()=>sync(language));
+        raf=0;
+        sync(language);
       });
-      timer = window.setTimeout(()=>sync(language),180);
+    };
+    const onClick=event=>{
+      if(event.target.closest?.('.ce3-page,.ce3-detail-page,.cth-root')) schedule();
     };
 
     schedule();
     window.addEventListener('hashchange',schedule);
     window.addEventListener('app:navigation',schedule);
-    window.addEventListener('pa:language',schedule);
-    document.addEventListener('click',schedule,true);
+    document.addEventListener('click',onClick,true);
 
     return ()=>{
       cancelAnimationFrame(raf);
-      window.clearTimeout(timer);
       window.removeEventListener('hashchange',schedule);
       window.removeEventListener('app:navigation',schedule);
-      window.removeEventListener('pa:language',schedule);
-      document.removeEventListener('click',schedule,true);
+      document.removeEventListener('click',onClick,true);
     };
   },[language]);
 
