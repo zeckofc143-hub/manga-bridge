@@ -1,4 +1,5 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import './uxBehavior.css';
 
 const CREATURE_FILTER_KEY = 'pa-creature-filters-v1';
 const LAST_ROUTE_KEY = 'pa-last-route';
@@ -73,12 +74,31 @@ function paramsForCreatureList(){
   return new URLSearchParams(queryIndex >= 0 ? hash.slice(queryIndex + 1) : '');
 }
 
+function routeTitle(){
+  const hash = window.location.hash || '#/';
+  if(/^#\/creatures\/[^?/#]+/i.test(hash)){
+    const heading = document.querySelector('.ce3-detail-page h1');
+    return heading?.textContent?.trim() ? `${heading.textContent.trim()} · Pocket Ants Wiki BR` : 'Criatura · Pocket Ants Wiki BR';
+  }
+  const routes = [
+    [/^#\/creatures/i,'Criaturas'],[/^#\/resources/i,'Recursos'],[/^#\/chambers/i,'Câmaras'],
+    [/^#\/mechanics/i,'Mecânicas'],[/^#\/guides/i,'Guias'],[/^#\/tools/i,'Ferramentas'],
+    [/^#\/glossary/i,'Glossário'],[/^#\/search/i,'Busca']
+  ];
+  const match = routes.find(([pattern])=>pattern.test(hash));
+  return match ? `${match[1]} · Pocket Ants Wiki BR` : 'Pocket Ants Wiki BR';
+}
+
 export default function UxBehaviorRuntime(){
+  const [networkState,setNetworkState] = useState(()=>navigator.onLine ? null : 'offline');
+  const [updateReady,setUpdateReady] = useState(false);
+
   useEffect(()=>{
     let lastTrigger = null;
     let previousOverflow = '';
     let saveTimer = 0;
     let applyTimer = 0;
+    let statusTimer = 0;
     let modalActive = false;
 
     const backgroundNodes = () => [...document.querySelectorAll('.site-header,.site-main,.site-footer')];
@@ -102,26 +122,19 @@ export default function UxBehaviorRuntime(){
 
     const activateDialog = () => {
       const dialog = getDialog();
-      if(!dialog){
-        unlockBackground(false);
-        return;
-      }
-
+      if(!dialog){ unlockBackground(false); return; }
       const {panel,close} = dialog;
-      if(!modalActive){
-        previousOverflow = document.body.style.overflow;
-        modalActive = true;
-      }
+      if(!modalActive){ previousOverflow = document.body.style.overflow; modalActive = true; }
       document.body.dataset.modalOpen = 'true';
       document.body.style.overflow = 'hidden';
-
       panel.setAttribute('role','dialog');
       panel.setAttribute('aria-modal','true');
-      if(!panel.hasAttribute('aria-label') && !panel.hasAttribute('aria-labelledby')){
-        const title = panel.querySelector('h1,h2,h3')?.textContent?.trim();
-        if(title) panel.setAttribute('aria-label',title);
+      const title = panel.querySelector('h1,h2,h3');
+      if(title && !panel.hasAttribute('aria-labelledby')){
+        if(!title.id) title.id = `ux-dialog-title-${Math.random().toString(36).slice(2,8)}`;
+        panel.setAttribute('aria-labelledby',title.id);
+        panel.removeAttribute('aria-label');
       }
-
       backgroundNodes().forEach(node => {
         if(node.contains(panel)) return;
         node.setAttribute('inert','');
@@ -130,7 +143,6 @@ export default function UxBehaviorRuntime(){
           node.dataset.uxAriaHidden = 'true';
         }
       });
-
       requestAnimationFrame(()=>{
         const first = panel.querySelector(close) || panel.querySelector(FOCUSABLE) || panel;
         if(first === panel && !panel.hasAttribute('tabindex')) panel.setAttribute('tabindex','-1');
@@ -139,10 +151,7 @@ export default function UxBehaviorRuntime(){
     };
 
     const scheduleDialogSync = () => {
-      requestAnimationFrame(()=>requestAnimationFrame(()=>{
-        if(getDialog()) activateDialog();
-        else unlockBackground();
-      }));
+      requestAnimationFrame(()=>requestAnimationFrame(()=>getDialog() ? activateDialog() : unlockBackground()));
     };
 
     const trapFocus = event => {
@@ -150,8 +159,7 @@ export default function UxBehaviorRuntime(){
         const dialog = getDialog();
         if(dialog){
           event.preventDefault();
-          const closeButton = dialog.panel.querySelector(dialog.close);
-          closeButton?.click();
+          dialog.panel.querySelector(dialog.close)?.click();
           scheduleDialogSync();
         }
         return;
@@ -160,20 +168,11 @@ export default function UxBehaviorRuntime(){
       const dialog = getDialog();
       if(!dialog) return;
       const items = [...dialog.panel.querySelectorAll(FOCUSABLE)].filter(item => !item.hasAttribute('disabled') && item.getClientRects().length);
-      if(!items.length){
-        event.preventDefault();
-        dialog.panel.focus?.();
-        return;
-      }
+      if(!items.length){ event.preventDefault(); dialog.panel.focus?.(); return; }
       const first = items[0];
       const last = items[items.length - 1];
-      if(event.shiftKey && document.activeElement === first){
-        event.preventDefault();
-        last.focus();
-      }else if(!event.shiftKey && document.activeElement === last){
-        event.preventDefault();
-        first.focus();
-      }
+      if(event.shiftKey && document.activeElement === first){ event.preventDefault(); last.focus(); }
+      else if(!event.shiftKey && document.activeElement === last){ event.preventDefault(); first.focus(); }
     };
 
     const syncCreatureUrl = state => {
@@ -208,24 +207,16 @@ export default function UxBehaviorRuntime(){
         const categoryButtons = [...document.querySelectorAll('.ce3-tabs button')];
         const selects = [...document.querySelectorAll('.ce3-filters select')];
         if(!search || !categoryButtons.length) return;
-
         const params = paramsForCreatureList();
         const hasUrlState = ['dbq','cat','rarity','get','sort'].some(key=>params.has(key));
         const saved = safeSavedFilters();
         const state = hasUrlState ? {
-          q: params.get('dbq') || '',
-          category: Number(params.get('cat') || 0),
-          rarity: params.get('rarity') || 'all',
-          acquisition: params.get('get') || 'all',
-          sort: params.get('sort') || 'rarity'
+          q: params.get('dbq') || '', category: Number(params.get('cat') || 0), rarity: params.get('rarity') || 'all',
+          acquisition: params.get('get') || 'all', sort: params.get('sort') || 'rarity'
         } : {
-          q: saved.q || '',
-          category: Number(saved.category || 0),
-          rarity: saved.rarity || 'all',
-          acquisition: saved.acquisition || 'all',
-          sort: saved.sort || 'rarity'
+          q: saved.q || '', category: Number(saved.category || 0), rarity: saved.rarity || 'all',
+          acquisition: saved.acquisition || 'all', sort: saved.sort || 'rarity'
         };
-
         setNativeInputValue(search,state.q);
         const safeCategory = Math.max(0,Math.min(categoryButtons.length - 1,Number(state.category)||0));
         if(!categoryButtons[safeCategory]?.classList.contains('active')) categoryButtons[safeCategory]?.click();
@@ -236,55 +227,95 @@ export default function UxBehaviorRuntime(){
       },80);
     };
 
+    const updateTitle = () => window.setTimeout(()=>{ document.title = routeTitle(); },60);
+
     const onDocumentClick = event => {
       const trigger = event.target.closest?.(TRIGGER_SELECTOR);
       if(trigger) lastTrigger = trigger;
-
-      if(event.target.closest?.(TRIGGER_SELECTOR) || event.target.closest?.('.x-close,.adv-header button,.research-close,.pa-settings-close,.drawer-head .icon-button') || DIALOGS.some(item=>event.target.matches?.(item.overlay))){
+      if(trigger || event.target.closest?.('.x-close,.adv-header button,.research-close,.pa-settings-close,.drawer-head .icon-button') || DIALOGS.some(item=>event.target.matches?.(item.overlay))){
         scheduleDialogSync();
       }
-
       if(event.target.closest?.('.ce3-tabs button')) scheduleSaveFilters();
     };
 
-    const onDocumentInput = event => {
-      if(event.target.matches?.('.ce3-search input')) scheduleSaveFilters();
-    };
+    const onDocumentInput = event => { if(event.target.matches?.('.ce3-search input')) scheduleSaveFilters(); };
+    const onDocumentChange = event => { if(event.target.matches?.('.ce3-filters select')) scheduleSaveFilters(); };
 
-    const onDocumentChange = event => {
-      if(event.target.matches?.('.ce3-filters select')) scheduleSaveFilters();
+    const onShortcut = event => {
+      const target = event.target;
+      if(event.defaultPrevented || event.ctrlKey || event.metaKey || event.altKey) return;
+      if(target?.matches?.('input,textarea,select,[contenteditable="true"]')) return;
+      if(event.key === '/'){
+        const search = document.querySelector('.ce3-search input,.header-search input,.drawer-search input');
+        if(search){ event.preventDefault(); search.focus({preventScroll:false}); search.select?.(); }
+      }
     };
 
     const onRoute = () => {
       const hash = window.location.hash || '#/';
-      if(hash && hash !== '#/'){
-        try{ localStorage.setItem(LAST_ROUTE_KEY,hash); }catch{}
-      }
+      if(hash && hash !== '#/') try{ localStorage.setItem(LAST_ROUTE_KEY,hash); }catch{}
       unlockBackground(false);
       applyCreatureFilters();
+      updateTitle();
+    };
+
+    const onOffline = () => { window.clearTimeout(statusTimer); setNetworkState('offline'); };
+    const onOnline = () => {
+      setNetworkState('online');
+      window.clearTimeout(statusTimer);
+      statusTimer = window.setTimeout(()=>setNetworkState(null),2400);
     };
 
     document.addEventListener('click',onDocumentClick,true);
     document.addEventListener('input',onDocumentInput,true);
     document.addEventListener('change',onDocumentChange,true);
     document.addEventListener('keydown',trapFocus,true);
+    document.addEventListener('keydown',onShortcut,true);
     window.addEventListener('hashchange',onRoute);
     window.addEventListener('app:navigation',onRoute);
-
+    window.addEventListener('offline',onOffline);
+    window.addEventListener('online',onOnline);
     applyCreatureFilters();
+    updateTitle();
 
     return ()=>{
-      window.clearTimeout(saveTimer);
-      window.clearTimeout(applyTimer);
+      window.clearTimeout(saveTimer); window.clearTimeout(applyTimer); window.clearTimeout(statusTimer);
       document.removeEventListener('click',onDocumentClick,true);
       document.removeEventListener('input',onDocumentInput,true);
       document.removeEventListener('change',onDocumentChange,true);
       document.removeEventListener('keydown',trapFocus,true);
+      document.removeEventListener('keydown',onShortcut,true);
       window.removeEventListener('hashchange',onRoute);
       window.removeEventListener('app:navigation',onRoute);
+      window.removeEventListener('offline',onOffline);
+      window.removeEventListener('online',onOnline);
       unlockBackground(false);
     };
   },[]);
 
-  return null;
+  useEffect(()=>{
+    if(!('serviceWorker' in navigator)) return;
+    let cancelled = false;
+    const register = async () => {
+      try{
+        const registration = await navigator.serviceWorker.register(`${import.meta.env.BASE_URL}sw.js`,{scope:import.meta.env.BASE_URL});
+        if(cancelled) return;
+        const watch = worker => worker?.addEventListener('statechange',()=>{
+          if(worker.state === 'installed' && navigator.serviceWorker.controller) setUpdateReady(true);
+        });
+        if(registration.waiting && navigator.serviceWorker.controller) setUpdateReady(true);
+        registration.addEventListener('updatefound',()=>watch(registration.installing));
+      }catch{}
+    };
+    if(document.readyState === 'complete') register();
+    else window.addEventListener('load',register,{once:true});
+    return ()=>{ cancelled = true; window.removeEventListener('load',register); };
+  },[]);
+
+  if(!networkState && !updateReady) return null;
+  return <div className="ux-status-stack" aria-live="polite" aria-atomic="true">
+    {networkState === 'offline' && <div className="ux-status ux-status-offline"><strong>Sem internet</strong><span>O que já estiver em cache continua disponível.</span></div>}
+    {networkState === 'online' && <div className="ux-status ux-status-online"><strong>Conexão restaurada</strong><span>A wiki voltou a atualizar normalmente.</span></div>}
+    {updateReady && <div className="ux-status ux-status-update"><div><strong>Nova versão disponível</strong><span>Atualize quando quiser para usar as melhorias mais recentes.</span></div><button type="button" onClick={()=>window.location.reload()}>Atualizar</button></div>}
+  </div>;
 }
