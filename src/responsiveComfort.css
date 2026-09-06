@@ -4,25 +4,29 @@
   .site-main,.content-width,.page-stack,.home-stack,
   .cth-root,.cth-head,.cth-panel,.cth-toolbar,.cth-fields,.cth-summary-grid,.cth-mini-grid,
   .cth-collection-row,.cth-collection-name,.cth-two-columns,.cth-subcard,.cth-record,.cth-record-grid,
-  .adv-modal,.adv-body,.adv-card,.research-modal,.x-panel,.x-panel-body
+  .adv-modal,.adv-body,.adv-card,.research-modal,.x-panel,.x-panel-body,
+  .ce3-page,.ce3-hero,.ce3-card,.ce3-card-body,.ce3-detail-hero,.ce3-detail-copy,.ce3-panel
 ){min-width:0}
 
 :where(
   .cth-head p,.cth-note,.cth-subcard p,.cth-record p,.cth-collection-name span,
-  .adv-note,.adv-copy,.resource-card,.guide-card,.mechanic-card,.source-box
+  .adv-note,.adv-copy,.resource-card,.guide-card,.mechanic-card,.source-box,
+  .ce3-description,.ce3-lead,.ce3-panel p,.ce3-research span
 ){overflow-wrap:anywhere}
 
 /* Dense tool controls should never regress below comfortable input sizing. */
 :where(
   .cth-toolbar select,.cth-fields select,.cth-inline input,.cth-collection-row input,.cth-collection-row select,
   .cth-army-grid select,.cth-compare-selects select,.cth-record input,.cth-record select,
-  .x-search-row input,.x-search-row select,.research-searchbar input
+  .x-search-row input,.x-search-row select,.research-searchbar input,
+  .ce3-search input,.ce3-filters select
 ){
   min-height:44px;
   font-size:max(.9rem,14px);
 }
 
-:where(.cth-tabs button,.cth-view button,.cth-mode button,.cth-backup button,.cth-progress-cards button,.cth-record-actions button){
+:where(.cth-tabs button,.cth-view button,.cth-mode button,.cth-backup button,.cth-progress-cards button,.cth-record-actions button,
+  .ce3-tabs button,.ce3-filters>summary,.ce3-open,.ce3-tutorial,.ce3-hero-actions a,.ce3-back){
   min-height:44px;
   padding:9px 12px;
 }
@@ -68,10 +72,44 @@
 .cth-fields.compact{gap:10px}
 .cth-score{min-height:48px}
 
+/* Encyclopedia: remove micro-text and tiny action targets from the older visual layer. */
+.ce3-kicker{font-size:max(.78rem,12px)}
+.ce3-summary span{font-size:max(.76rem,12px);line-height:1.35}
+.ce3-tabs{overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch}
+.ce3-tabs button{font-size:max(.82rem,13px)}
+.ce3-research span{font-size:max(.88rem,14px);line-height:1.55}
+.ce3-search{min-height:48px;height:auto}
+.ce3-search input{font-size:16px}
+.ce3-filters>summary{height:auto;font-size:max(.84rem,13px)}
+.ce3-filters>summary span{font-size:max(.72rem,11px)}
+.ce3-filters label>span{font-size:max(.73rem,11px);line-height:1.35}
+.ce3-filters select{height:auto}
+.ce3-result-line{font-size:max(.82rem,13px);line-height:1.45}
+.ce3-image-fallback span{font-size:max(.78rem,12px)}
+.ce3-cover-badges span,.ce3-badges>span:not(.ce3-verify){font-size:max(.72rem,11px);line-height:1.25}
+.ce3-card-head small{font-size:max(.76rem,12px);line-height:1.35}
+.ce3-description{font-size:max(.86rem,13px);line-height:1.55}
+.ce3-quick-grid span{font-size:max(.7rem,11px);line-height:1.3}
+.ce3-quick-grid b{font-size:max(.78rem,12px)}
+.ce3-obtain-preview,.ce3-condition,.ce3-ability{font-size:max(.78rem,12px);line-height:1.5}
+.ce3-mini-stat span{font-size:max(.69rem,11px)}
+.ce3-mini-stat b{font-size:max(.79rem,12px)}
+.ce3-role-scroll span,.ce3-event-scroll span{font-size:max(.72rem,11px)}
+.ce3-open,.ce3-tutorial{height:auto;font-size:max(.78rem,12px)}
+.ce3-verify{font-size:max(.7rem,11px)}
+.ce3-panel-title span{font-size:max(.76rem,12px);line-height:1.4}
+.ce3-obtain-panel li p{font-size:max(.86rem,13px);line-height:1.55}
+.ce3-location,.ce3-warning{font-size:max(.82rem,13px);line-height:1.5}
+.ce3-stat>div:first-child,.ce3-fact{font-size:max(.8rem,12px)}
+
 /* Older rules used an 80 ms active state. Keep the new balanced timing authoritative everywhere. */
 @media(prefers-reduced-motion:no-preference){
   html:not([data-ux-effects="reduced"]) :where(button,a,summary,[role="button"]):active{
     transition-duration:var(--ux-press-fast,120ms)!important;
+  }
+  html:not([data-ux-effects="reduced"]) .ce3-card{
+    transition-duration:var(--ux-press-return,205ms)!important;
+    transition-timing-function:var(--ux-motion-ease-out,cubic-bezier(.16,1,.3,1))!important;
   }
 }
 
@@ -96,6 +134,17 @@
   .cth-record-grid{grid-template-columns:1fr}
   .cth-record-facts span{align-items:flex-start}
   .cth-record-facts b{max-width:62%}
+
+  .ce3-page{width:min(100% - 20px,1180px);padding-bottom:max(92px,calc(env(safe-area-inset-bottom) + 80px))}
+  .ce3-hero{padding:18px;border-radius:20px}
+  .ce3-tabs button{min-height:48px}
+  .ce3-search-row{grid-template-columns:minmax(0,1fr);gap:8px}
+  .ce3-filters>summary{width:100%;justify-content:center;min-height:48px}
+  .ce3-filters[open]>div{position:static;width:100%;grid-template-columns:1fr 1fr;margin-top:8px;box-shadow:none}
+  .ce3-grid{grid-template-columns:1fr}
+  .ce3-card{grid-template-columns:minmax(145px,34%) minmax(0,1fr)}
+  .ce3-detail-hero,.ce3-detail-grid{grid-template-columns:1fr}
+  .ce3-hero-actions a{min-height:48px}
 }
 
 /* 200% zoom and small Android viewports effectively land here. Prefer reflow over tiny controls. */
@@ -133,6 +182,17 @@
   .cth-record-actions{grid-template-columns:1fr!important}
   .cth-record-actions>*{width:100%;min-width:0}
   .cth-record-actions label{justify-content:space-between}
+
+  .ce3-page{width:min(100% - 16px,1180px)}
+  .ce3-hero{grid-template-columns:1fr;padding:15px}
+  .ce3-summary{grid-template-columns:1fr 1fr}
+  .ce3-card{grid-template-columns:1fr}
+  .ce3-image-host{min-height:190px;max-height:250px}
+  .ce3-card-body{padding:13px}
+  .ce3-quick-grid{grid-template-columns:1fr 1fr}
+  .ce3-filters[open]>div{grid-template-columns:1fr}
+  .ce3-detail-hero{padding:12px}
+  .ce3-panel{padding:14px}
 }
 
 @media(max-width:400px){
@@ -142,6 +202,10 @@
   .cth-mode{display:grid;grid-template-columns:1fr 1fr;gap:7px}
   .cth-mode>span{grid-column:1/-1}
   .cth-compare-head,.cth-compare-row{grid-template-columns:102px repeat(4,minmax(136px,1fr));min-width:646px}
+
+  .ce3-summary,.ce3-quick-grid{grid-template-columns:1fr}
+  .ce3-card-body{padding:12px}
+  .ce3-tabs{margin-right:-6px;padding-right:6px}
 }
 
 @media(max-width:340px){
@@ -149,6 +213,7 @@
   .cth-panel{padding:9px}
   .cth-tabs button{padding-inline:10px}
   .cth-collection-row{grid-template-columns:42px minmax(0,1fr) 42px!important;padding:8px!important}
+  .ce3-page{width:min(100% - 12px,1180px)}
 }
 
 /* At large browser zoom, no fixed modal width should force horizontal page scrolling. */
@@ -158,5 +223,5 @@
 }
 
 @media(prefers-reduced-motion:reduce){
-  .cth-tabs,.cth-compare-table,.cth-role-summary{scroll-behavior:auto!important}
+  .cth-tabs,.cth-compare-table,.cth-role-summary,.ce3-tabs{scroll-behavior:auto!important}
 }
