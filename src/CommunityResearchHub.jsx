@@ -1,7 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { BookOpen, ChevronDown, ExternalLink, Search, ShieldAlert, Sparkles, Users, X } from 'lucide-react';
 import { researchSnapshot, communityConsensus, knowledgeSections, sourceRegistry } from './communityResearchData';
-import { latestResearchStatus, expansionKnowledgeSections, expansionSources, executiveResearchCoverage } from './researchExpansionData';
 import './communityResearchHub.css';
 
 const tabs = [
@@ -12,8 +11,6 @@ const tabs = [
   ['Honeydew', 'Honeydew'],
   ['Mapa', 'Mapa'],
   ['Dungeon', 'Dungeon'],
-  ['Bosses', 'Bosses'],
-  ['Shops', 'Shops'],
   ['Multiplayer', 'Multiplayer'],
   ['PvP', 'PvP'],
   ['Garden', 'Garden'],
@@ -26,13 +23,6 @@ function confidenceLabel(value) {
   return 'Opinião recorrente';
 }
 
-function coverageLabel(status) {
-  if (status === 'forte') return 'Implementado';
-  if (status === 'expandindo') return 'Em expansão';
-  if (status === 'parcial') return 'Parcial';
-  return 'Secundário';
-}
-
 export default function CommunityResearchHub() {
   const [open, setOpen] = useState(false);
   const [tab, setTab] = useState('all');
@@ -40,22 +30,19 @@ export default function CommunityResearchHub() {
   const [sourceFilter, setSourceFilter] = useState('Todos');
   const normalized = query.trim().toLowerCase();
 
-  const allKnowledgeSections = useMemo(() => [...knowledgeSections, ...expansionKnowledgeSections], []);
-  const allSources = useMemo(() => [...sourceRegistry, ...expansionSources], []);
-
-  const filteredSections = useMemo(() => allKnowledgeSections.filter(section => {
+  const filteredSections = useMemo(() => knowledgeSections.filter(section => {
     const byTab = tab === 'all' || section.category === tab;
     const haystack = `${section.title} ${section.category} ${section.items.join(' ')}`.toLowerCase();
     return byTab && (!normalized || haystack.includes(normalized));
-  }), [tab, normalized, allKnowledgeSections]);
+  }), [tab, normalized]);
 
   const filteredConsensus = useMemo(() => communityConsensus.filter(item => {
     const haystack = `${item.title} ${item.category} ${item.summary} ${item.bullets.join(' ')}`.toLowerCase();
     return !normalized || haystack.includes(normalized);
   }), [normalized]);
 
-  const sourceTypes = ['Todos', ...Array.from(new Set(allSources.map(s => s.type)))];
-  const filteredSources = allSources.filter(source => {
+  const sourceTypes = ['Todos', ...Array.from(new Set(sourceRegistry.map(s => s.type)))];
+  const filteredSources = sourceRegistry.filter(source => {
     const typeOk = sourceFilter === 'Todos' || source.type === sourceFilter;
     const haystack = `${source.name} ${source.topic} ${source.type}`.toLowerCase();
     return typeOk && (!normalized || haystack.includes(normalized));
@@ -73,32 +60,21 @@ export default function CommunityResearchHub() {
             <div>
               <span className="research-kicker">Pocket Ants Wiki BR</span>
               <h2>Centro de Pesquisa + Comunidade</h2>
-              <p>Conteúdo cruzado entre fontes oficiais, wiki comunitária, Reddit e guias públicos. Revisão mais recente em {latestResearchStatus.verifiedAt.split('-').reverse().join('/')}.</p>
+              <p>Conteúdo cruzado entre fontes oficiais, wiki comunitária, Reddit e guias públicos. Verificado em {researchSnapshot.verifiedAt.split('-').reverse().join('/')}.</p>
             </div>
-            <button className="research-close" onClick={() => setOpen(false)} aria-label="Fechar centro de pesquisa"><X size={21}/></button>
+            <button className="research-close" onClick={() => setOpen(false)}><X size={21}/></button>
           </header>
 
           <div className="research-searchbar">
             <Search size={17}/>
-            <input value={query} onChange={e => setQuery(e.target.value)} placeholder="Buscar: resin, frog, pvp, beehive, Vinegaroon, shop..."/>
+            <input value={query} onChange={e => setQuery(e.target.value)} placeholder="Buscar: resin, frog, pvp, beehive, clã..."/>
           </div>
 
           <section className="research-stats">
-            <article><span>Versão atual</span><strong>{latestResearchStatus.gameVersion}</strong><small>Google Play · {latestResearchStatus.storeUpdatedAt}</small></article>
             <article><span>Downloads</span><strong>{researchSnapshot.game.downloads}</strong><small>Google Play</small></article>
             <article><span>Google Play</span><strong>{researchSnapshot.game.googlePlayRating}</strong><small>centenas de milhares de avaliações</small></article>
+            <article><span>App Store BR</span><strong>{researchSnapshot.game.appStoreBRRating}</strong><small>iPhone/iPad</small></article>
             <article><span>Modelo</span><strong>F2P</strong><small>anúncios + compras no app</small></article>
-          </section>
-
-          <section className="research-block">
-            <div className="research-title-row"><Sparkles size={18}/><div><span>Execução dos dois levantamentos aprofundados</span><h3>O que já virou site e o que ainda falta</h3></div></div>
-            <div className="knowledge-grid">
-              {executiveResearchCoverage.map(item => <article className="knowledge-card" key={item.id}>
-                <div className="knowledge-cat">{coverageLabel(item.status)}</div>
-                <h4>{item.label}</h4>
-                <p>{item.detail}</p>
-              </article>)}
-            </div>
           </section>
 
           <section className="research-sentiment">
@@ -141,14 +117,14 @@ export default function CommunityResearchHub() {
             <div className="research-title-row"><ExternalLink size={18}/><div><span>Transparência</span><h3>Fontes usadas na pesquisa</h3></div></div>
             <div className="source-filters">{sourceTypes.map(type => <button key={type} className={sourceFilter === type ? 'active' : ''} onClick={() => setSourceFilter(type)}>{type}</button>)}</div>
             <div className="source-list">
-              {filteredSources.map(source => <a key={`${source.url}-${source.topic}`} href={source.url} target="_blank" rel="noreferrer" className="source-row">
+              {filteredSources.map(source => <a key={source.url} href={source.url} target="_blank" rel="noreferrer" className="source-row">
                 <div><span>{source.type}</span><strong>{source.name}</strong><small>{source.topic}</small></div><ExternalLink size={15}/>
               </a>)}
             </div>
           </section>
 
           <footer className="research-footer">
-            <strong>Regra da wiki:</strong> fato oficial, dado comunitário e opinião de meta não são tratados como a mesma coisa. Estratégias podem mudar com atualização, evento e balanceamento. {latestResearchStatus.note}
+            <strong>Regra da wiki:</strong> fato oficial, dado comunitário e opinião de meta não são tratados como a mesma coisa. Estratégias podem mudar com atualização, evento e balanceamento.
           </footer>
         </section>
       </div>}
