@@ -4,6 +4,8 @@
   --ux-press-fast:70ms;
   --ux-press-return:145ms;
   --ux-route-motion:150ms;
+  --ux-overlay-motion:120ms;
+  --ux-panel-motion:175ms;
   --ux-motion-ease:cubic-bezier(.2,.8,.2,1);
 }
 
@@ -22,9 +24,42 @@
   html:not([data-ux-effects="reduced"]) .site-main.ux-route-enter{
     animation:uxRouteEnter var(--ux-route-motion) var(--ux-motion-ease) both;
   }
+
+  html:not([data-ux-effects="reduced"]) :where(.pa-settings-backdrop,.research-overlay,.adv-overlay,.x-overlay,.mobile-drawer-backdrop){
+    animation:uxOverlayIn var(--ux-overlay-motion) ease-out both!important;
+  }
+
+  html:not([data-ux-effects="reduced"]) :where(.research-modal,.adv-modal,.x-panel){
+    animation:uxPanelIn var(--ux-panel-motion) var(--ux-motion-ease) both!important;
+  }
+
+  html:not([data-ux-effects="reduced"]) .pa-settings-panel{
+    animation:uxSettingsIn var(--ux-panel-motion) var(--ux-motion-ease) both!important;
+  }
+
+  html:not([data-ux-effects="reduced"]) .mobile-drawer{
+    animation:uxDrawerIn var(--ux-panel-motion) var(--ux-motion-ease) both!important;
+  }
 }
+
 @keyframes uxRouteEnter{
   from{opacity:.94;transform:translate3d(0,3px,0)}
+  to{opacity:1;transform:translate3d(0,0,0)}
+}
+@keyframes uxOverlayIn{
+  from{opacity:0}
+  to{opacity:1}
+}
+@keyframes uxPanelIn{
+  from{opacity:.94;transform:translate3d(0,5px,0) scale(.998)}
+  to{opacity:1;transform:translate3d(0,0,0) scale(1)}
+}
+@keyframes uxSettingsIn{
+  from{opacity:.95;transform:translate3d(7px,0,0)}
+  to{opacity:1;transform:translate3d(0,0,0)}
+}
+@keyframes uxDrawerIn{
+  from{opacity:.96;transform:translate3d(-7px,0,0)}
   to{opacity:1;transform:translate3d(0,0,0)}
 }
 
@@ -140,6 +175,17 @@
   }
 }
 
+/* Settings is a bottom sheet on small screens, so its entrance follows that direction. */
+@media (max-width:640px) and (prefers-reduced-motion:no-preference){
+  html:not([data-ux-effects="reduced"]) .pa-settings-panel{
+    animation:uxSettingsMobileIn var(--ux-panel-motion) var(--ux-motion-ease) both!important;
+  }
+}
+@keyframes uxSettingsMobileIn{
+  from{opacity:.95;transform:translate3d(0,7px,0)}
+  to{opacity:1;transform:translate3d(0,0,0)}
+}
+
 /* Hover remains restrained on real mouse/trackpad devices. */
 @media (hover:hover) and (pointer:fine){
   :where(.button,.icon-button,.chip-filter button,.ce-category-tabs button,.ce3-tabs button):active{
@@ -150,7 +196,15 @@
 
 /* Keyboard focus is intentionally untouched: focus-visible from uxProfessional.css remains authoritative. */
 @media (prefers-reduced-motion:reduce){
-  .site-main.ux-route-enter{animation:none!important}
+  .site-main.ux-route-enter,
+  .pa-settings-backdrop,.research-overlay,.adv-overlay,.x-overlay,.mobile-drawer-backdrop,
+  .research-modal,.adv-modal,.x-panel,.pa-settings-panel,.mobile-drawer{
+    animation:none!important;
+  }
 }
 
-html[data-ux-effects="reduced"] .site-main.ux-route-enter{animation:none!important}
+html[data-ux-effects="reduced"] :where(
+  .site-main.ux-route-enter,
+  .pa-settings-backdrop,.research-overlay,.adv-overlay,.x-overlay,.mobile-drawer-backdrop,
+  .research-modal,.adv-modal,.x-panel,.pa-settings-panel,.mobile-drawer
+){animation:none!important}
