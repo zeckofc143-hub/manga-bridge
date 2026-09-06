@@ -10,6 +10,7 @@ import ToolDatabasePage from './ToolDatabasePage';
 import ExtraToolPage, { isExtraToolRoute } from './ExtraToolPages';
 import FarmDatabasePage from './FarmDatabasePage';
 import StrategyDatabasePage from './StrategyDatabasePage';
+import ReferenceDatabasePage from './ReferenceDatabasePage';
 import GlobalSearchPage from './GlobalSearchPage';
 import { useLanguage } from './LanguageProviderLite';
 import { DATABASE_KINDS, databaseRouteClass, getDatabaseRoute } from './routeUtils';
@@ -26,8 +27,12 @@ const coreNav = [
   ['#/tools', 'Ferramentas', 'Tools']
 ];
 const extraNav = [
-  ['#/farms', 'Farms', 'Farms', '🌾'],
-  ['#/strategies', 'Estratégias', 'Strategies', '🧠']
+  ['#/farms', 'Farms', 'Farms', '🌾', 'Rotas de recursos', 'Resource routes'],
+  ['#/strategies', 'Estratégias', 'Strategies', '🧠', 'Dicas e consenso', 'Tips & consensus'],
+  ['#/world', 'Mundo', 'World', '🗺️', 'Mapa, Garden e inimigos', 'Map, Garden & hostiles'],
+  ['#/upgrades', 'Upgrades', 'Upgrades', '🛒', 'Lojas e bônus', 'Shops & bonuses'],
+  ['#/events', 'Eventos', 'Events', '🎉', 'Eventos e histórico', 'Events & history'],
+  ['#/quests', 'Quests', 'Quests', '📜', 'Recompensas e resets', 'Rewards & resets']
 ];
 const mobileNav = [['#/', 'Início', 'Home'],...coreNav,...extraNav.map(([href,pt,en])=>[href,pt,en])];
 
@@ -41,6 +46,10 @@ const databaseConfig = {
   tools:{href:'#/tools',route:'tools',shell:'tool-database-shell',main:'tool-db-main',footer:'tool-db-footer',search:['Buscar ferramenta ou cálculo...','Search a tool or calculation...'],aria:['Buscar ferramentas','Search tools']},
   farms:{href:'#/farms',route:'farms',shell:'farm-database-shell',main:'farm-db-main',footer:'farm-db-footer',search:['Buscar farm ou recurso...','Search a farm or resource...'],aria:['Buscar farms','Search farms']},
   strategies:{href:'#/strategies',route:'strategies',shell:'strategy-database-shell',main:'strategy-db-main',footer:'strategy-db-footer',search:['Buscar estratégia, dica ou objetivo...','Search a strategy, tip or goal...'],aria:['Buscar estratégias','Search strategies']},
+  world:{href:'#/world',route:'world',shell:'world-database-shell',main:'world-db-main',footer:'world-db-footer',search:['Buscar mapa, Garden, inimigo ou objeto...','Search map, Garden, hostile or object...'],aria:['Buscar no Mundo','Search World']},
+  upgrades:{href:'#/upgrades',route:'upgrades',shell:'upgrade-database-shell',main:'upgrade-db-main',footer:'upgrade-db-footer',search:['Buscar loja, custo ou upgrade...','Search shop, cost or upgrade...'],aria:['Buscar upgrades','Search upgrades']},
+  events:{href:'#/events',route:'events',shell:'event-database-shell',main:'event-db-main',footer:'event-db-footer',search:['Buscar evento, criatura ou versão...','Search event, creature or version...'],aria:['Buscar eventos','Search events']},
+  quests:{href:'#/quests',route:'quests',shell:'quest-database-shell',main:'quest-db-main',footer:'quest-db-footer',search:['Buscar quest, recompensa ou reset...','Search quest, reward or reset...'],aria:['Buscar quests','Search quests']},
   search:{href:'#/search',route:'search',shell:'search-database-shell',main:'search-db-main',footer:'search-db-footer',search:['Buscar em toda a wiki...','Search the whole wiki...'],aria:['Busca global','Global search']}
 };
 
@@ -74,12 +83,13 @@ function DatabaseContent({kind,routeId}){
   if(kind==='tools') return <ToolDatabasePage routeId={routeId}/>;
   if(kind==='farms') return <FarmDatabasePage routeId={routeId}/>;
   if(kind==='strategies') return <StrategyDatabasePage routeId={routeId}/>;
+  if(['world','upgrades','events','quests'].includes(kind)) return <ReferenceDatabasePage kind={kind} routeId={routeId}/>;
   if(kind==='search') return <GlobalSearchPage/>;
   return <CreatureDatabasePage routeId={routeId}/>;
 }
 
 function DatabaseFooter({kind,t}){
-  if(kind==='home') return t('Pocket Ants Wiki BR · dados, farms, estratégias e ferramentas com fontes e confiança visíveis.','Pocket Ants Wiki EN · data, farms, strategies and tools with visible sources and confidence.');
+  if(kind==='home') return t('Pocket Ants Wiki BR · dados, farms, estratégias, eventos, mundo e ferramentas com fontes visíveis.','Pocket Ants Wiki EN · data, farms, strategies, events, world and tools with visible sources.');
   if(kind==='resources') return t('Banco de Dados de Recursos · Pocket Ants Wiki BR · obtenção, usos, prioridade e fontes organizadas.','Resource Database · Pocket Ants Wiki EN · acquisition, uses, priority and sources organized.');
   if(kind==='chambers') return t('Central de Câmaras · Pocket Ants Wiki BR · níveis, gargalos, dependências e fontes organizadas.','Chamber Hub · Pocket Ants Wiki EN · levels, bottlenecks, dependencies and sources organized.');
   if(kind==='mechanics') return t('Central de Mecânicas · Pocket Ants Wiki BR · sistemas, timers, fluxos e fontes organizadas.','Mechanics Hub · Pocket Ants Wiki EN · systems, timers, flows and sources organized.');
@@ -87,6 +97,10 @@ function DatabaseFooter({kind,t}){
   if(kind==='tools') return t('Central de Ferramentas · Pocket Ants Wiki BR · calculadoras, planners e trackers.','Tools Hub · Pocket Ants Wiki EN · calculators, planners and trackers.');
   if(kind==='farms') return t('Central de Farms · Pocket Ants Wiki BR · rotas de recursos, números fixos e dicas comunitárias separadas.','Farms Hub · Pocket Ants Wiki EN · resource routes, fixed values and separated community tips.');
   if(kind==='strategies') return t('Estratégias da Comunidade · Pocket Ants Wiki BR · consenso, opiniões e conflitos rotulados.','Community Strategies · Pocket Ants Wiki EN · labeled consensus, opinions and conflicts.');
+  if(kind==='world') return t('Mundo & Ambiente · Pocket Ants Wiki BR · mapa, Garden, inimigos, objetos e timers.','World & Environment · Pocket Ants Wiki EN · map, Garden, hostiles, objects and timers.');
+  if(kind==='upgrades') return t('Lojas & Upgrades · Pocket Ants Wiki BR · moedas, custos e bônus permanentes.','Shops & Upgrades · Pocket Ants Wiki EN · currencies, costs and permanent bonuses.');
+  if(kind==='events') return t('Eventos & Histórico · Pocket Ants Wiki BR · Major Events, Creature Events, seasons e versões.','Events & History · Pocket Ants Wiki EN · Major Events, Creature Events, seasons and versions.');
+  if(kind==='quests') return t('Quests & Recompensas · Pocket Ants Wiki BR · quests, login, resets e limites diários.','Quests & Rewards · Pocket Ants Wiki EN · quests, login, resets and daily limits.');
   if(kind==='search') return t('Busca Global · Pocket Ants Wiki BR · todas as bases modernas em um único índice.','Global Search · Pocket Ants Wiki EN · every modern database in one index.');
   return t('Banco de Dados de Criaturas · Pocket Ants Wiki BR · dados comunitários revisados e conflitos sinalizados.','Creature Database · Pocket Ants Wiki EN · community data reviewed and conflicts flagged.');
 }
@@ -151,7 +165,7 @@ function DatabaseShell({ kind, routeId }){
         {coreNav.map(([href,pt,en])=>{const active=href===config.href;return <a key={href} href={href} className={active?'active':''} aria-current={active?'page':undefined}>{t(pt,en)}</a>;})}
         <details className={`desktop-more${extraActive?' active':''}`}>
           <summary>{t('Mais','More')}</summary>
-          <div className="desktop-more-menu">{extraNav.map(([href,pt,en,icon])=>{const active=href===config.href;return <a key={href} href={href} className={active?'active':''} aria-current={active?'page':undefined} onClick={e=>e.currentTarget.closest('details')?.removeAttribute('open')}><span><b>{icon} {t(pt,en)}</b><small>{href==='#/farms'?t('Rotas de recursos','Resource routes'):t('Dicas e consenso','Tips & consensus')}</small></span></a>;})}</div>
+          <div className="desktop-more-menu">{extraNav.map(([href,pt,en,icon,descPt,descEn])=>{const active=href===config.href;return <a key={href} href={href} className={active?'active':''} aria-current={active?'page':undefined} onClick={e=>e.currentTarget.closest('details')?.removeAttribute('open')}><span><b>{icon} {t(pt,en)}</b><small>{t(descPt,descEn)}</small></span></a>;})}</div>
         </details>
       </nav>
       <div className="header-actions">
