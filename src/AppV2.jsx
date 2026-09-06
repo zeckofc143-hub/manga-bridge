@@ -23,12 +23,12 @@ const mainNav = [
 ];
 
 const databaseConfig = {
-  creatures:{href:'#/creatures',route:'creatures',shell:'creature-database-shell',main:'creature-db-main',footer:'creature-db-footer',search:['Buscar no banco de criaturas...','Search the creature database...'],aria:['Buscar criaturas','Search creatures']},
-  resources:{href:'#/resources',route:'resources',shell:'resource-database-shell',main:'resource-db-main',footer:'resource-db-footer',search:['Buscar no banco de recursos...','Search the resource database...'],aria:['Buscar recursos','Search resources']},
-  chambers:{href:'#/chambers',route:'chambers',shell:'chamber-database-shell',main:'chamber-db-main',footer:'chamber-db-footer',search:['Buscar no banco de câmaras...','Search the chamber database...'],aria:['Buscar câmaras','Search chambers']},
-  mechanics:{href:'#/mechanics',route:'mechanics',shell:'mechanic-database-shell',main:'mechanic-db-main',footer:'mechanic-db-footer',search:['Buscar mecânica, sistema ou farm...','Search mechanics, systems or farms...'],aria:['Buscar mecânicas','Search mechanics']},
-  guides:{href:'#/guides',route:'guides',shell:'guide-database-shell',main:'guide-db-main',footer:'guide-db-footer',search:['Buscar guia, objetivo ou gargalo...','Search guides, goals or bottlenecks...'],aria:['Buscar guias','Search guides']},
-  tools:{href:'#/tools',route:'tools',shell:'tool-database-shell',main:'tool-db-main',footer:'tool-db-footer',search:['Buscar ferramenta, cálculo ou tracker...','Search tools, calculations or trackers...'],aria:['Buscar ferramentas','Search tools']},
+  creatures:{href:'#/creatures',route:'creatures',shell:'creature-database-shell',main:'creature-db-main',footer:'creature-db-footer',search:['Buscar criaturas nesta categoria...','Search creatures in this category...'],aria:['Buscar criaturas','Search creatures']},
+  resources:{href:'#/resources',route:'resources',shell:'resource-database-shell',main:'resource-db-main',footer:'resource-db-footer',search:['Buscar recursos nesta categoria...','Search resources in this category...'],aria:['Buscar recursos','Search resources']},
+  chambers:{href:'#/chambers',route:'chambers',shell:'chamber-database-shell',main:'chamber-db-main',footer:'chamber-db-footer',search:['Buscar câmaras nesta categoria...','Search chambers in this category...'],aria:['Buscar câmaras','Search chambers']},
+  mechanics:{href:'#/mechanics',route:'mechanics',shell:'mechanic-database-shell',main:'mechanic-db-main',footer:'mechanic-db-footer',search:['Buscar mecânica ou sistema...','Search a mechanic or system...'],aria:['Buscar mecânicas','Search mechanics']},
+  guides:{href:'#/guides',route:'guides',shell:'guide-database-shell',main:'guide-db-main',footer:'guide-db-footer',search:['Buscar guia ou objetivo...','Search a guide or goal...'],aria:['Buscar guias','Search guides']},
+  tools:{href:'#/tools',route:'tools',shell:'tool-database-shell',main:'tool-db-main',footer:'tool-db-footer',search:['Buscar ferramenta ou cálculo...','Search a tool or calculation...'],aria:['Buscar ferramentas','Search tools']},
   search:{href:'#/search',route:'search',shell:'search-database-shell',main:'search-db-main',footer:'search-db-footer',search:['Buscar em toda a wiki...','Search the whole wiki...'],aria:['Busca global','Global search']}
 };
 
@@ -37,6 +37,12 @@ function safeGet(key,fallback){
 }
 function safeSet(key,value){
   try{localStorage.setItem(key,value);}catch{}
+}
+function routeQuery(kind){
+  try{
+    const params=new URLSearchParams((window.location.hash.split('?')[1]||''));
+    return kind==='search' ? (params.get('q') || params.get('dbq') || '') : (params.get('dbq') || '');
+  }catch{return '';}
 }
 
 function PageLoadingState(){
@@ -71,31 +77,76 @@ function DatabaseShell({ kind, routeId }){
   const config=databaseConfig[kind]||databaseConfig.creatures;
   const [mobileOpen,setMobileOpen] = useState(false);
   const [theme,setTheme] = useState(()=>safeGet('pa-theme','dark'));
-  const [query,setQuery] = useState('');
+  const [query,setQuery] = useState(()=>routeQuery(kind));
+  const [drawerQuery,setDrawerQuery] = useState('');
 
   useEffect(()=>{document.documentElement.dataset.theme=theme;safeSet('pa-theme',theme);},[theme]);
   useEffect(()=>{
     setMobileOpen(false);
-    setQuery('');
+    setDrawerQuery('');
+    setQuery(routeQuery(kind));
     window.scrollTo({top:0,left:0,behavior:'auto'});
   },[routeId,kind]);
+
+  useEffect(()=>{
+    const sync=()=>setQuery(routeQuery(kind));
+    window.addEventListener('hashchange',sync);
+    window.addEventListener('app:navigation',sync);
+    return()=>{
+      window.removeEventListener('hashchange',sync);
+      window.removeEventListener('app:navigation',sync);
+    };
+  },[kind]);
 
   const submitSearch = event => {
     event.preventDefault();
     const q=query.trim();
     if(!q) return;
-    window.location.hash=`/${config.route}?dbq=${encodeURIComponent(q)}`;
+    const param=config.route==='search'?'q':'dbq';
+    window.location.hash=`/${config.route}?${param}=${encodeURIComponent(q)}`;
+  };
+
+  const clearSearch=()=>{
+    setQuery('');
+    window.location.hash=`/${config.route}`;
+  };
+
+  const submitGlobalSearch=event=>{
+    event.preventDefault();
+    const q=drawerQuery.trim();
+    if(!q) return;
+    setMobileOpen(false);
+    window.location.hash=`/search?q=${encodeURIComponent(q)}`;
   };
 
   return <div className={`app-shell database-shell ${config.shell}`}>
     <header className="site-header"><div className="header-inner">
       <a href="#/" className="brand" aria-label={t('Voltar ao início da Pocket Ants Wiki BR','Back to Pocket Ants Wiki home')}><span className="brand-mark">🐜</span><span className="brand-copy"><strong>Pocket Ants</strong><small>{t('Wiki BR','Wiki EN')}</small></span></a>
-      <form className="header-search" onSubmit={submitSearch} role="search"><Search size={18}/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder={t(...config.search)} aria-label={t(...config.aria)} autoComplete="off" enterKeyHint="search" inputMode="search"/><kbd>↵</kbd></form>
+      <form className="header-search" onSubmit={submitSearch} role="search" data-search-scope={config.route}>
+        <Search size={18} aria-hidden="true"/>
+        <input value={query} onChange={e=>setQuery(e.target.value)} placeholder={t(...config.search)} aria-label={t(...config.aria)} autoComplete="off" enterKeyHint="search" inputMode="search"/>
+        {query?<button className="header-search-clear" type="button" onClick={clearSearch} aria-label={t('Limpar busca','Clear search')} title={t('Limpar','Clear')}><X size={16}/></button>:<kbd aria-hidden="true">↵</kbd>}
+      </form>
       <nav className="desktop-nav" aria-label={t('Navegação principal','Main navigation')}>{mainNav.slice(1).map(([href,pt,en])=>{const active=href===config.href;return <a key={href} href={href} className={active?'active':''} aria-current={active?'page':undefined}>{t(pt,en)}</a>;})}</nav>
-      <div className="header-actions"><button className="icon-button" type="button" onClick={()=>setTheme(theme==='dark'?'light':'dark')} aria-label={t('Alternar tema','Toggle theme')}>{theme==='dark'?<Sun size={18}/>:<Moon size={18}/>}</button><button className="icon-button mobile-menu-button" type="button" onClick={()=>setMobileOpen(true)} aria-label={t('Abrir menu','Open menu')}><Menu size={20}/></button></div>
+      <div className="header-actions">
+        <button className="icon-button" type="button" onClick={()=>setTheme(theme==='dark'?'light':'dark')} aria-label={t('Alternar tema','Toggle theme')} title={t('Alternar tema','Toggle theme')}>{theme==='dark'?<Sun size={18}/>:<Moon size={18}/>}</button>
+        <button className="icon-button mobile-menu-button" type="button" onClick={()=>setMobileOpen(true)} aria-label={t('Abrir menu','Open menu')} aria-haspopup="dialog" aria-expanded={mobileOpen} aria-controls="pa-mobile-nav"><Menu size={20}/></button>
+      </div>
     </div></header>
 
-    {mobileOpen&&<div className="mobile-drawer-backdrop" onClick={()=>setMobileOpen(false)}><aside className="mobile-drawer" onClick={e=>e.stopPropagation()} aria-label={t('Menu de navegação','Navigation menu')}><div className="drawer-head"><div className="brand"><span className="brand-mark">🐜</span><strong>Pocket Ants {t('Wiki BR','Wiki EN')}</strong></div><button className="icon-button" type="button" onClick={()=>setMobileOpen(false)} aria-label={t('Fechar menu','Close menu')}><X size={20}/></button></div><nav className="mobile-nav" aria-label={t('Navegação móvel','Mobile navigation')}>{mainNav.map(([href,pt,en])=>{const active=href===config.href;return <a key={href} href={href} className={active?'active':''} aria-current={active?'page':undefined}>{t(pt,en)}</a>;})}</nav></aside></div>}
+    {mobileOpen&&<div className="mobile-drawer-backdrop" onClick={()=>setMobileOpen(false)}>
+      <aside id="pa-mobile-nav" className="mobile-drawer" onClick={e=>e.stopPropagation()} role="dialog" aria-modal="true" aria-labelledby="pa-mobile-nav-title">
+        <div className="drawer-head"><div className="brand"><span className="brand-mark">🐜</span><strong id="pa-mobile-nav-title">Pocket Ants {t('Wiki BR','Wiki EN')}</strong></div><button className="icon-button" type="button" onClick={()=>setMobileOpen(false)} aria-label={t('Fechar menu','Close menu')}><X size={20}/></button></div>
+        <form className="drawer-search" role="search" onSubmit={submitGlobalSearch}>
+          <Search size={18} aria-hidden="true"/>
+          <input value={drawerQuery} onChange={e=>setDrawerQuery(e.target.value)} placeholder={t('Buscar em toda a wiki…','Search the whole wiki…')} aria-label={t('Busca global','Global search')} autoComplete="off" enterKeyHint="search" inputMode="search"/>
+          <button className="drawer-search-button" type="submit" aria-label={t('Buscar','Search')}><Search size={17}/></button>
+        </form>
+        <p className="drawer-search-hint">{t('Use o menu para navegar; use a busca acima quando não souber em qual categoria está a informação.','Use the menu to browse; use the search above when you are not sure which category contains the information.')}</p>
+        <nav className="mobile-nav" aria-label={t('Navegação móvel','Mobile navigation')}>{mainNav.map(([href,pt,en])=>{const active=href===config.href;return <a key={href} href={href} onClick={()=>setMobileOpen(false)} className={active?'active':''} aria-current={active?'page':undefined}>{t(pt,en)}</a>;})}</nav>
+        <a className="drawer-global-link" href="#/search" onClick={()=>setMobileOpen(false)}><Search size={17}/>{t('Abrir Busca Global','Open Global Search')}</a>
+      </aside>
+    </div>}
 
     <main className={`site-main ${config.main}`}><DatabaseContent kind={kind} routeId={routeId}/></main>
     <footer className={`site-footer ${config.footer}`}><div className="footer-bottom"><DatabaseFooter kind={kind} t={t}/></div></footer>
