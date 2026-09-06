@@ -7,11 +7,13 @@ import TranslationCoverageLite from './TranslationCoverageLite';
 import UxBehaviorRuntime from './UxBehaviorRuntime';
 import AccessibilityPolishRuntime from './AccessibilityPolishRuntime';
 import ProgressiveDisclosureRuntime from './ProgressiveDisclosureRuntime';
+import InteractionMotionRuntime from './InteractionMotionRuntime';
 import { LanguageProvider, SiteSettings } from './LanguageProviderLite';
 import './index.css';
 import './sitePolish.css';
 import './uxProfessional.css';
 import './visualComfort.css';
+import './interactionMotion.css';
 
 const Enhancements = lazy(() => import('./Enhancements'));
 const AdvancedPlanner = lazy(() => import('./AdvancedPlanner'));
@@ -78,6 +80,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
       <UxBehaviorRuntime />
       <AccessibilityPolishRuntime />
       <ProgressiveDisclosureRuntime />
+      <InteractionMotionRuntime />
       <DeferredExtras />
       <SiteSettings />
     </LanguageProvider>
