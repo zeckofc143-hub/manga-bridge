@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 import './creatureAuditRuntime';
 import AppV2 from './AppV2';
 import CreatureLanguageRuntimeLite from './CreatureLanguageRuntimeLite';
+import ResourceLanguageRuntimeLite from './ResourceLanguageRuntimeLite';
 import TranslationCoverageLite from './TranslationCoverageLite';
 import UxBehaviorRuntime from './UxBehaviorRuntime';
 import AccessibilityPolishRuntime from './AccessibilityPolishRuntime';
@@ -23,16 +24,16 @@ const Enhancements = lazy(() => import('./Enhancements'));
 const AdvancedPlanner = lazy(() => import('./AdvancedPlanner'));
 const CommunityResearchHub = lazy(() => import('./CommunityResearchHub'));
 
-function isCreatureDatabaseRoute(){
-  return /^#\/creatures(?:\/|$|\?)/i.test(window.location.hash || '#/');
+function isDedicatedDatabaseRoute(){
+  return /^#\/(?:creatures|resources)(?:\/|$|\?)/i.test(window.location.hash || '#/');
 }
 
 function DeferredExtras(){
   const [stage,setStage] = useState(0);
-  const [blocked,setBlocked] = useState(()=>isCreatureDatabaseRoute());
+  const [blocked,setBlocked] = useState(()=>isDedicatedDatabaseRoute());
 
   useEffect(()=>{
-    const onHashChange = () => setBlocked(isCreatureDatabaseRoute());
+    const onHashChange = () => setBlocked(isDedicatedDatabaseRoute());
     window.addEventListener('hashchange',onHashChange);
     return ()=>window.removeEventListener('hashchange',onHashChange);
   },[]);
@@ -80,6 +81,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
     <LanguageProvider>
       <AppV2 />
       <CreatureLanguageRuntimeLite />
+      <ResourceLanguageRuntimeLite />
       <TranslationCoverageLite />
       <UxBehaviorRuntime />
       <AccessibilityPolishRuntime />
