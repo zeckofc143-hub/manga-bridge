@@ -4,6 +4,7 @@ import CreatureEncyclopediaPageV3, { encyclopediaCreatures } from './CreatureEnc
 import { CreatureToolsHub, CreatureRecordPanel } from './CreatureToolsHub';
 import CreatureAdvancedPanel from './CreatureAdvancedPanel';
 import './creatureDatabasePage.css';
+import './creatureMotion.css';
 
 export default function CreatureDatabasePage({ routeId = null }) {
   const activeCreature = routeId ? encyclopediaCreatures.find(c => c.id === routeId) : null;
