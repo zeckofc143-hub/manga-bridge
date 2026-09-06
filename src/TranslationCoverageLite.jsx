@@ -65,6 +65,7 @@ const ATTR_STATE = new WeakMap();
 const ROLE_CONTEXT = '.ce3-card,.ce3-detail-page,.ce3-role-scroll,.cth-root,.creature-card,.role-row,.tag-cloud';
 
 const clean = value => String(value ?? '').replace(/\s+/g,' ').trim();
+const isNativeResourceRoute = () => /^#\/resources(?:\/|$|\?)/i.test(window.location.hash || '#/');
 
 function convertText(raw,language){
   const source=String(raw ?? '');
@@ -124,6 +125,7 @@ function translateAttributes(el,language){
 }
 
 function processRoot(root,language){
+  if(isNativeResourceRoute()) return;
   if(!root) return;
   if(root.nodeType===Node.TEXT_NODE){ translateTextNode(root,language); return; }
   if(root.nodeType!==Node.ELEMENT_NODE) return;
@@ -142,6 +144,7 @@ export default function TranslationCoverageLite(){
 
     const flush=()=>{frame=0;processRoot(document.body,language);};
     const schedule=(delays=[0,70,220])=>{
+      if(isNativeResourceRoute()) return;
       if(!frame) frame=requestAnimationFrame(flush);
       delays.filter(delay=>delay>0).forEach(delay=>{
         const id=window.setTimeout(()=>{timers.delete(id);processRoot(document.body,language);},delay);
