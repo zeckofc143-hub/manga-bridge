@@ -2,15 +2,15 @@
    Motion communicates state changes and must not replay just because React remounted a card. */
 
 :root{
-  --creature-ease:cubic-bezier(.22,.8,.24,1);
-  --creature-ease-snappy:cubic-bezier(.2,.75,.25,1);
-  --creature-fast:150ms;
-  --creature-mid:220ms;
-  --creature-slow:320ms;
+  --creature-ease:var(--ux-motion-ease,cubic-bezier(.2,.72,.2,1));
+  --creature-ease-snappy:var(--ux-motion-ease-out,cubic-bezier(.16,1,.3,1));
+  --creature-fast:var(--ux-press-fast,120ms);
+  --creature-mid:var(--ux-press-return,205ms);
+  --creature-slow:300ms;
 }
 
 @keyframes creature-menu-in{
-  from{opacity:0;transform:translate3d(0,-4px,0)}
+  from{opacity:.9;transform:translate3d(0,-5px,0)}
   to{opacity:1;transform:translate3d(0,0,0)}
 }
 
@@ -87,7 +87,7 @@
 .ce3-open:active,
 .ce3-tutorial:active,
 .ce3-hero-actions a:active{
-  transform:scale(.97);
+  transform:translate3d(0,1px,0) scale(.978);
 }
 
 .cth-tabs button.active,
@@ -99,11 +99,10 @@
   box-shadow:0 4px 14px rgba(58,220,140,.09);
 }
 
-/* The only entrance motion left in this route is a short disclosure transition.
-   It explains that filters were revealed, and it is tied directly to the user's action. */
+/* Filter reveal is deliberate enough to read as feedback, but never delays the controls. */
 .ce3-filters[open]>div{
   transform-origin:top center;
-  animation:creature-menu-in 150ms var(--creature-ease) both;
+  animation:creature-menu-in var(--ux-route-motion,220ms) var(--creature-ease-snappy) both;
 }
 
 /* Values respond to user changes without pop/mount animations. */
@@ -137,7 +136,7 @@
 .creature-db-root select:focus-visible,
 .creature-db-root input:focus-visible,
 .creature-db-root summary:focus-visible{
-  outline:2px solid var(--accent,#67dc8d);
+  outline:3px solid var(--accent,#67dc8d);
   outline-offset:3px;
 }
 
@@ -174,14 +173,6 @@
   }
 }
 
-@media(max-width:560px){
-  :root{
-    --creature-fast:130ms;
-    --creature-mid:190ms;
-    --creature-slow:280ms;
-  }
-}
-
 @media(prefers-reduced-motion:reduce){
   .creature-db-root,
   .creature-db-root *,
@@ -191,4 +182,13 @@
     transition:none!important;
     scroll-behavior:auto!important;
   }
+}
+
+html[data-ux-effects="reduced"] .creature-db-root,
+html[data-ux-effects="reduced"] .creature-db-root *,
+html[data-ux-effects="reduced"] .creature-db-root *::before,
+html[data-ux-effects="reduced"] .creature-db-root *::after{
+  animation:none!important;
+  transition:none!important;
+  scroll-behavior:auto!important;
 }
