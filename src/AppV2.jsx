@@ -1,5 +1,6 @@
 import React, { Suspense, lazy, useEffect, useMemo, useState } from 'react';
 import { Menu, Moon, Search, Sun, X } from 'lucide-react';
+import HomeV2 from './HomeV2';
 import CreatureDatabasePage from './CreatureDatabasePage';
 import ResourceDatabasePage from './ResourceDatabasePage';
 import ChamberDatabasePage from './ChamberDatabasePage';
@@ -31,6 +32,7 @@ const extraNav = [
 const mobileNav = [['#/', 'Início', 'Home'],...coreNav,...extraNav.map(([href,pt,en])=>[href,pt,en])];
 
 const databaseConfig = {
+  home:{href:'#/',route:'search',shell:'home-v2-shell',main:'home-v2-main',footer:'home-v2-footer',search:['Buscar em toda a wiki...','Search the whole wiki...'],aria:['Busca global','Global search']},
   creatures:{href:'#/creatures',route:'creatures',shell:'creature-database-shell',main:'creature-db-main',footer:'creature-db-footer',search:['Buscar criaturas nesta categoria...','Search creatures in this category...'],aria:['Buscar criaturas','Search creatures']},
   resources:{href:'#/resources',route:'resources',shell:'resource-database-shell',main:'resource-db-main',footer:'resource-db-footer',search:['Buscar recursos nesta categoria...','Search resources in this category...'],aria:['Buscar recursos','Search resources']},
   chambers:{href:'#/chambers',route:'chambers',shell:'chamber-database-shell',main:'chamber-db-main',footer:'chamber-db-footer',search:['Buscar câmaras nesta categoria...','Search chambers in this category...'],aria:['Buscar câmaras','Search chambers']},
@@ -63,6 +65,7 @@ function PageLoadingState(){
 }
 
 function DatabaseContent({kind,routeId}){
+  if(kind==='home') return <HomeV2/>;
   if(kind==='resources') return <ResourceDatabasePage routeId={routeId}/>;
   if(kind==='chambers') return <ChamberDatabasePage routeId={routeId}/>;
   if(kind==='mechanics') return <MechanicDatabasePage routeId={routeId}/>;
@@ -76,6 +79,7 @@ function DatabaseContent({kind,routeId}){
 }
 
 function DatabaseFooter({kind,t}){
+  if(kind==='home') return t('Pocket Ants Wiki BR · dados, farms, estratégias e ferramentas com fontes e confiança visíveis.','Pocket Ants Wiki EN · data, farms, strategies and tools with visible sources and confidence.');
   if(kind==='resources') return t('Banco de Dados de Recursos · Pocket Ants Wiki BR · obtenção, usos, prioridade e fontes organizadas.','Resource Database · Pocket Ants Wiki EN · acquisition, uses, priority and sources organized.');
   if(kind==='chambers') return t('Central de Câmaras · Pocket Ants Wiki BR · níveis, gargalos, dependências e fontes organizadas.','Chamber Hub · Pocket Ants Wiki EN · levels, bottlenecks, dependencies and sources organized.');
   if(kind==='mechanics') return t('Central de Mecânicas · Pocket Ants Wiki BR · sistemas, timers, fluxos e fontes organizadas.','Mechanics Hub · Pocket Ants Wiki EN · systems, timers, flows and sources organized.');
@@ -189,13 +193,16 @@ export default function AppV2(){
   },[]);
 
   const route=useMemo(()=>getDatabaseRoute(hash),[hash]);
+  const home=/^#\/(?:\?.*)?$/.test(hash||'#/');
 
   useEffect(()=>{
     for(const kind of DATABASE_KINDS) document.body.classList.toggle(databaseRouteClass(kind),route.active&&route.kind===kind);
+    document.body.classList.toggle('home-v2-route',home);
     document.body.classList.remove('encyclopedia-route');
-    return()=>{DATABASE_KINDS.forEach(kind=>document.body.classList.remove(databaseRouteClass(kind)));};
-  },[route.active,route.kind]);
+    return()=>{DATABASE_KINDS.forEach(kind=>document.body.classList.remove(databaseRouteClass(kind)));document.body.classList.remove('home-v2-route');};
+  },[route.active,route.kind,home]);
 
+  if(home) return <DatabaseShell kind="home" routeId={null}/>;
   if(route.active) return <DatabaseShell kind={route.kind} routeId={route.id}/>;
   return <Suspense fallback={<PageLoadingState/>}><LegacyApp/></Suspense>;
 }
