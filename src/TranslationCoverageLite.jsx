@@ -16,7 +16,7 @@ const EXTRA_EN = new Map(Object.entries({
   'Base atualizada':'Updated database',
   'Economia':'Economy','Colônia':'Colony','Biblioteca':'Library','Utilidades':'Utilities','Referência':'Reference','Busca global':'Global search',
   'O que cada recurso faz, onde obter e qual é o papel dele na progressão.':'What each resource does, where to get it and its role in progression.',
-  'Função, prioridade e limites em uma visão feita para decidir o próximo upgrade.':'Purpose, priority and limits in a view designed to help choose your next upgrade.',
+  'Função, prioridade e limites em uma visão feita para decidir o próximo upgrade.':'Purpose, priority and limits in a view designed to help choose the next upgrade.',
   'Dado confirmado fica separado de estratégia comunitária. Assim um conselho de meta não vira regra eterna só porque entrou numa página.':'Confirmed data stays separate from community strategy, so a meta recommendation does not become a permanent rule just because it appears on a page.',
   'Primeiros passos em 5 decisões':'Getting started in 5 decisions',
   'Comparador de criaturas':'Creature comparator','Compare ratings relativos lado a lado.':'Compare relative ratings side by side.',
@@ -65,7 +65,7 @@ const ATTR_STATE = new WeakMap();
 const ROLE_CONTEXT = '.ce3-card,.ce3-detail-page,.ce3-role-scroll,.cth-root,.creature-card,.role-row,.tag-cloud';
 
 const clean = value => String(value ?? '').replace(/\s+/g,' ').trim();
-const isNativeDatabaseRoute = () => /^#\/(?:resources|chambers)(?:\/|$|\?)/i.test(window.location.hash || '#/');
+const isNativeDatabaseRoute = () => /^#\/(?:resources|chambers|mechanics|guides)(?:\/|$|\?)/i.test(window.location.hash || '#/');
 
 function convertText(raw,language){
   const source=String(raw ?? '');
