@@ -91,7 +91,11 @@ export function matchupFor(creature){ return communityMatchups[n(creature?.name)
 
 export function currentAvailability(creature){
   if(creature?.category !== 'event') return {status:'Permanente / sistema base',tone:'base',detail:'Esta entrada não depende de um evento especial para existir no jogo.'};
-  return {status:'Evento não confirmado agora',tone:'unknown',detail:'A revisão pública de 05/09/2026 não encontrou uma fonte confiável que confirme esta criatura ativa neste exato momento. O histórico continua disponível e mini-events podem trazê-la de volta.'};
+  return {
+    status:'Sem confirmação na última revisão',
+    tone:'unknown',
+    detail:'Última revisão pública: 05/09/2026. Nessa revisão, não encontramos uma fonte confiável confirmando esta criatura ativa. O histórico continua disponível e mini-events podem trazê-la de volta.'
+  };
 }
 
 export function galleryCandidates(creature){
