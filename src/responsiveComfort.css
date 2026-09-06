@@ -1,0 +1,155 @@
+/* Final responsive comfort pass: narrow phones, browser zoom, dense tools and long labels. */
+
+:where(
+  .site-main,.content-width,.page-stack,.home-stack,
+  .cth-root,.cth-head,.cth-panel,.cth-toolbar,.cth-fields,.cth-summary-grid,.cth-mini-grid,
+  .cth-collection-row,.cth-collection-name,.cth-two-columns,.cth-subcard,.cth-record,.cth-record-grid,
+  .adv-modal,.adv-body,.adv-card,.research-modal,.x-panel,.x-panel-body
+){min-width:0}
+
+:where(
+  .cth-head p,.cth-note,.cth-subcard p,.cth-record p,.cth-collection-name span,
+  .adv-note,.adv-copy,.resource-card,.guide-card,.mechanic-card,.source-box
+){overflow-wrap:anywhere}
+
+/* Dense tool controls should never regress below comfortable input sizing. */
+:where(
+  .cth-toolbar select,.cth-fields select,.cth-inline input,.cth-collection-row input,.cth-collection-row select,
+  .cth-army-grid select,.cth-compare-selects select,.cth-record input,.cth-record select,
+  .x-search-row input,.x-search-row select,.research-searchbar input
+){
+  min-height:44px;
+  font-size:max(.9rem,14px);
+}
+
+:where(.cth-tabs button,.cth-view button,.cth-mode button,.cth-backup button,.cth-progress-cards button,.cth-record-actions button){
+  min-height:44px;
+  padding:9px 12px;
+}
+
+.cth-tabs{
+  scroll-snap-type:x proximity;
+  overscroll-behavior-x:contain;
+  -webkit-overflow-scrolling:touch;
+}
+.cth-tabs button{flex:0 0 auto;scroll-snap-align:start}
+.cth-tab-stage{min-width:0}
+
+.cth-panel{
+  overflow:hidden;
+  scrollbar-gutter:stable;
+}
+.cth-collection-list,.cth-event-list,.cth-attract-results{
+  overscroll-behavior:contain;
+}
+.cth-collection-row,.cth-attract,.cth-event-list>a{
+  content-visibility:auto;
+  contain-intrinsic-size:auto 86px;
+}
+
+/* Give comparison a clear scroll boundary instead of letting the whole page overflow. */
+.cth-compare-table{
+  max-width:100%;
+  overflow:auto;
+  overscroll-behavior-x:contain;
+  -webkit-overflow-scrolling:touch;
+  scrollbar-gutter:stable;
+}
+.cth-compare-head,.cth-compare-row{min-width:720px}
+.cth-compare-head>* , .cth-compare-row>*{min-width:0;overflow-wrap:anywhere}
+
+.cth-army-grid label{min-width:0}
+.cth-army-grid select{width:100%;min-width:0}
+.cth-role-summary{-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;scrollbar-width:thin}
+
+/* Sliders and compact fields get more breathing room without making the page enormous. */
+.cth-lab-sliders{gap:12px}
+.cth-lab-sliders label,.cth-record-lab label{line-height:1.35}
+.cth-fields.compact{gap:10px}
+.cth-score{min-height:48px}
+
+/* Floating dock must never cover the last actionable row. */
+@media(max-width:760px){
+  body:has(.x-fab) .site-main{padding-bottom:max(94px,calc(env(safe-area-inset-bottom) + 82px))!important}
+  .cth-root,.cth-record{padding-inline:max(12px,env(safe-area-inset-left));padding-right:max(12px,env(safe-area-inset-right))}
+  .cth-panel{padding:12px;border-radius:16px}
+  .cth-head{gap:11px}
+  .cth-head p{font-size:.94rem;line-height:1.55}
+  .cth-tabs{margin-inline:-3px;padding-inline:3px 10px;gap:7px}
+  .cth-tabs button{min-height:48px;font-size:.86rem}
+  .cth-view button,.cth-mode button{min-height:48px}
+  .cth-toolbar,.cth-fields{align-items:stretch;gap:9px}
+  .cth-toolbar>*{min-width:0}
+  .cth-search{min-width:0;min-height:48px}
+  .cth-search input{font-size:16px}
+  .cth-two-columns{grid-template-columns:1fr}
+  .cth-fields.compact{grid-template-columns:1fr 1fr}
+  .cth-army-grid{grid-template-columns:1fr 1fr}
+  .cth-attract-results{grid-template-columns:1fr}
+  .cth-record-grid{grid-template-columns:1fr}
+  .cth-record-facts span{align-items:flex-start}
+  .cth-record-facts b{max-width:62%}
+}
+
+/* 200% zoom and small Android viewports effectively land here. Prefer reflow over tiny controls. */
+@media(max-width:560px){
+  .cth-root,.cth-record{padding-inline:max(10px,env(safe-area-inset-left));padding-right:max(10px,env(safe-area-inset-right))}
+  .cth-summary-grid,.cth-mini-grid{grid-template-columns:1fr 1fr}
+  .cth-summary-grid>div,.cth-mini-grid>span{padding:10px}
+  .cth-toolbar{display:grid;grid-template-columns:1fr}
+  .cth-toolbar>*{width:100%}
+  .cth-inline{justify-content:space-between;gap:10px}
+  .cth-inline input{width:min(110px,42vw)}
+
+  .cth-collection-row{
+    grid-template-columns:44px minmax(0,1fr) 44px!important;
+    gap:8px!important;
+    padding:10px!important;
+  }
+  .cth-check,.cth-heart{width:44px!important;height:44px!important}
+  .cth-collection-name{min-width:0}
+  .cth-collection-row>label{
+    grid-column:1/-1!important;
+    display:grid!important;
+    grid-template-columns:minmax(72px,auto) minmax(0,1fr);
+    align-items:center!important;
+    gap:8px!important;
+  }
+  .cth-collection-row>label input,.cth-collection-row>label select{width:100%;min-width:0}
+  .cth-collection-row>.cth-golden{grid-column:1/-1!important;min-height:44px;width:100%}
+
+  .cth-compare-selects{grid-template-columns:1fr!important}
+  .cth-compare-head,.cth-compare-row{grid-template-columns:110px repeat(4,minmax(142px,1fr));min-width:678px}
+  .cth-army-grid{grid-template-columns:1fr}
+  .cth-fields.compact{grid-template-columns:1fr}
+  .cth-progress-cards{grid-template-columns:1fr 1fr}
+  .cth-record-actions{grid-template-columns:1fr!important}
+  .cth-record-actions>*{width:100%;min-width:0}
+  .cth-record-actions label{justify-content:space-between}
+}
+
+@media(max-width:400px){
+  .cth-summary-grid,.cth-mini-grid,.cth-progress-cards{grid-template-columns:1fr}
+  .cth-view{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+  .cth-view button{width:100%}
+  .cth-mode{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+  .cth-mode>span{grid-column:1/-1}
+  .cth-compare-head,.cth-compare-row{grid-template-columns:102px repeat(4,minmax(136px,1fr));min-width:646px}
+}
+
+@media(max-width:340px){
+  .cth-root,.cth-record{padding-inline:8px}
+  .cth-panel{padding:9px}
+  .cth-tabs button{padding-inline:10px}
+  .cth-collection-row{grid-template-columns:42px minmax(0,1fr) 42px!important;padding:8px!important}
+}
+
+/* At large browser zoom, no fixed modal width should force horizontal page scrolling. */
+@media(max-width:700px){
+  :where(.adv-modal,.research-modal,.x-panel,.pa-settings-panel,.mobile-drawer){max-width:100vw!important}
+  :where(.adv-body,.x-panel-body,.research-modal){min-width:0;overflow-x:hidden}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .cth-tabs,.cth-compare-table,.cth-role-summary{scroll-behavior:auto!important}
+}
