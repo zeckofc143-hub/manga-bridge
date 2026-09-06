@@ -1,0 +1,68 @@
+/* Site-wide interaction comfort layer. Loaded last on purpose. */
+:root{--pa-focus:color-mix(in srgb,var(--accent,#75d46f) 62%,transparent);--pa-touch:44px}
+
+:where(button,a[href],summary,input,select,textarea):focus-visible{outline:3px solid var(--pa-focus);outline-offset:2px}
+:where(button,a[href],summary){-webkit-tap-highlight-color:transparent}
+:where(h1,h2,h3,[id]){scroll-margin-top:calc(var(--header,68px) + 18px)}
+
+/* Modern header: clear search state, comfortable targets and no accidental tiny controls. */
+.header-search{min-height:44px;height:auto;min-width:0}
+.header-search-clear{width:34px;height:34px;flex:none;display:grid;place-items:center;border:0;border-radius:9px;background:transparent;color:var(--muted);padding:0}
+.header-search-clear:hover{background:var(--surface-2);color:var(--text)}
+.header-actions .icon-button{flex:none}
+.desktop-nav a{min-height:40px;display:inline-flex;align-items:center}
+
+/* Mobile navigation should feel like a small navigation screen, not a narrow desktop sidebar. */
+.mobile-drawer-backdrop{background:rgba(0,0,0,.5);touch-action:none}
+.mobile-drawer{width:min(92vw,380px);height:100dvh;max-height:100dvh;padding:max(14px,env(safe-area-inset-top)) max(14px,env(safe-area-inset-right)) max(18px,calc(env(safe-area-inset-bottom) + 12px)) 14px;overflow-y:auto;overscroll-behavior:contain;touch-action:pan-y;scrollbar-gutter:stable}
+.drawer-head{position:sticky;top:0;z-index:2;margin:-4px -2px 12px;padding:4px 2px 10px;background:linear-gradient(var(--bg) 78%,transparent)}
+.drawer-search{min-height:50px;padding:4px 5px 4px 12px;gap:8px}
+.drawer-search input{min-height:42px;font-size:16px}
+.drawer-search-button{width:42px;height:42px;flex:none;display:grid;place-items:center;border:1px solid var(--line);border-radius:10px;background:var(--accent-soft);color:var(--accent);padding:0}
+.drawer-search-hint{margin:8px 3px 12px;color:var(--muted);font-size:.76rem;line-height:1.45}
+.mobile-nav{gap:5px;margin-top:8px}.mobile-nav a{min-height:48px;padding:11px 12px;border:1px solid transparent;border-radius:12px}.mobile-nav a.active{border-color:color-mix(in srgb,var(--accent) 28%,var(--line));background:var(--accent-soft);color:var(--text)}
+.drawer-global-link{min-height:48px;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:12px;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--accent);font-weight:850;font-size:.84rem}
+
+/* Reusable database controls: large enough to hit, but not visually oversized. */
+:where(.rdb-search,input[type="search"],.td-field input,.td-field select){min-height:44px}
+:where(.rdb-back,.rdb-detail-actions a,.td-source,.td-toolbar button,.td-goal-row button,.td-category-row button,.td-filter-row button){min-height:44px}
+:where(.rdb-card,.td-card,.gs-result,.category-card){scroll-margin-top:calc(var(--header,68px) + 12px)}
+
+/* Prevent decorative hover motion from sticking on touch screens. */
+@media(hover:none){
+  :where(.category-card,.td-card,.gs-result,.ce3-card,.rdb-card):hover{transform:none!important;box-shadow:none!important}
+}
+
+@media(max-width:860px){
+  .header-inner{gap:7px}
+  .header-actions{gap:5px}
+  .header-actions .icon-button,.mobile-menu-button{width:44px;height:44px;border-radius:12px}
+  .header-search{min-height:44px;padding-inline:9px}
+  .header-search input{font-size:16px}
+  .header-search-clear{width:38px;height:38px}
+}
+
+@media(max-width:600px){
+  :root{--header:62px}
+  .site-header{height:var(--header)}
+  .header-inner{width:calc(100% - 12px)}
+  .brand-mark{width:42px;height:42px;border-radius:12px}
+  .header-search{min-width:0}
+  .header-actions .icon-button{width:42px;height:42px}
+  .site-main{scroll-padding-top:calc(var(--header) + 12px)}
+  .mobile-drawer{border-radius:20px 0 0 20px}
+}
+
+@media(max-width:390px){
+  .header-inner{gap:5px}
+  .brand-mark{width:40px;height:40px}
+  .header-actions{gap:4px}
+  .header-actions .icon-button{width:40px;height:40px}
+  .header-search{padding-inline:7px;gap:6px}
+  .header-search>svg{display:none}
+  .header-search-clear{width:34px;height:34px}
+}
+
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto!important}.mobile-drawer,.mobile-drawer-backdrop{animation:none!important;transition:none!important}}
+html[data-ux-effects="reduced"] .mobile-drawer-backdrop{backdrop-filter:none!important}
+html[data-ux-effects="reduced"] :where(.category-card,.td-card,.gs-result,.ce3-card,.rdb-card){transition:none!important;box-shadow:none!important}
