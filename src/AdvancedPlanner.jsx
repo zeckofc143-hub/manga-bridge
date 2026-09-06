@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { X, Calculator, Clock3, Sparkles, FlaskConical, Info, ExternalLink } from 'lucide-react';
+import { X, Calculator, Clock3, Sparkles, FlaskConical, Info, ExternalLink, ChevronDown } from 'lucide-react';
 import {
   upgradeTables,
   fusionBaseChance,
@@ -62,7 +62,7 @@ function UpgradeCalculator() {
   return (
     <div className="adv-card">
       <div className="adv-card-head">
-        <div className="adv-icon"><Clock3 size={19}/></div>
+        <div className="adv-icon" aria-hidden="true"><Clock3 size={19}/></div>
         <div><span className="adv-kicker">Tempo acumulado</span><h3>Planner de upgrades</h3></div>
       </div>
       <div className="adv-fields">
@@ -70,19 +70,22 @@ function UpgradeCalculator() {
         <label>Nível atual<select value={current} onChange={e => setLevels(prev => ({...prev, [tableId]: Number(e.target.value)}))}>{Array.from({length: 12 - table.currentMin}, (_, i) => table.currentMin + i).map(level => <option key={level} value={level}>{level}</option>)}</select></label>
         <label>Meta<select value={safeTarget} onChange={e => setTarget(Number(e.target.value))}>{Array.from({length: 12 - current}, (_, i) => current + i + 1).map(level => <option key={level} value={level}>{level}</option>)}</select></label>
       </div>
-      <div className="adv-result-grid">
+      <div className="adv-result-grid" aria-live="polite">
         <div><span>Upgrades</span><strong>{result.rows.length}</strong></div>
         <div><span>Tempo base</span><strong>{formatMinutes(result.minutes)}</strong></div>
         <div><span>{metricLabel}</span><strong>{metricValue}</strong></div>
       </div>
-      <div className="adv-level-list">
-        {result.rows.map(row => (
-          <div key={row.level}>
-            <span>→ nível {row.level}{row.unlock ? ` · ${row.unlock}` : ''}</span>
-            <strong>{formatMinutes(row.minutes)}</strong>
-          </div>
-        ))}
-      </div>
+      <details className="adv-details">
+        <summary><span>Ver etapas do caminho</span><ChevronDown size={17}/></summary>
+        <div className="adv-level-list">
+          {result.rows.map(row => (
+            <div key={row.level}>
+              <span>→ nível {row.level}{row.unlock ? ` · ${row.unlock}` : ''}</span>
+              <strong>{formatMinutes(row.minutes)}</strong>
+            </div>
+          ))}
+        </div>
+      </details>
       <a className="adv-source-link" href={table.sourceUrl} target="_blank" rel="noreferrer">Tabela comunitária verificada em {table.verifiedAt.split('-').reverse().join('/')} <ExternalLink size={12}/></a>
     </div>
   );
@@ -107,30 +110,39 @@ function FusionCalculator() {
   return (
     <div className="adv-card">
       <div className="adv-card-head">
-        <div className="adv-icon"><Sparkles size={19}/></div>
+        <div className="adv-icon" aria-hidden="true"><Sparkles size={19}/></div>
         <div><span className="adv-kicker">Creatures Chamber</span><h3>Chance de fusão</h3></div>
       </div>
-      <div className="adv-fields fusion-fields">
+
+      <div className="adv-fields adv-fields-primary">
         <label>Nível da Creatures Chamber<select value={chamberLevel} onChange={e=>setChamberLevel(Number(e.target.value))}>{Array.from({length:12},(_,i)=>i+1).map(v=><option key={v} value={v}>{v}</option>)}</select></label>
         <label>Tentar obter<select value={targetStars} onChange={e=>setTargetStars(Number(e.target.value))}><option value={2}>2 estrelas</option><option value={3}>3 estrelas</option><option value={4}>4 estrelas</option></select></label>
-        <label>Honeydew Shop<select value={honeydew} onChange={e=>setHoneydew(Number(e.target.value))}>{fusionHoneydewBonuses.map(v=><option key={v} value={v}>{v ? `+${v}%` : 'Nenhum'}</option>)}</select></label>
-        <label>Bônus de clã<select value={clan} onChange={e=>setClan(Number(e.target.value))}>{fusionClanBonuses.map(v=><option key={v} value={v}>{v ? `+${v}%` : 'Nenhum'}</option>)}</select></label>
-        <label>Bluebells (Water 10+)<select value={bluebells} onChange={e=>setBluebells(Number(e.target.value))}><option value={0}>Inativa</option><option value={fusionTemporaryBonuses.bluebells}>+{fusionTemporaryBonuses.bluebells}%</option></select></label>
-        <label>Rock Skin<select value={rockSkin} onChange={e=>setRockSkin(Number(e.target.value))}><option value={0}>Não equipado</option><option value={fusionTemporaryBonuses.rockSkin}>+{fusionTemporaryBonuses.rockSkin}%</option></select></label>
-        <label>Extra de gemas<select value={gem} onChange={e=>setGem(Number(e.target.value))}>{fusionTemporaryBonuses.gems.map(v=><option key={v} value={v}>{v ? `+${v}% (uso único)` : 'Nenhum'}</option>)}</select></label>
       </div>
-      <div className="adv-fusion-score">
+
+      <div className="adv-fusion-score" aria-live="polite">
         <div className="adv-ring" style={{'--fusion': `${total * 3.6}deg`}}><strong>{total}%</strong><span>chance</span></div>
         <div className="adv-fusion-breakdown">
           <div><span>Chance-base</span><strong>{base}%</strong></div>
-          <div><span>Bônus somados</span><strong>+{bonus}%</strong></div>
+          <div><span>Bônus ativos</span><strong>+{bonus}%</strong></div>
           <div><span>Body Parts / tentativa</span><strong>{bodyParts}</strong></div>
-          <div><span>Tentativas médias matemáticas*</span><strong>{expected ? expected.toFixed(2) : '—'}</strong></div>
-          <div><span>Body Parts médios matemáticos*</span><strong>{expectedParts ? expectedParts.toFixed(1) : '—'}</strong></div>
-          <div><span>Chance final aplicada</span><strong>{total}%</strong></div>
+          <div><span>Tentativas médias*</span><strong>{expected ? expected.toFixed(2) : '—'}</strong></div>
+          <div><span>Body Parts médios*</span><strong>{expectedParts ? expectedParts.toFixed(1) : '—'}</strong></div>
+          <div><span>Chance final</span><strong>{total}%</strong></div>
         </div>
       </div>
-      <p className="adv-note"><Info size={14}/><span>*Valores esperados são matemática, não garantia. A chance-base para de subir após Creatures Chamber nível 4. Bluebells adiciona +5%, Rock Skin +1%, o bônus de clã pode chegar a +5% e o bônus de gemas é de uso único.</span></p>
+
+      <details className="adv-details adv-bonus-details">
+        <summary><span>Ajustar bônus opcionais</span><small>{bonus ? `+${bonus}% ativo` : 'nenhum ativo'}</small><ChevronDown size={17}/></summary>
+        <div className="adv-fields fusion-fields">
+          <label>Honeydew Shop<select value={honeydew} onChange={e=>setHoneydew(Number(e.target.value))}>{fusionHoneydewBonuses.map(v=><option key={v} value={v}>{v ? `+${v}%` : 'Nenhum'}</option>)}</select></label>
+          <label>Bônus de clã<select value={clan} onChange={e=>setClan(Number(e.target.value))}>{fusionClanBonuses.map(v=><option key={v} value={v}>{v ? `+${v}%` : 'Nenhum'}</option>)}</select></label>
+          <label>Bluebells (Water 10+)<select value={bluebells} onChange={e=>setBluebells(Number(e.target.value))}><option value={0}>Inativa</option><option value={fusionTemporaryBonuses.bluebells}>+{fusionTemporaryBonuses.bluebells}%</option></select></label>
+          <label>Rock Skin<select value={rockSkin} onChange={e=>setRockSkin(Number(e.target.value))}><option value={0}>Não equipado</option><option value={fusionTemporaryBonuses.rockSkin}>+{fusionTemporaryBonuses.rockSkin}%</option></select></label>
+          <label>Extra de gemas<select value={gem} onChange={e=>setGem(Number(e.target.value))}>{fusionTemporaryBonuses.gems.map(v=><option key={v} value={v}>{v ? `+${v}% (uso único)` : 'Nenhum'}</option>)}</select></label>
+        </div>
+      </details>
+
+      <p className="adv-note"><Info size={14}/><span>*Valores esperados são matemática, não garantia. A chance-base para de subir após Creatures Chamber nível 4. Os bônus opcionais ficam recolhidos para a tela não começar carregada de controles.</span></p>
     </div>
   );
 }
@@ -138,7 +150,7 @@ function FusionCalculator() {
 function LabReference() {
   return (
     <div className="adv-card">
-      <div className="adv-card-head"><div className="adv-icon"><FlaskConical size={19}/></div><div><span className="adv-kicker">Referência</span><h3>Creature Lab</h3></div></div>
+      <div className="adv-card-head"><div className="adv-icon" aria-hidden="true"><FlaskConical size={19}/></div><div><span className="adv-kicker">Referência</span><h3>Creature Lab</h3></div></div>
       <div className="adv-lab-stats"><div><span>Nível máximo por stat</span><strong>{creatureLabFacts.maxStatLevel}</strong></div><div><span>Máx. em criaturas high-increase</span><strong>+{creatureLabFacts.highIncreaseMaxPercentPerStat}%</strong></div></div>
       <p className="adv-copy">{creatureLabFacts.note}</p>
       <div className="adv-unlocks">{creatureLabFacts.chamberUnlocks.map(item=><span key={item.chamberLevel}>Chamber {item.chamberLevel} <b>→</b> Lab {item.labLevel}</span>)}</div>
@@ -149,14 +161,20 @@ function LabReference() {
 export default function AdvancedPlanner() {
   const [open, setOpen] = useState(false);
   const [tab, setTab] = useState('upgrade');
+  const titleId = 'advanced-planner-title';
+
   return (
     <>
       <button className="adv-fab" onClick={()=>setOpen(true)} aria-label="Abrir calculadoras avançadas"><Calculator size={18}/><span>Calculadoras</span></button>
       {open && <div className="adv-overlay" onClick={()=>setOpen(false)}>
-        <section className="adv-modal" onClick={e=>e.stopPropagation()}>
-          <header className="adv-header"><div><span className="adv-kicker">Ferramentas avançadas</span><h2>Calculadoras Pocket Ants</h2></div><button onClick={()=>setOpen(false)}><X size={20}/></button></header>
-          <nav className="adv-tabs"><button className={tab==='upgrade'?'active':''} onClick={()=>setTab('upgrade')}><Clock3 size={15}/> Upgrades</button><button className={tab==='fusion'?'active':''} onClick={()=>setTab('fusion')}><Sparkles size={15}/> Fusão</button><button className={tab==='lab'?'active':''} onClick={()=>setTab('lab')}><FlaskConical size={15}/> Creature Lab</button></nav>
-          <div className="adv-body">{tab==='upgrade'&&<UpgradeCalculator/>}{tab==='fusion'&&<FusionCalculator/>}{tab==='lab'&&<LabReference/>}</div>
+        <section className="adv-modal" role="dialog" aria-modal="true" aria-labelledby={titleId} onClick={e=>e.stopPropagation()}>
+          <header className="adv-header"><div><span className="adv-kicker">Ferramentas avançadas</span><h2 id={titleId}>Calculadoras Pocket Ants</h2></div><button type="button" onClick={()=>setOpen(false)} aria-label="Fechar calculadoras"><X size={20}/></button></header>
+          <nav className="adv-tabs" aria-label="Calculadoras">
+            <button type="button" aria-pressed={tab==='upgrade'} className={tab==='upgrade'?'active':''} onClick={()=>setTab('upgrade')}><Clock3 size={15}/> Upgrades</button>
+            <button type="button" aria-pressed={tab==='fusion'} className={tab==='fusion'?'active':''} onClick={()=>setTab('fusion')}><Sparkles size={15}/> Fusão</button>
+            <button type="button" aria-pressed={tab==='lab'} className={tab==='lab'?'active':''} onClick={()=>setTab('lab')}><FlaskConical size={15}/> Creature Lab</button>
+          </nav>
+          <div className="adv-body" key={tab}>{tab==='upgrade'&&<UpgradeCalculator/>}{tab==='fusion'&&<FusionCalculator/>}{tab==='lab'&&<LabReference/>}</div>
         </section>
       </div>}
     </>
