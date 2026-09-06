@@ -28,6 +28,8 @@ function nextFrame(){
 
 export default function ViewTransitionRuntime(){
   useEffect(()=>{
+    let serial = 0;
+
     const onClick = event => {
       const target = eligibleAnchor(event);
       if(!target || !motionAllowed() || typeof document.startViewTransition !== 'function') return;
@@ -35,14 +37,18 @@ export default function ViewTransitionRuntime(){
       event.preventDefault();
       document.activeViewTransition?.skipTransition?.();
 
+      const token = String(++serial);
       const root = document.documentElement;
       const main = document.querySelector('.site-main');
       root.dataset.uxViewTransition = 'active';
+      root.dataset.uxViewTransitionToken = token;
       main?.setAttribute('aria-busy','true');
 
       let navigated = false;
       const clear = () => {
-        if(root.dataset.uxViewTransition === 'active') delete root.dataset.uxViewTransition;
+        if(root.dataset.uxViewTransitionToken !== token) return;
+        delete root.dataset.uxViewTransition;
+        delete root.dataset.uxViewTransitionToken;
         main?.removeAttribute('aria-busy');
       };
 
