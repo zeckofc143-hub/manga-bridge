@@ -4,6 +4,7 @@ import CreatureDatabasePage from './CreatureDatabasePage';
 import ResourceDatabasePage from './ResourceDatabasePage';
 import ChamberDatabasePage from './ChamberDatabasePage';
 import MechanicDatabasePage from './MechanicDatabasePage';
+import GuideDatabasePage from './GuideDatabasePage';
 import { useLanguage } from './LanguageProviderLite';
 
 const LegacyApp = lazy(() => import('./App'));
@@ -22,12 +23,13 @@ const databaseConfig = {
   creatures:{href:'#/creatures',route:'creatures',shell:'creature-database-shell',main:'creature-db-main',footer:'creature-db-footer',search:['Buscar no banco de criaturas...','Search the creature database...'],aria:['Buscar criaturas','Search creatures']},
   resources:{href:'#/resources',route:'resources',shell:'resource-database-shell',main:'resource-db-main',footer:'resource-db-footer',search:['Buscar no banco de recursos...','Search the resource database...'],aria:['Buscar recursos','Search resources']},
   chambers:{href:'#/chambers',route:'chambers',shell:'chamber-database-shell',main:'chamber-db-main',footer:'chamber-db-footer',search:['Buscar no banco de câmaras...','Search the chamber database...'],aria:['Buscar câmaras','Search chambers']},
-  mechanics:{href:'#/mechanics',route:'mechanics',shell:'mechanic-database-shell',main:'mechanic-db-main',footer:'mechanic-db-footer',search:['Buscar mecânica, sistema ou farm...','Search mechanics, systems or farms...'],aria:['Buscar mecânicas','Search mechanics']}
+  mechanics:{href:'#/mechanics',route:'mechanics',shell:'mechanic-database-shell',main:'mechanic-db-main',footer:'mechanic-db-footer',search:['Buscar mecânica, sistema ou farm...','Search mechanics, systems or farms...'],aria:['Buscar mecânicas','Search mechanics']},
+  guides:{href:'#/guides',route:'guides',shell:'guide-database-shell',main:'guide-db-main',footer:'guide-db-footer',search:['Buscar guia, objetivo ou gargalo...','Search guides, goals or bottlenecks...'],aria:['Buscar guias','Search guides']}
 };
 
 function currentDatabaseRoute(hash){
   const value = hash || window.location.hash || '#/';
-  for(const kind of ['creatures','resources','chambers','mechanics']){
+  for(const kind of ['creatures','resources','chambers','mechanics','guides']){
     const match = value.match(new RegExp(`^#\\/${kind}(?:\\/([^?/#]+))?`,'i'));
     if(match) return {active:true,kind,id:match[1]?decodeURIComponent(match[1]):null};
   }
@@ -44,6 +46,7 @@ function DatabaseContent({kind,routeId}){
   if(kind==='resources') return <ResourceDatabasePage routeId={routeId}/>;
   if(kind==='chambers') return <ChamberDatabasePage routeId={routeId}/>;
   if(kind==='mechanics') return <MechanicDatabasePage routeId={routeId}/>;
+  if(kind==='guides') return <GuideDatabasePage routeId={routeId}/>;
   return <CreatureDatabasePage routeId={routeId}/>;
 }
 
@@ -51,6 +54,7 @@ function DatabaseFooter({kind,t}){
   if(kind==='resources') return t('Banco de Dados de Recursos · Pocket Ants Wiki BR · obtenção, usos, prioridade e fontes organizadas.','Resource Database · Pocket Ants Wiki EN · acquisition, uses, priority and sources organized.');
   if(kind==='chambers') return t('Central de Câmaras · Pocket Ants Wiki BR · níveis, gargalos, dependências e fontes organizadas.','Chamber Hub · Pocket Ants Wiki EN · levels, bottlenecks, dependencies and sources organized.');
   if(kind==='mechanics') return t('Central de Mecânicas · Pocket Ants Wiki BR · sistemas, timers, fluxos e fontes organizadas.','Mechanics Hub · Pocket Ants Wiki EN · systems, timers, flows and sources organized.');
+  if(kind==='guides') return t('Central de Guias · Pocket Ants Wiki BR · rotas por fase, objetivo e gargalo.','Guides Hub · Pocket Ants Wiki EN · routes by stage, goal and bottleneck.');
   return t('Banco de Dados de Criaturas · Pocket Ants Wiki BR · dados comunitários revisados e conflitos sinalizados.','Creature Database · Pocket Ants Wiki EN · community data reviewed and conflicts flagged.');
 }
 
@@ -102,9 +106,9 @@ export default function AppV2(){
   const route=useMemo(()=>currentDatabaseRoute(hash),[hash]);
 
   useEffect(()=>{
-    for(const kind of ['creatures','resources','chambers','mechanics']) document.body.classList.toggle(`${kind.slice(0,-1)}-database-route`,route.active&&route.kind===kind);
+    for(const kind of ['creatures','resources','chambers','mechanics','guides']) document.body.classList.toggle(`${kind.slice(0,-1)}-database-route`,route.active&&route.kind===kind);
     document.body.classList.remove('encyclopedia-route');
-    return()=>{document.body.classList.remove('creature-database-route','resource-database-route','chamber-database-route','mechanic-database-route');};
+    return()=>{document.body.classList.remove('creature-database-route','resource-database-route','chamber-database-route','mechanic-database-route','guide-database-route');};
   },[route.active,route.kind]);
 
   if(route.active) return <DatabaseShell kind={route.kind} routeId={route.id}/>;
