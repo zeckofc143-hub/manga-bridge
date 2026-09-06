@@ -62,6 +62,16 @@ export function usePersistentState(key,initialValue){
     };
   },[key,makeInitial]);
 
-  const reset=useCallback(()=>setValue(makeInitial()),[makeInitial]);
+  const reset=useCallback(()=>{
+    if(key==='pa-collection' && typeof window!=='undefined'){
+      const en=document.documentElement.dataset.language==='en';
+      const message=en
+        ? 'Clear your saved creature collection? This cannot be undone unless you exported a backup.'
+        : 'Limpar toda a coleção de criaturas salva? Isso não pode ser desfeito, a menos que você tenha exportado um backup.';
+      if(!window.confirm(message)) return;
+    }
+    setValue(makeInitial());
+  },[key,makeInitial]);
+
   return [value,setValue,reset];
 }
