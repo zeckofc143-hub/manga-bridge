@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { Check, Eye, Languages, Settings, X } from 'lucide-react';
-import { creatureDescription, creatureName } from './i18n';
+import { creatureDescription, creatureName } from './i18nCore';
 import './settings.css';
 
 const LanguageContext = createContext(null);
