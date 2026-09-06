@@ -1,3 +1,26 @@
+.ux-skip-link{
+  position:fixed;
+  left:14px;
+  top:10px;
+  z-index:400;
+  min-height:44px;
+  padding:0 14px;
+  border:1px solid var(--accent,#62d889);
+  border-radius:10px;
+  background:var(--panel,#132019);
+  color:var(--text,#eef3ef);
+  font:inherit;
+  font-weight:800;
+  transform:translateY(-150%);
+  opacity:0;
+  pointer-events:none;
+}
+.ux-skip-link:focus-visible{
+  transform:translateY(0);
+  opacity:1;
+  pointer-events:auto;
+}
+
 .ux-status-stack{
   position:fixed;
   left:50%;
@@ -45,6 +68,7 @@
 body[data-modal-open="true"] .ux-status-stack{z-index:260}
 
 @media(max-width:760px){
+  .ux-skip-link{left:10px;top:8px;min-height:48px}
   .ux-status-stack{bottom:max(82px,calc(12px + env(safe-area-inset-bottom)))}
   .creature-database-route .ux-status-stack{bottom:max(70px,calc(12px + env(safe-area-inset-bottom)))}
   .ux-status{padding:11px 12px}
@@ -52,5 +76,5 @@ body[data-modal-open="true"] .ux-status-stack{z-index:260}
 }
 
 @media(prefers-reduced-motion:reduce){
-  .ux-status-stack,.ux-status,.ux-status button{animation:none!important;transition:none!important}
+  .ux-skip-link,.ux-status-stack,.ux-status,.ux-status button{animation:none!important;transition:none!important}
 }
