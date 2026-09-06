@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { isDedicatedDatabaseRoute } from './routeUtils';
 
 const ROUTE_CLASS = 'ux-route-enter';
 const ROUTE_CLEANUP_MS = 280;
@@ -11,10 +12,6 @@ function motionAllowed(){
 
 function nativeTransitionActive(){
   return document.documentElement.dataset.uxViewTransition === 'active' || Boolean(document.activeViewTransition);
-}
-
-function isDedicatedDatabaseRoute(){
-  return /^#\/(?:creatures|resources|chambers|mechanics|guides|tools)(?:\/|$|\?)/i.test(window.location.hash || '#/');
 }
 
 export default function InteractionMotionRuntime(){
