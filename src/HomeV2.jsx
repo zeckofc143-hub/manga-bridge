@@ -26,7 +26,7 @@ export default function HomeV2(){
     ['#/strategies','🧠',t('Estratégias','Strategies'),t('Consenso, dicas e conflitos da comunidade.','Community consensus, tips and conflicts.'),STRATEGY_RECORDS.length]
   ];
   const quick=[
-    ['#/guides/early-game','🌱',t('Estou começando','I am starting'),t('Uma rota limpa para não espalhar recursos cedo.','A clean route so you do not spread resources too early.')],
+    ['#/guides/starter-roadmap','🌱',t('Estou começando','I am starting'),t('Uma rota limpa para não espalhar recursos cedo.','A clean route so you do not spread resources too early.')],
     ['#/farms/resin','🟠',t('Preciso de Resin','I need Resin'),t('Daily + Termite + árvore + Beehive em uma ordem prática.','Daily + Termite + tree + Beehive in a practical order.')],
     ['#/tools/gem-budget','💎',t('Quero economizar Gems','I want to save Gems'),t('Veja slots, boosts e déficit antes de gastar.','See slots, boosts and shortage before spending.')],
     ['#/tools/clan-week','🧵',t('Estou em Clan Wars','I am in Clan Wars'),t('Fase UTC, 3 ataques e coleta de Silk.','UTC phase, 3 attacks and Silk claim.')]
