@@ -30,6 +30,47 @@ export const TOOL_RECORDS=[
   {id:'collection',icon:'🪲',category:'tracker',priority:1,title:L('Coleção de criaturas','Creature collection'),desc:L('Tracker atualizado pela base moderna de criaturas, com filtros, progresso e faltantes.','Tracker powered by the modern creature database, with filters, progress and missing creatures.'),outcome:L('Progresso por grupo','Progress by group'),keywords:'collection creatures special event legendary missing tracker'}
 ];
 
+export const TOOL_INTERNAL_LINKS={
+  fusion:[
+    {href:'#/mechanics/fusion',icon:'⚙️',label:L('Mecânica de fusão','Fusion mechanic')},
+    {href:'#/chambers/creatures',icon:'🏠',label:L('Creatures Chamber','Creatures Chamber')},
+    {href:'#/resources/body-parts',icon:'🧩',label:L('Body Parts','Body Parts')},
+    {href:'#/resources/gems',icon:'💎',label:L('Gems','Gems')}
+  ],
+  'queen-resin':[
+    {href:'#/chambers/queen',icon:'👑',label:L('Queen Chamber','Queen Chamber')},
+    {href:'#/chambers/resin',icon:'🟠',label:L('Resin Chamber','Resin Chamber')},
+    {href:'#/resources/seeds',icon:'🌰',label:L('Sementes','Seeds')},
+    {href:'#/resources/resin',icon:'🟠',label:L('Resin','Resin')}
+  ],
+  daily:[
+    {href:'#/mechanics/daily-quests',icon:'✅',label:L('Daily Quests','Daily Quests')},
+    {href:'#/mechanics/termite-nest',icon:'🪵',label:L('Termite Nest','Termite Nest')},
+    {href:'#/mechanics/frog-pond',icon:'🐸',label:L('Frog Pond','Frog Pond')},
+    {href:'#/resources/honeydew',icon:'🍯',label:L('Honeydew','Honeydew')}
+  ],
+  'battle-tokens':[
+    {href:'#/mechanics/battle-tokens',icon:'🎟️',label:L('Mecânica dos tokens','Token mechanic')},
+    {href:'#/mechanics/termite-nest',icon:'🪵',label:L('Termite Nest','Termite Nest')},
+    {href:'#/mechanics/frog-pond',icon:'🐸',label:L('Frog Pond','Frog Pond')}
+  ],
+  farm:[
+    {href:'#/resources',icon:'📦',label:L('Banco de Recursos','Resource Database')},
+    {href:'#/guides',icon:'🧭',label:L('Guias','Guides')}
+  ],
+  legions:[
+    {href:'#/mechanics/legions',icon:'🛡️',label:L('Mecânica de Legions','Legions mechanic')},
+    {href:'#/resources/resin',icon:'🟠',label:L('Resin','Resin')},
+    {href:'#/resources/silk',icon:'🧵',label:L('Silk','Silk')},
+    {href:'#/mechanics/clan-wars',icon:'⚔️',label:L('Clan Wars','Clan Wars')}
+  ],
+  collection:[
+    {href:'#/creatures',icon:'🪲',label:L('Banco de Criaturas','Creature Database')},
+    {href:'#/mechanics/capture',icon:'🪤',label:L('Captura','Capture')},
+    {href:'#/mechanics/fusion',icon:'🧬',label:L('Fusão','Fusion')}
+  ]
+};
+
 export const TOOL_GOALS=[
   {id:'stronger',icon:'⚔️',label:L('Ficar mais forte','Get stronger'),tools:['queen-resin','fusion']},
   {id:'daily',icon:'📅',label:L('Organizar o dia','Plan my day'),tools:['daily','battle-tokens']},
