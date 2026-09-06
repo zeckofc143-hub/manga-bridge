@@ -7,6 +7,7 @@ import TranslationCoverageLite from './TranslationCoverageLite';
 import { LanguageProvider, SiteSettings } from './LanguageProviderLite';
 import './index.css';
 import './sitePolish.css';
+import './uxProfessional.css';
 
 const Enhancements = lazy(() => import('./Enhancements'));
 const AdvancedPlanner = lazy(() => import('./AdvancedPlanner'));
