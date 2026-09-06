@@ -1,10 +1,16 @@
 import { useEffect } from 'react';
 
 const ROUTE_CLASS = 'ux-route-enter';
+const ROUTE_CLEANUP_MS = 280;
+const SCHEDULE_DEBOUNCE_MS = 28;
 
 function motionAllowed(){
   if(window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return false;
   return document.documentElement.dataset.uxEffects !== 'reduced';
+}
+
+function nativeTransitionActive(){
+  return document.documentElement.dataset.uxViewTransition === 'active' || Boolean(document.activeViewTransition);
 }
 
 function isCreatureRoute(){
@@ -16,48 +22,57 @@ export default function InteractionMotionRuntime(){
     let rafA = 0;
     let rafB = 0;
     let cleanupTimer = 0;
+    let scheduleTimer = 0;
+    let scrollTimer = 0;
 
     const animate = () => {
       const main = document.querySelector('.site-main');
-      if(!main || !motionAllowed()) return;
+      if(!main || !motionAllowed() || nativeTransitionActive()) return;
       main.classList.remove(ROUTE_CLASS);
       rafA = requestAnimationFrame(()=>{
         rafB = requestAnimationFrame(()=>{
           const currentMain = document.querySelector('.site-main');
-          if(!currentMain || !motionAllowed()) return;
+          if(!currentMain || !motionAllowed() || nativeTransitionActive()) return;
           currentMain.classList.remove(ROUTE_CLASS);
           currentMain.classList.add(ROUTE_CLASS);
           window.clearTimeout(cleanupTimer);
-          cleanupTimer = window.setTimeout(()=>currentMain.classList.remove(ROUTE_CLASS),190);
+          cleanupTimer = window.setTimeout(()=>currentMain.classList.remove(ROUTE_CLASS),ROUTE_CLEANUP_MS);
         });
       });
     };
 
-    const schedule = () => {
+    const run = () => {
       cancelAnimationFrame(rafA);
       cancelAnimationFrame(rafB);
+      window.clearTimeout(scrollTimer);
 
-      /* Legacy routes used smooth scroll after navigation, which can read as lag.
-         Creature routes keep their own scroll restoration behavior. */
+      /* Some legacy routes still request smooth scrolling themselves. Force the final
+         position back to an immediate scroll so navigation never feels delayed. */
       if(!isCreatureRoute()){
         requestAnimationFrame(()=>window.scrollTo({top:0,left:0,behavior:'auto'}));
+        scrollTimer = window.setTimeout(()=>window.scrollTo({top:0,left:0,behavior:'auto'}),48);
       }
 
       animate();
     };
 
+    const schedule = () => {
+      window.clearTimeout(scheduleTimer);
+      scheduleTimer = window.setTimeout(run,SCHEDULE_DEBOUNCE_MS);
+    };
+
     schedule();
     window.addEventListener('hashchange',schedule);
     window.addEventListener('app:navigation',schedule);
-    window.addEventListener('pa:language',schedule);
 
     return ()=>{
       cancelAnimationFrame(rafA);
       cancelAnimationFrame(rafB);
       window.clearTimeout(cleanupTimer);
+      window.clearTimeout(scheduleTimer);
+      window.clearTimeout(scrollTimer);
       window.removeEventListener('hashchange',schedule);
       window.removeEventListener('app:navigation',schedule);
-      window.removeEventListener('pa:language',schedule);
       document.querySelector('.site-main')?.classList.remove(ROUTE_CLASS);
     };
   },[]);
