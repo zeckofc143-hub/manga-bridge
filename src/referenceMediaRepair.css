@@ -1,0 +1,5 @@
+/* Broken remote screenshots should disappear instead of leaving an ugly error card. */
+.ref-media-tile:has(.ref-media-fallback){display:none!important}
+.ref-media-group:not(:has(.ref-media-tile:not(:has(.ref-media-fallback)))){display:none!important}
+.ref-visual-library:not(:has(.ref-media-tile:not(:has(.ref-media-fallback)))){display:none!important}
+.svm-bridge-host{display:block;max-width:100%;min-width:0}
