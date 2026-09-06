@@ -1,38 +1,33 @@
-/* Fluid motion layer for the Creature database.
-   Kept transform/opacity-heavy for mobile performance and disabled when the OS asks for reduced motion. */
+/* Stable motion layer for the Creature database.
+   Motion communicates state changes; it must not replay just because React remounted a card. */
 
 :root{
   --creature-ease:cubic-bezier(.22,.8,.24,1);
   --creature-ease-snappy:cubic-bezier(.2,.75,.25,1);
-  --creature-fast:160ms;
-  --creature-mid:260ms;
-  --creature-slow:420ms;
+  --creature-fast:150ms;
+  --creature-mid:220ms;
+  --creature-slow:320ms;
 }
 
 @keyframes creature-enter{
-  from{opacity:0;transform:translate3d(0,12px,0) scale(.992)}
+  from{opacity:0;transform:translate3d(0,8px,0) scale(.995)}
   to{opacity:1;transform:translate3d(0,0,0) scale(1)}
 }
 
 @keyframes creature-fade{
-  from{opacity:0}
+  from{opacity:.2}
   to{opacity:1}
 }
 
-@keyframes creature-pop{
-  0%{opacity:0;transform:translate3d(0,6px,0) scale(.97)}
-  100%{opacity:1;transform:translate3d(0,0,0) scale(1)}
-}
-
 @keyframes creature-menu-in{
-  from{opacity:0;transform:translate3d(0,-7px,0) scale(.985)}
+  from{opacity:0;transform:translate3d(0,-5px,0) scale(.99)}
   to{opacity:1;transform:translate3d(0,0,0) scale(1)}
 }
 
-.creature-db-root{
-  scroll-behavior:smooth;
-}
+/* Do not force smooth scrolling on a highly dynamic route. It can fight route/filter updates. */
+.creature-db-root{scroll-behavior:auto}
 
+/* Only route-level surfaces animate on first appearance. Internal cards/panels stay visually stable. */
 .creature-db-identity,
 .cth-root,
 .cap-root,
@@ -40,22 +35,6 @@
 .cth-record{
   animation:creature-enter var(--creature-slow) var(--creature-ease) both;
 }
-
-.cth-panel,
-.cap-card,
-.ce3-panel,
-.cth-record-grid>article,
-.cth-noncollectible,
-.ce3-empty{
-  animation:creature-pop var(--creature-mid) var(--creature-ease) both;
-}
-
-.cap-grid>.cap-card:nth-child(2),
-.cth-record-grid>article:nth-child(2){animation-delay:35ms}
-.cap-grid>.cap-card:nth-child(3),
-.cth-record-grid>article:nth-child(3){animation-delay:70ms}
-.cap-grid>.cap-card:nth-child(4){animation-delay:105ms}
-.cap-grid>.cap-card:nth-child(5){animation-delay:140ms}
 
 .cth-tabs button,
 .cth-view button,
@@ -117,7 +96,7 @@
 .ce3-open:active,
 .ce3-tutorial:active,
 .ce3-hero-actions a:active{
-  transform:scale(.965);
+  transform:scale(.97);
 }
 
 .cth-tabs button.active,
@@ -126,27 +105,26 @@
 .cth-record-actions button.active,
 .cap-stars button.active,
 .ce3-tabs button.active{
-  box-shadow:0 5px 18px rgba(58,220,140,.10);
+  box-shadow:0 4px 14px rgba(58,220,140,.09);
 }
 
+/* Small disclosure animation is intentional: it explains where the filter controls came from. */
 .ce3-filters[open]>div{
   transform-origin:top right;
-  animation:creature-menu-in 190ms var(--creature-ease) both;
+  animation:creature-menu-in 170ms var(--creature-ease) both;
 }
 
+/* Values respond to user changes, but they no longer have a separate mount/pop animation. */
 .cth-progressbar i,
-.ce3-stat-track i{
+.ce3-stat-track i,
+.x-mini-progress>div,
+.x-coverage-bar>div{
   transition:width var(--creature-slow) var(--creature-ease);
-}
-
-.cap-big-number strong{
-  display:inline-block;
-  animation:creature-pop 210ms var(--creature-ease) both;
 }
 
 .cap-gallery a,
 .ce3-image-host img{
-  animation:creature-fade 300ms ease both;
+  animation:creature-fade 220ms ease both;
 }
 
 .cap-gallery a{
@@ -192,7 +170,7 @@
   .cth-progress-cards article:hover{
     transform:translateY(-2px);
     border-color:color-mix(in srgb,var(--accent,#67dc8d) 24%,rgba(255,255,255,.08));
-    box-shadow:0 16px 34px rgba(0,0,0,.16);
+    box-shadow:0 14px 30px rgba(0,0,0,.15);
   }
 
   .cap-gallery a:hover{
@@ -203,15 +181,15 @@
 
   .cap-gallery a:hover img,
   .ce3-card-cover:hover .ce3-image-host img{
-    transform:scale(1.025);
+    transform:scale(1.02);
   }
 }
 
 @media(max-width:560px){
   :root{
-    --creature-fast:140ms;
-    --creature-mid:220ms;
-    --creature-slow:330ms;
+    --creature-fast:130ms;
+    --creature-mid:190ms;
+    --creature-slow:280ms;
   }
 }
 
@@ -220,10 +198,8 @@
   .creature-db-root *,
   .creature-db-root *::before,
   .creature-db-root *::after{
-    animation-duration:.001ms!important;
-    animation-delay:0ms!important;
-    animation-iteration-count:1!important;
-    transition-duration:.001ms!important;
+    animation:none!important;
+    transition:none!important;
     scroll-behavior:auto!important;
   }
 }
