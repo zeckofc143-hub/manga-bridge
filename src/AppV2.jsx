@@ -10,6 +10,7 @@ import ToolDatabasePage from './ToolDatabasePage';
 import ExtraToolPage, { isExtraToolRoute } from './ExtraToolPages';
 import FarmDatabasePage from './FarmDatabasePage';
 import StrategyDatabasePage from './StrategyDatabasePage';
+import ClanDatabasePage from './ClanDatabasePage';
 import ReferenceDatabasePage from './ReferenceDatabasePage';
 import GlobalSearchPage from './GlobalSearchPage';
 import { useLanguage } from './LanguageProviderLite';
@@ -29,6 +30,7 @@ const coreNav = [
 const extraNav = [
   ['#/farms', 'Farms', 'Farms', '🌾', 'Rotas de recursos', 'Resource routes'],
   ['#/strategies', 'Estratégias', 'Strategies', '🧠', 'Dicas e consenso', 'Tips & consensus'],
+  ['#/clans', 'Clãs', 'Clans', '🏳️', 'Doações, bônus e guerras', 'Donations, bonuses & wars'],
   ['#/world', 'Mundo', 'World', '🗺️', 'Mapa, Garden e inimigos', 'Map, Garden & hostiles'],
   ['#/upgrades', 'Upgrades', 'Upgrades', '🛒', 'Lojas e bônus', 'Shops & bonuses'],
   ['#/events', 'Eventos', 'Events', '🎉', 'Eventos e histórico', 'Events & history'],
@@ -46,6 +48,7 @@ const databaseConfig = {
   tools:{href:'#/tools',route:'tools',shell:'tool-database-shell',main:'tool-db-main',footer:'tool-db-footer',search:['Buscar ferramenta ou cálculo...','Search a tool or calculation...'],aria:['Buscar ferramentas','Search tools']},
   farms:{href:'#/farms',route:'farms',shell:'farm-database-shell',main:'farm-db-main',footer:'farm-db-footer',search:['Buscar farm ou recurso...','Search a farm or resource...'],aria:['Buscar farms','Search farms']},
   strategies:{href:'#/strategies',route:'strategies',shell:'strategy-database-shell',main:'strategy-db-main',footer:'strategy-db-footer',search:['Buscar estratégia, dica ou objetivo...','Search a strategy, tip or goal...'],aria:['Buscar estratégias','Search strategies']},
+  clans:{href:'#/clans',route:'clans',shell:'clan-database-shell',main:'clan-db-main',footer:'clan-db-footer',search:['Buscar doação, bônus, cargo ou guerra...','Search donation, bonus, role or war...'],aria:['Buscar em Clãs','Search Clans']},
   world:{href:'#/world',route:'world',shell:'world-database-shell',main:'world-db-main',footer:'world-db-footer',search:['Buscar mapa, Garden, inimigo ou objeto...','Search map, Garden, hostile or object...'],aria:['Buscar no Mundo','Search World']},
   upgrades:{href:'#/upgrades',route:'upgrades',shell:'upgrade-database-shell',main:'upgrade-db-main',footer:'upgrade-db-footer',search:['Buscar loja, custo ou upgrade...','Search shop, cost or upgrade...'],aria:['Buscar upgrades','Search upgrades']},
   events:{href:'#/events',route:'events',shell:'event-database-shell',main:'event-db-main',footer:'event-db-footer',search:['Buscar evento, criatura ou versão...','Search event, creature or version...'],aria:['Buscar eventos','Search events']},
@@ -83,13 +86,14 @@ function DatabaseContent({kind,routeId}){
   if(kind==='tools') return <ToolDatabasePage routeId={routeId}/>;
   if(kind==='farms') return <FarmDatabasePage routeId={routeId}/>;
   if(kind==='strategies') return <StrategyDatabasePage routeId={routeId}/>;
+  if(kind==='clans') return <ClanDatabasePage routeId={routeId}/>;
   if(['world','upgrades','events','quests'].includes(kind)) return <ReferenceDatabasePage kind={kind} routeId={routeId}/>;
   if(kind==='search') return <GlobalSearchPage/>;
   return <CreatureDatabasePage routeId={routeId}/>;
 }
 
 function DatabaseFooter({kind,t}){
-  if(kind==='home') return t('Pocket Ants Wiki BR · dados, farms, estratégias, eventos, mundo e ferramentas com fontes visíveis.','Pocket Ants Wiki EN · data, farms, strategies, events, world and tools with visible sources.');
+  if(kind==='home') return t('Pocket Ants Wiki BR · dados, farms, estratégias, clãs, eventos, mundo e ferramentas com fontes visíveis.','Pocket Ants Wiki EN · data, farms, strategies, clans, events, world and tools with visible sources.');
   if(kind==='resources') return t('Banco de Dados de Recursos · Pocket Ants Wiki BR · obtenção, usos, prioridade e fontes organizadas.','Resource Database · Pocket Ants Wiki EN · acquisition, uses, priority and sources organized.');
   if(kind==='chambers') return t('Central de Câmaras · Pocket Ants Wiki BR · níveis, gargalos, dependências e fontes organizadas.','Chamber Hub · Pocket Ants Wiki EN · levels, bottlenecks, dependencies and sources organized.');
   if(kind==='mechanics') return t('Central de Mecânicas · Pocket Ants Wiki BR · sistemas, timers, fluxos e fontes organizadas.','Mechanics Hub · Pocket Ants Wiki EN · systems, timers, flows and sources organized.');
@@ -97,6 +101,7 @@ function DatabaseFooter({kind,t}){
   if(kind==='tools') return t('Central de Ferramentas · Pocket Ants Wiki BR · calculadoras, planners e trackers.','Tools Hub · Pocket Ants Wiki EN · calculators, planners and trackers.');
   if(kind==='farms') return t('Central de Farms · Pocket Ants Wiki BR · rotas de recursos, números fixos e dicas comunitárias separadas.','Farms Hub · Pocket Ants Wiki EN · resource routes, fixed values and separated community tips.');
   if(kind==='strategies') return t('Estratégias da Comunidade · Pocket Ants Wiki BR · consenso, opiniões e conflitos rotulados.','Community Strategies · Pocket Ants Wiki EN · labeled consensus, opinions and conflicts.');
+  if(kind==='clans') return t('Clãs & Social · Pocket Ants Wiki BR · entrada, doações, bônus, cargos, co-op e Clan Wars.','Clans & Social · Pocket Ants Wiki EN · joining, donations, bonuses, roles, co-op and Clan Wars.');
   if(kind==='world') return t('Mundo & Ambiente · Pocket Ants Wiki BR · mapa, Garden, inimigos, objetos e timers.','World & Environment · Pocket Ants Wiki EN · map, Garden, hostiles, objects and timers.');
   if(kind==='upgrades') return t('Lojas & Upgrades · Pocket Ants Wiki BR · moedas, custos e bônus permanentes.','Shops & Upgrades · Pocket Ants Wiki EN · currencies, costs and permanent bonuses.');
   if(kind==='events') return t('Eventos & Histórico · Pocket Ants Wiki BR · Major Events, Creature Events, seasons e versões.','Events & History · Pocket Ants Wiki EN · Major Events, Creature Events, seasons and versions.');
