@@ -65,7 +65,7 @@ const ATTR_STATE = new WeakMap();
 const ROLE_CONTEXT = '.ce3-card,.ce3-detail-page,.ce3-role-scroll,.cth-root,.creature-card,.role-row,.tag-cloud';
 
 const clean = value => String(value ?? '').replace(/\s+/g,' ').trim();
-const isNativeDatabaseRoute = () => /^#\/(?:resources|chambers|mechanics|guides)(?:\/|$|\?)/i.test(window.location.hash || '#/');
+const isNativeDatabaseRoute = () => /^#\/(?:resources|chambers|mechanics|guides|tools)(?:\/|$|\?)/i.test(window.location.hash || '#/');
 
 function convertText(raw,language){
   const source=String(raw ?? '');
