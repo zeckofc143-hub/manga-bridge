@@ -7,6 +7,7 @@ import MechanicDatabasePage from './MechanicDatabasePage';
 import GuideDatabasePage from './GuideDatabasePage';
 import ToolDatabasePage from './ToolDatabasePage';
 import { useLanguage } from './LanguageProviderLite';
+import { DATABASE_KINDS, getDatabaseRoute } from './routeUtils';
 
 const LegacyApp = lazy(() => import('./App'));
 
@@ -29,18 +30,17 @@ const databaseConfig = {
   tools:{href:'#/tools',route:'tools',shell:'tool-database-shell',main:'tool-db-main',footer:'tool-db-footer',search:['Buscar ferramenta, cálculo ou tracker...','Search tools, calculations or trackers...'],aria:['Buscar ferramentas','Search tools']}
 };
 
-function currentDatabaseRoute(hash){
-  const value = hash || window.location.hash || '#/';
-  for(const kind of ['creatures','resources','chambers','mechanics','guides','tools']){
-    const match = value.match(new RegExp(`^#\\/${kind}(?:\\/([^?/#]+))?`,'i'));
-    if(match) return {active:true,kind,id:match[1]?decodeURIComponent(match[1]):null};
-  }
-  return {active:false,kind:null,id:null};
+function safeGet(key,fallback){
+  try{return localStorage.getItem(key) || fallback;}catch{return fallback;}
+}
+function safeSet(key,value){
+  try{localStorage.setItem(key,value);}catch{}
 }
 
 function PageLoadingState(){
-  return <main className="site-main ux-page-loading" role="status" aria-live="polite" aria-label="Carregando conteúdo">
-    <div className="ux-loading-card"><div className="ux-loading-title" aria-hidden="true"/><div className="ux-loading-line" aria-hidden="true"/><div className="ux-loading-line" aria-hidden="true"/><div className="ux-loading-line" aria-hidden="true"/><span className="ux-loading-note">Organizando o conteúdo da wiki…</span></div>
+  const {t}=useLanguage();
+  return <main className="site-main ux-page-loading" role="status" aria-live="polite" aria-label={t('Carregando conteúdo','Loading content')}>
+    <div className="ux-loading-card"><div className="ux-loading-title" aria-hidden="true"/><div className="ux-loading-line" aria-hidden="true"/><div className="ux-loading-line" aria-hidden="true"/><div className="ux-loading-line" aria-hidden="true"/><span className="ux-loading-note">{t('Organizando o conteúdo da wiki…','Organizing wiki content…')}</span></div>
   </main>;
 }
 
@@ -66,11 +66,15 @@ function DatabaseShell({ kind, routeId }){
   const {t} = useLanguage();
   const config=databaseConfig[kind]||databaseConfig.creatures;
   const [mobileOpen,setMobileOpen] = useState(false);
-  const [theme,setTheme] = useState(()=>localStorage.getItem('pa-theme') || 'dark');
+  const [theme,setTheme] = useState(()=>safeGet('pa-theme','dark'));
   const [query,setQuery] = useState('');
 
-  useEffect(()=>{document.documentElement.dataset.theme=theme;localStorage.setItem('pa-theme',theme);},[theme]);
-  useEffect(()=>{setMobileOpen(false);window.scrollTo({top:0,behavior:'auto'});},[routeId,kind]);
+  useEffect(()=>{document.documentElement.dataset.theme=theme;safeSet('pa-theme',theme);},[theme]);
+  useEffect(()=>{
+    setMobileOpen(false);
+    setQuery('');
+    window.scrollTo({top:0,left:0,behavior:'auto'});
+  },[routeId,kind]);
 
   const submitSearch = event => {
     event.preventDefault();
@@ -107,12 +111,12 @@ export default function AppV2(){
     return()=>{window.history.pushState=originalPushState;window.history.replaceState=originalReplaceState;window.removeEventListener('hashchange',syncRoute);window.removeEventListener('popstate',syncRoute);window.removeEventListener('app:navigation',syncRoute);};
   },[]);
 
-  const route=useMemo(()=>currentDatabaseRoute(hash),[hash]);
+  const route=useMemo(()=>getDatabaseRoute(hash),[hash]);
 
   useEffect(()=>{
-    for(const kind of ['creatures','resources','chambers','mechanics','guides','tools']) document.body.classList.toggle(`${kind.slice(0,-1)}-database-route`,route.active&&route.kind===kind);
+    for(const kind of DATABASE_KINDS) document.body.classList.toggle(`${kind.slice(0,-1)}-database-route`,route.active&&route.kind===kind);
     document.body.classList.remove('encyclopedia-route');
-    return()=>{document.body.classList.remove('creature-database-route','resource-database-route','chamber-database-route','mechanic-database-route','guide-database-route','tool-database-route');};
+    return()=>{DATABASE_KINDS.forEach(kind=>document.body.classList.remove(`${kind.slice(0,-1)}-database-route`));};
   },[route.active,route.kind]);
 
   if(route.active) return <DatabaseShell kind={route.kind} routeId={route.id}/>;
