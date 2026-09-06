@@ -68,6 +68,13 @@
 .cth-fields.compact{gap:10px}
 .cth-score{min-height:48px}
 
+/* Older rules used an 80 ms active state. Keep the new balanced timing authoritative everywhere. */
+@media(prefers-reduced-motion:no-preference){
+  html:not([data-ux-effects="reduced"]) :where(button,a,summary,[role="button"]):active{
+    transition-duration:var(--ux-press-fast,120ms)!important;
+  }
+}
+
 /* Floating dock must never cover the last actionable row. */
 @media(max-width:760px){
   body:has(.x-fab) .site-main{padding-bottom:max(94px,calc(env(safe-area-inset-bottom) + 82px))!important}
