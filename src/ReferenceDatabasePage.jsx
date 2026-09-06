@@ -3,6 +3,7 @@ import {AlertTriangle,BookOpen,ChevronLeft,ChevronRight,ExternalLink,Filter,Imag
 import {useLanguage} from './LanguageProviderLite';
 import {REFERENCE_META,REFERENCE_SECTIONS,referenceRecord} from './referenceResearchData';
 import {referenceMedia} from './referenceMediaData';
+import {mediaLoadTimeoutMs,robustMediaCandidates} from './mediaCandidateUtils';
 import './resourceDatabasePage.css';
 import './referenceDatabasePage.css';
 
@@ -27,18 +28,28 @@ function SourceList({sources,t}){
 }
 
 function MediaTile({item,language,t}){
-  const sources=item?.candidates?.length?item.candidates:[item?.image].filter(Boolean);
+  const sources=useMemo(()=>robustMediaCandidates(item?.candidates?.length?item.candidates:[item?.image].filter(Boolean)),[item]);
   const [index,setIndex]=useState(0);
   const [failed,setFailed]=useState(false);
-  useEffect(()=>{setIndex(0);setFailed(false);},[item]);
+  const [loaded,setLoaded]=useState(false);
+  useEffect(()=>{setIndex(0);setFailed(false);setLoaded(false);},[item]);
   if(!item)return null;
   const src=sources[index]||item.image||'';
+  useEffect(()=>{
+    if(!src||failed||loaded)return;
+    const timer=window.setTimeout(()=>{
+      if(index<sources.length-1){setIndex(value=>value+1);setLoaded(false);}
+      else setFailed(true);
+    },mediaLoadTimeoutMs());
+    return()=>window.clearTimeout(timer);
+  },[src,index,sources.length,failed,loaded]);
   const onError=()=>{
+    setLoaded(false);
     if(index<sources.length-1){setIndex(value=>value+1);return;}
     setFailed(true);
   };
   return <article className="ref-media-tile">
-    {!failed&&src?<a className="ref-media-image-link" href={src} target="_blank" rel="noreferrer" aria-label={t('Abrir imagem em tamanho maior','Open larger image')}><img src={src} alt={tr(item.alt,language)} loading="lazy" decoding="async" onError={onError}/></a>:<div className="ref-media-fallback"><ImageIcon size={24}/><b>{t('Prévia indisponível','Preview unavailable')}</b><span>{t('Use o link da fonte para ver a imagem original.','Use the source link to view the original image.')}</span></div>}
+    {!failed&&src?<a className="ref-media-image-link" href={src} target="_blank" rel="noreferrer" aria-label={t('Abrir imagem em tamanho maior','Open larger image')}><img src={src} alt={tr(item.alt,language)} loading="lazy" decoding="async" referrerPolicy="no-referrer" onLoad={()=>setLoaded(true)} onError={onError}/></a>:<div className="ref-media-fallback"><ImageIcon size={24}/><b>{t('Imagem disponível na fonte','Image available at source')}</b><span>{t('A prévia externa não respondeu; abra a fonte original abaixo.','The external preview did not respond; open the original source below.')}</span></div>}
     <div className="ref-media-copy"><p>{tr(item.caption,language)}</p><div className="ref-media-links">{!failed&&src&&<a href={src} target="_blank" rel="noreferrer"><ImageIcon size={13}/>{t('Ampliar','Enlarge')}</a>}{item.source&&<a href={item.source} target="_blank" rel="noreferrer"><BookOpen size={13}/>{tr(item.sourceLabel,language)||t('Fonte','Source')}<ExternalLink size={10}/></a>}</div></div>
   </article>;
 }
