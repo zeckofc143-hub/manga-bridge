@@ -7,6 +7,10 @@ function motionAllowed(){
   return document.documentElement.dataset.uxEffects !== 'reduced';
 }
 
+function isCreatureRoute(){
+  return /^#\/creatures(?:\/|$|\?)/i.test(window.location.hash || '#/');
+}
+
 export default function InteractionMotionRuntime(){
   useEffect(()=>{
     let rafA = 0;
@@ -32,6 +36,13 @@ export default function InteractionMotionRuntime(){
     const schedule = () => {
       cancelAnimationFrame(rafA);
       cancelAnimationFrame(rafB);
+
+      /* Legacy routes used smooth scroll after navigation, which can read as lag.
+         Creature routes keep their own scroll restoration behavior. */
+      if(!isCreatureRoute()){
+        requestAnimationFrame(()=>window.scrollTo({top:0,left:0,behavior:'auto'}));
+      }
+
       animate();
     };
 
