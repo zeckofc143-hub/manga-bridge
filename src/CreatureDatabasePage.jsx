@@ -1,7 +1,7 @@
 import React from 'react';
 import { Database, Filter, Search, Rows3 } from 'lucide-react';
 import CreatureEncyclopediaPageV3, { encyclopediaCreatures } from './CreatureEncyclopediaPageV3';
-import { CreatureToolsHub, CreatureRecordPanel } from './CreatureToolsHub';
+import { CreatureToolsHub, CreatureRecordPanel } from './CreatureToolsHubV2';
 import CreatureAdvancedPanel from './CreatureAdvancedPanel';
 import './creatureDatabasePage.css';
 import './creatureMotion.css';
