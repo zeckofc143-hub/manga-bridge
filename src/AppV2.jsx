@@ -6,14 +6,17 @@ import ChamberDatabasePage from './ChamberDatabasePage';
 import MechanicDatabasePage from './MechanicDatabasePage';
 import GuideDatabasePage from './GuideDatabasePage';
 import ToolDatabasePage from './ToolDatabasePage';
+import ExtraToolPage, { isExtraToolRoute } from './ExtraToolPages';
+import FarmDatabasePage from './FarmDatabasePage';
+import StrategyDatabasePage from './StrategyDatabasePage';
 import GlobalSearchPage from './GlobalSearchPage';
 import { useLanguage } from './LanguageProviderLite';
 import { DATABASE_KINDS, databaseRouteClass, getDatabaseRoute } from './routeUtils';
+import './navigationExpansion.css';
 
 const LegacyApp = lazy(() => import('./App'));
 
-const mainNav = [
-  ['#/', 'Início', 'Home'],
+const coreNav = [
   ['#/creatures', 'Criaturas', 'Creatures'],
   ['#/resources', 'Recursos', 'Resources'],
   ['#/chambers', 'Câmaras', 'Chambers'],
@@ -21,6 +24,11 @@ const mainNav = [
   ['#/guides', 'Guias', 'Guides'],
   ['#/tools', 'Ferramentas', 'Tools']
 ];
+const extraNav = [
+  ['#/farms', 'Farms', 'Farms', '🌾'],
+  ['#/strategies', 'Estratégias', 'Strategies', '🧠']
+];
+const mobileNav = [['#/', 'Início', 'Home'],...coreNav,...extraNav.map(([href,pt,en])=>[href,pt,en])];
 
 const databaseConfig = {
   creatures:{href:'#/creatures',route:'creatures',shell:'creature-database-shell',main:'creature-db-main',footer:'creature-db-footer',search:['Buscar criaturas nesta categoria...','Search creatures in this category...'],aria:['Buscar criaturas','Search creatures']},
@@ -29,6 +37,8 @@ const databaseConfig = {
   mechanics:{href:'#/mechanics',route:'mechanics',shell:'mechanic-database-shell',main:'mechanic-db-main',footer:'mechanic-db-footer',search:['Buscar mecânica ou sistema...','Search a mechanic or system...'],aria:['Buscar mecânicas','Search mechanics']},
   guides:{href:'#/guides',route:'guides',shell:'guide-database-shell',main:'guide-db-main',footer:'guide-db-footer',search:['Buscar guia ou objetivo...','Search a guide or goal...'],aria:['Buscar guias','Search guides']},
   tools:{href:'#/tools',route:'tools',shell:'tool-database-shell',main:'tool-db-main',footer:'tool-db-footer',search:['Buscar ferramenta ou cálculo...','Search a tool or calculation...'],aria:['Buscar ferramentas','Search tools']},
+  farms:{href:'#/farms',route:'farms',shell:'farm-database-shell',main:'farm-db-main',footer:'farm-db-footer',search:['Buscar farm ou recurso...','Search a farm or resource...'],aria:['Buscar farms','Search farms']},
+  strategies:{href:'#/strategies',route:'strategies',shell:'strategy-database-shell',main:'strategy-db-main',footer:'strategy-db-footer',search:['Buscar estratégia, dica ou objetivo...','Search a strategy, tip or goal...'],aria:['Buscar estratégias','Search strategies']},
   search:{href:'#/search',route:'search',shell:'search-database-shell',main:'search-db-main',footer:'search-db-footer',search:['Buscar em toda a wiki...','Search the whole wiki...'],aria:['Busca global','Global search']}
 };
 
@@ -57,7 +67,10 @@ function DatabaseContent({kind,routeId}){
   if(kind==='chambers') return <ChamberDatabasePage routeId={routeId}/>;
   if(kind==='mechanics') return <MechanicDatabasePage routeId={routeId}/>;
   if(kind==='guides') return <GuideDatabasePage routeId={routeId}/>;
+  if(kind==='tools' && isExtraToolRoute(routeId)) return <ExtraToolPage routeId={routeId}/>;
   if(kind==='tools') return <ToolDatabasePage routeId={routeId}/>;
+  if(kind==='farms') return <FarmDatabasePage routeId={routeId}/>;
+  if(kind==='strategies') return <StrategyDatabasePage routeId={routeId}/>;
   if(kind==='search') return <GlobalSearchPage/>;
   return <CreatureDatabasePage routeId={routeId}/>;
 }
@@ -68,6 +81,8 @@ function DatabaseFooter({kind,t}){
   if(kind==='mechanics') return t('Central de Mecânicas · Pocket Ants Wiki BR · sistemas, timers, fluxos e fontes organizadas.','Mechanics Hub · Pocket Ants Wiki EN · systems, timers, flows and sources organized.');
   if(kind==='guides') return t('Central de Guias · Pocket Ants Wiki BR · rotas por fase, objetivo e gargalo.','Guides Hub · Pocket Ants Wiki EN · routes by stage, goal and bottleneck.');
   if(kind==='tools') return t('Central de Ferramentas · Pocket Ants Wiki BR · calculadoras, planners e trackers.','Tools Hub · Pocket Ants Wiki EN · calculators, planners and trackers.');
+  if(kind==='farms') return t('Central de Farms · Pocket Ants Wiki BR · rotas de recursos, números fixos e dicas comunitárias separadas.','Farms Hub · Pocket Ants Wiki EN · resource routes, fixed values and separated community tips.');
+  if(kind==='strategies') return t('Estratégias da Comunidade · Pocket Ants Wiki BR · consenso, opiniões e conflitos rotulados.','Community Strategies · Pocket Ants Wiki EN · labeled consensus, opinions and conflicts.');
   if(kind==='search') return t('Busca Global · Pocket Ants Wiki BR · todas as bases modernas em um único índice.','Global Search · Pocket Ants Wiki EN · every modern database in one index.');
   return t('Banco de Dados de Criaturas · Pocket Ants Wiki BR · dados comunitários revisados e conflitos sinalizados.','Creature Database · Pocket Ants Wiki EN · community data reviewed and conflicts flagged.');
 }
@@ -79,6 +94,7 @@ function DatabaseShell({ kind, routeId }){
   const [theme,setTheme] = useState(()=>safeGet('pa-theme','dark'));
   const [query,setQuery] = useState(()=>routeQuery(kind));
   const [drawerQuery,setDrawerQuery] = useState('');
+  const extraActive=extraNav.some(([href])=>href===config.href);
 
   useEffect(()=>{document.documentElement.dataset.theme=theme;safeSet('pa-theme',theme);},[theme]);
   useEffect(()=>{
@@ -127,7 +143,13 @@ function DatabaseShell({ kind, routeId }){
         <input value={query} onChange={e=>setQuery(e.target.value)} placeholder={t(...config.search)} aria-label={t(...config.aria)} autoComplete="off" enterKeyHint="search" inputMode="search"/>
         {query?<button className="header-search-clear" type="button" onClick={clearSearch} aria-label={t('Limpar busca','Clear search')} title={t('Limpar','Clear')}><X size={16}/></button>:<kbd aria-hidden="true">↵</kbd>}
       </form>
-      <nav className="desktop-nav" aria-label={t('Navegação principal','Main navigation')}>{mainNav.slice(1).map(([href,pt,en])=>{const active=href===config.href;return <a key={href} href={href} className={active?'active':''} aria-current={active?'page':undefined}>{t(pt,en)}</a>;})}</nav>
+      <nav className="desktop-nav" aria-label={t('Navegação principal','Main navigation')}>
+        {coreNav.map(([href,pt,en])=>{const active=href===config.href;return <a key={href} href={href} className={active?'active':''} aria-current={active?'page':undefined}>{t(pt,en)}</a>;})}
+        <details className={`desktop-more${extraActive?' active':''}`}>
+          <summary>{t('Mais','More')}</summary>
+          <div className="desktop-more-menu">{extraNav.map(([href,pt,en,icon])=>{const active=href===config.href;return <a key={href} href={href} className={active?'active':''} aria-current={active?'page':undefined} onClick={e=>e.currentTarget.closest('details')?.removeAttribute('open')}><span><b>{icon} {t(pt,en)}</b><small>{href==='#/farms'?t('Rotas de recursos','Resource routes'):t('Dicas e consenso','Tips & consensus')}</small></span></a>;})}</div>
+        </details>
+      </nav>
       <div className="header-actions">
         <button className="icon-button" type="button" onClick={()=>setTheme(theme==='dark'?'light':'dark')} aria-label={t('Alternar tema','Toggle theme')} title={t('Alternar tema','Toggle theme')}>{theme==='dark'?<Sun size={18}/>:<Moon size={18}/>}</button>
         <button className="icon-button mobile-menu-button" type="button" onClick={()=>setMobileOpen(true)} aria-label={t('Abrir menu','Open menu')} aria-haspopup="dialog" aria-expanded={mobileOpen} aria-controls="pa-mobile-nav"><Menu size={20}/></button>
@@ -143,7 +165,7 @@ function DatabaseShell({ kind, routeId }){
           <button className="drawer-search-button" type="submit" aria-label={t('Buscar','Search')}><Search size={17}/></button>
         </form>
         <p className="drawer-search-hint">{t('Use o menu para navegar; use a busca acima quando não souber em qual categoria está a informação.','Use the menu to browse; use the search above when you are not sure which category contains the information.')}</p>
-        <nav className="mobile-nav" aria-label={t('Navegação móvel','Mobile navigation')}>{mainNav.map(([href,pt,en])=>{const active=href===config.href;return <a key={href} href={href} onClick={()=>setMobileOpen(false)} className={active?'active':''} aria-current={active?'page':undefined}>{t(pt,en)}</a>;})}</nav>
+        <nav className="mobile-nav" aria-label={t('Navegação móvel','Mobile navigation')}>{mobileNav.map(([href,pt,en])=>{const active=href===config.href;return <a key={href} href={href} onClick={()=>setMobileOpen(false)} className={active?'active':''} aria-current={active?'page':undefined}>{t(pt,en)}</a>;})}</nav>
         <a className="drawer-global-link" href="#/search" onClick={()=>setMobileOpen(false)}><Search size={17}/>{t('Abrir Busca Global','Open Global Search')}</a>
       </aside>
     </div>}
