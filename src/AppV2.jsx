@@ -32,7 +32,7 @@ function CreatureDatabaseShell({ routeId }){
 
   useEffect(()=>{
     setMobileOpen(false);
-    window.scrollTo({top:0,behavior:'instant'});
+    window.scrollTo({top:0,behavior:'auto'});
   },[routeId]);
 
   const submitSearch = event => {
@@ -50,33 +50,47 @@ function CreatureDatabaseShell({ routeId }){
           <span className="brand-copy"><strong>Pocket Ants</strong><small>Wiki BR</small></span>
         </a>
 
-        <form className="header-search" onSubmit={submitSearch}>
+        <form className="header-search" onSubmit={submitSearch} role="search">
           <Search size={18}/>
-          <input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Buscar no banco de criaturas..." aria-label="Buscar criaturas"/>
+          <input
+            value={query}
+            onChange={e=>setQuery(e.target.value)}
+            placeholder="Buscar no banco de criaturas..."
+            aria-label="Buscar criaturas"
+            autoComplete="off"
+            enterKeyHint="search"
+            inputMode="search"
+          />
           <kbd>↵</kbd>
         </form>
 
-        <nav className="desktop-nav">
-          {creatureNav.slice(1).map(([href,label])=><a key={href} href={href} className={href==='#/creatures'?'active':''}>{label}</a>)}
+        <nav className="desktop-nav" aria-label="Navegação principal">
+          {creatureNav.slice(1).map(([href,label])=>{
+            const active = href==='#/creatures';
+            return <a key={href} href={href} className={active?'active':''} aria-current={active?'page':undefined}>{label}</a>;
+          })}
         </nav>
 
         <div className="header-actions">
-          <button className="icon-button" onClick={()=>setTheme(theme==='dark'?'light':'dark')} aria-label="Alternar tema">
+          <button className="icon-button" type="button" onClick={()=>setTheme(theme==='dark'?'light':'dark')} aria-label="Alternar tema">
             {theme==='dark'?<Sun size={18}/>:<Moon size={18}/>} 
           </button>
-          <button className="icon-button mobile-menu-button" onClick={()=>setMobileOpen(true)} aria-label="Abrir menu"><Menu size={20}/></button>
+          <button className="icon-button mobile-menu-button" type="button" onClick={()=>setMobileOpen(true)} aria-label="Abrir menu"><Menu size={20}/></button>
         </div>
       </div>
     </header>
 
     {mobileOpen && <div className="mobile-drawer-backdrop" onClick={()=>setMobileOpen(false)}>
-      <aside className="mobile-drawer" onClick={e=>e.stopPropagation()}>
+      <aside className="mobile-drawer" onClick={e=>e.stopPropagation()} aria-label="Menu de navegação">
         <div className="drawer-head">
           <div className="brand"><span className="brand-mark">🐜</span><strong>Pocket Ants Wiki BR</strong></div>
-          <button className="icon-button" onClick={()=>setMobileOpen(false)} aria-label="Fechar menu"><X size={20}/></button>
+          <button className="icon-button" type="button" onClick={()=>setMobileOpen(false)} aria-label="Fechar menu"><X size={20}/></button>
         </div>
-        <nav className="mobile-nav">
-          {creatureNav.map(([href,label])=><a key={href} href={href} className={href==='#/creatures'?'active':''}>{label}</a>)}
+        <nav className="mobile-nav" aria-label="Navegação móvel">
+          {creatureNav.map(([href,label])=>{
+            const active = href==='#/creatures';
+            return <a key={href} href={href} className={active?'active':''} aria-current={active?'page':undefined}>{label}</a>;
+          })}
         </nav>
       </aside>
     </div>}
