@@ -15,6 +15,7 @@ import AccessibilityPolishRuntime from './AccessibilityPolishRuntime';
 import ViewTransitionRuntime from './ViewTransitionRuntime';
 import InteractionMotionRuntime from './InteractionMotionRuntime';
 import LocalizedTutorialRuntime from './LocalizedTutorialRuntime';
+import VisualMediaBridge from './VisualMediaBridge';
 import { LanguageProvider, SiteSettings } from './LanguageProviderLite';
 import { isDedicatedDatabaseRoute, isModernHomeRoute } from './routeUtils';
 import './index.css';
@@ -26,6 +27,7 @@ import './responsiveComfort.css';
 import './denseUiComfort.css';
 import './interactionComfortV2.css';
 import './cognitiveComfortV3.css';
+import './referenceMediaRepair.css';
 
 const Enhancements = lazy(() => import('./Enhancements'));
 const AdvancedPlanner = lazy(() => import('./AdvancedPlanner'));
@@ -92,6 +94,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         <ViewTransitionRuntime />
         <InteractionMotionRuntime />
         <LocalizedTutorialRuntime />
+        <VisualMediaBridge />
         <DeferredExtras />
         <SiteSettings />
       </AppErrorBoundary>
