@@ -7,10 +7,14 @@
   --ux-focus:color-mix(in srgb,var(--accent,#62d889) 82%,white 18%);
   --ux-focus-shadow:color-mix(in srgb,var(--accent,#62d889) 28%,transparent);
   --ux-reading:72ch;
+  --ux-motion-fast:140ms;
+  --ux-motion-mid:200ms;
+  --ux-ease:cubic-bezier(.2,.8,.2,1);
 }
 
 html{scroll-padding-top:86px;scroll-padding-bottom:92px}
 body{line-height:1.55;text-rendering:optimizeLegibility;-webkit-font-smoothing:antialiased}
+body[data-modal-open="true"]{overscroll-behavior:none}
 
 /* Clear keyboard focus: visible, consistent and not dependent on color alone. */
 :where(a,button,input,select,summary,[tabindex]):focus-visible{
@@ -20,11 +24,17 @@ body{line-height:1.55;text-rendering:optimizeLegibility;-webkit-font-smoothing:a
 }
 
 /* Fitts: important interactive controls get a comfortable hit area. */
-:where(.button,.icon-button,.mobile-nav a,.desktop-nav a,.chip-filter button,.ce3-tabs button,.ce3-filters summary,.ce3-card-actions a,.ce3-back,.ce3-tutorial,.x-tabs button,.adv-tabs button,.research-tabs button,.source-filters button,.pa-language-options button,.pa-settings-close,.research-close,.x-close){
+:where(.button,.icon-button,.mobile-nav a,.desktop-nav a,.chip-filter button,.ce3-tabs button,.ce3-filters summary,.ce3-card-actions a,.ce3-back,.ce3-tutorial,.x-tabs button,.adv-tabs button,.research-tabs button,.source-filters button,.pa-language-options button,.pa-settings-close,.research-close,.x-close,.x-stepper button,.cth-tabs button,.cth-view button,.cth-mode button,.cth-record-actions button,.cap-stars button){
   min-height:var(--ux-touch);
 }
 
-.icon-button,.pa-settings-close,.research-close,.x-close{min-width:var(--ux-touch)}
+.icon-button,.pa-settings-close,.research-close,.x-close,.x-stepper button{min-width:var(--ux-touch)}
+
+:where(button,[role="button"],[aria-pressed="true"],[aria-expanded]):disabled{
+  opacity:.48!important;
+  cursor:not-allowed!important;
+  filter:saturate(.7);
+}
 
 /* Reading comfort: long copy should not become an endless line. */
 :where(.hero-copy p,.page-heading p,.source-box p,.resource-card p,.mechanic-card p,.guide-card p,.ce3-description,.ce3-lead,.ce3-panel p,.research-header p,.consensus-card p,.knowledge-card p,.x-faq-answer p){
@@ -75,14 +85,34 @@ body{line-height:1.55;text-rendering:optimizeLegibility;-webkit-font-smoothing:a
 .ce3-panel-title h2{margin-bottom:2px}
 .ce3-facts,.info-list{gap:8px}
 
-/* Sticky/floating UI should not become more visually important than the content. */
+/* Floating/overlay UI: stable dimensions, safe areas and contained scrolling. */
 .site-header{box-shadow:0 1px 0 color-mix(in srgb,var(--line,#2b3c33) 70%,transparent)}
+.x-panel,.adv-modal,.research-modal,.pa-settings-panel,.mobile-drawer{
+  overscroll-behavior:contain;
+  scrollbar-gutter:stable;
+  padding-bottom:max(18px,env(safe-area-inset-bottom));
+}
+.x-panel-body,.adv-body,.research-modal,.pa-settings-panel,.mobile-drawer{overscroll-behavior-y:contain}
+.creature-db-lazy-fallback{
+  min-height:128px;
+  display:grid;
+  place-items:center;
+  border:1px solid color-mix(in srgb,var(--border,#2b3b33) 80%,transparent);
+  border-radius:14px;
+  color:var(--muted,#9aa8a0);
+  background:color-mix(in srgb,var(--panel,#132019) 80%,transparent);
+}
+
+/* Keep image/layout placeholders stable to reduce CLS while remote assets resolve. */
+.ce3-image-host,.ce3-image-skeleton,.ce3-image-fallback{overflow:hidden}
+.ce3-image-host img{width:100%;height:100%;object-fit:contain}
+.ce3-card,.resource-card,.guide-card,.chamber-card,.mechanic-card{contain-intrinsic-size:auto 340px}
 
 /* Motion is short, predictable, and only communicates state. */
 :where(.button,.icon-button,.chip-filter button,.ce3-tabs button,.ce3-card-actions a,.ce3-filters summary,.mobile-nav a,.desktop-nav a){
-  transition:background-color .18s ease,border-color .18s ease,color .18s ease,transform .18s ease,box-shadow .18s ease;
+  transition:background-color var(--ux-motion-mid) ease,border-color var(--ux-motion-mid) ease,color var(--ux-motion-mid) ease,transform var(--ux-motion-fast) var(--ux-ease),box-shadow var(--ux-motion-mid) ease;
 }
-:where(button,a):active{transition-duration:.08s}
+:where(button,a):active{transition-duration:80ms}
 
 @media(max-width:760px){
   :root{--ux-touch:var(--ux-touch-mobile)}
@@ -166,12 +196,14 @@ body{line-height:1.55;text-rendering:optimizeLegibility;-webkit-font-smoothing:a
   body:not(:has(.x-fab)) .pa-settings-fab{right:14px!important;bottom:max(14px,env(safe-area-inset-bottom))!important;left:auto!important}
 
   .mobile-nav a{min-height:48px;padding-block:10px}
-  .drawer-search input{font-size:16px}
+  .drawer-search input,.header-search input{font-size:16px}
 
   /* Research/calculator overlays become touch-friendly sheets. */
   .adv-tabs,.research-tabs,.x-tabs{overflow-x:auto;scrollbar-width:none;justify-content:flex-start}
   .adv-tabs button,.research-tabs button,.x-tabs button{flex:0 0 auto;min-height:48px}
   .adv-fields label select,.research-searchbar input,.x-search-row input,.x-search-row select{min-height:48px;font-size:16px}
+  .x-stepper{gap:7px}
+  .x-stepper button{width:48px!important;height:48px!important}
 }
 
 @media(max-width:390px){
@@ -181,5 +213,5 @@ body{line-height:1.55;text-rendering:optimizeLegibility;-webkit-font-smoothing:a
 
 @media(prefers-reduced-motion:reduce){
   html{scroll-behavior:auto!important}
-  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
+  *,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
 }
