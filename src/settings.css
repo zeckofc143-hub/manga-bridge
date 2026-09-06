@@ -1,1 +1,93 @@
-.pa-settings-fab{position:fixed;right:18px;bottom:18px;z-index:140;display:grid;place-items:center;width:46px;height:46px;border:1px solid rgba(148,163,184,.24);border-radius:16px;background:color-mix(in srgb,var(--surface,#101827) 88%,transparent);color:var(--text,#f8fafc);box-shadow:0 16px 44px rgba(0,0,0,.28);backdrop-filter:blur(14px);cursor:pointer;transition:transform .2s ease,border-color .2s ease,background .2s ease}.pa-settings-fab:active{transform:scale(.94)}@media(hover:hover){.pa-settings-fab:hover{transform:translateY(-2px);border-color:rgba(96,165,250,.45)}}.pa-settings-backdrop{position:fixed;inset:0;z-index:180;display:flex;justify-content:flex-end;background:rgba(2,6,23,.58);backdrop-filter:blur(6px);animation:paSettingsFade .2s ease}.pa-settings-panel{width:min(420px,100%);height:100%;padding:22px;background:var(--surface,#0f172a);color:var(--text,#f8fafc);box-shadow:-26px 0 70px rgba(0,0,0,.34);overflow:auto;animation:paSettingsSlide .28s cubic-bezier(.2,.8,.2,1)}.pa-settings-head{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;margin-bottom:28px}.pa-settings-head h2{margin:7px 0 0;font-size:1.45rem}.pa-settings-kicker{display:inline-flex;align-items:center;gap:7px;font-size:.78rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted,#94a3b8)}.pa-settings-close{display:grid;place-items:center;width:40px;height:40px;border:1px solid rgba(148,163,184,.2);border-radius:12px;background:transparent;color:inherit;cursor:pointer}.pa-settings-section{padding:18px;border:1px solid rgba(148,163,184,.16);border-radius:20px;background:rgba(148,163,184,.04)}.pa-settings-section-title{display:flex;gap:12px;align-items:flex-start;margin-bottom:16px}.pa-settings-section-title div{display:grid;gap:3px}.pa-settings-section-title span{font-size:.86rem;color:var(--muted,#94a3b8)}.pa-language-options{display:grid;gap:10px}.pa-language-options button{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:12px;width:100%;padding:14px;border:1px solid rgba(148,163,184,.16);border-radius:16px;background:rgba(15,23,42,.18);color:inherit;text-align:left;cursor:pointer;transition:transform .18s ease,border-color .18s ease,background .18s ease}.pa-language-options button:active{transform:scale(.985)}.pa-language-options button.active{border-color:rgba(59,130,246,.65);background:rgba(59,130,246,.12)}.pa-language-options button div{display:grid;gap:2px}.pa-language-options button small{color:var(--muted,#94a3b8)}.pa-language-flag{font-size:1.35rem}.pa-settings-note{margin-top:14px;padding:14px 16px;border-radius:14px;background:rgba(59,130,246,.08);color:var(--muted,#cbd5e1);font-size:.88rem;line-height:1.45}@keyframes paSettingsFade{from{opacity:0}to{opacity:1}}@keyframes paSettingsSlide{from{transform:translateX(28px);opacity:.65}to{transform:none;opacity:1}}@media(max-width:640px){.pa-settings-fab{right:14px;bottom:14px}.pa-settings-panel{padding:18px;border-radius:24px 24px 0 0;height:auto;max-height:82vh;align-self:flex-end;animation:paSettingsUp .28s cubic-bezier(.2,.8,.2,1)}.pa-settings-backdrop{align-items:flex-end}.pa-settings-head{margin-bottom:20px}}@keyframes paSettingsUp{from{transform:translateY(28px);opacity:.65}to{transform:none;opacity:1}}@media(prefers-reduced-motion:reduce){.pa-settings-backdrop,.pa-settings-panel,.pa-settings-fab,.pa-language-options button{animation:none!important;transition:none!important}}
+.pa-settings-fab{
+  position:fixed;right:18px;bottom:18px;z-index:140;display:grid;place-items:center;
+  width:46px;height:46px;border:1px solid rgba(148,163,184,.24);border-radius:16px;
+  background:color-mix(in srgb,var(--surface,#101827) 88%,transparent);color:var(--text,#f8fafc);
+  box-shadow:0 16px 44px rgba(0,0,0,.28);backdrop-filter:blur(14px);cursor:pointer;
+  transition:transform .2s ease,border-color .2s ease,background .2s ease
+}
+.pa-settings-fab:active{transform:scale(.94)}
+@media(hover:hover){.pa-settings-fab:hover{transform:translateY(-2px);border-color:rgba(96,165,250,.45)}}
+
+.pa-settings-backdrop{
+  position:fixed;inset:0;z-index:180;display:flex;justify-content:flex-end;
+  background:rgba(2,6,23,.58);backdrop-filter:blur(6px);animation:paSettingsFade .2s ease
+}
+.pa-settings-panel{
+  width:min(440px,100%);height:100%;padding:22px;background:var(--surface,#0f172a);color:var(--text,#f8fafc);
+  box-shadow:-26px 0 70px rgba(0,0,0,.34);overflow:auto;animation:paSettingsSlide .28s cubic-bezier(.2,.8,.2,1)
+}
+.pa-settings-head{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;margin-bottom:24px}
+.pa-settings-head h2{margin:7px 0 0;font-size:1.45rem;line-height:1.2}
+.pa-settings-kicker{display:inline-flex;align-items:center;gap:7px;font-size:.78rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted,#94a3b8)}
+.pa-settings-close{display:grid;place-items:center;width:40px;height:40px;border:1px solid rgba(148,163,184,.2);border-radius:12px;background:transparent;color:inherit;cursor:pointer}
+
+.pa-settings-section{
+  padding:18px;border:1px solid rgba(148,163,184,.16);border-radius:20px;
+  background:rgba(148,163,184,.04)
+}
+.pa-settings-section + .pa-settings-section{margin-top:14px}
+.pa-settings-section-title{display:flex;gap:12px;align-items:flex-start;margin-bottom:16px}
+.pa-settings-section-title>svg{flex:0 0 auto;margin-top:2px}
+.pa-settings-section-title div{display:grid;gap:3px}
+.pa-settings-section-title span{font-size:.86rem;color:var(--muted,#94a3b8);line-height:1.45}
+
+.pa-language-options{display:grid;gap:10px}
+.pa-language-options button{
+  display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:12px;width:100%;padding:14px;
+  border:1px solid rgba(148,163,184,.16);border-radius:16px;background:rgba(15,23,42,.18);color:inherit;
+  text-align:left;cursor:pointer;transition:transform .18s ease,border-color .18s ease,background .18s ease
+}
+.pa-language-options button:active{transform:scale(.985)}
+.pa-language-options button.active{border-color:rgba(59,130,246,.65);background:rgba(59,130,246,.12)}
+.pa-language-options button div{display:grid;gap:2px}
+.pa-language-options button small{color:var(--muted,#94a3b8)}
+.pa-language-flag{font-size:1.35rem}
+
+.pa-comfort-section{display:grid;gap:4px}
+.pa-comfort-row{
+  display:grid;gap:11px;padding:14px 0;border-top:1px solid rgba(148,163,184,.12)
+}
+.pa-comfort-row:first-of-type{border-top:0;padding-top:2px}
+.pa-comfort-label{display:grid;gap:3px}
+.pa-comfort-label strong{font-size:.95rem}
+.pa-comfort-label span{font-size:.82rem;line-height:1.45;color:var(--muted,#94a3b8)}
+.pa-segmented{
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;padding:5px;
+  border:1px solid rgba(148,163,184,.14);border-radius:14px;background:rgba(2,6,23,.18)
+}
+.pa-segmented button{
+  min-height:42px;padding:8px 10px;border:1px solid transparent;border-radius:10px;background:transparent;
+  color:var(--muted,#94a3b8);font:inherit;font-weight:750;cursor:pointer
+}
+.pa-segmented button.active{
+  background:color-mix(in srgb,var(--accent,#62d889) 14%,var(--surface,#0f172a));
+  border-color:color-mix(in srgb,var(--accent,#62d889) 42%,transparent);
+  color:var(--text,#f8fafc)
+}
+
+.pa-settings-note{
+  margin-top:14px;padding:14px 16px;border-radius:14px;background:rgba(59,130,246,.08);
+  color:var(--muted,#cbd5e1);font-size:.88rem;line-height:1.5
+}
+
+@keyframes paSettingsFade{from{opacity:0}to{opacity:1}}
+@keyframes paSettingsSlide{from{transform:translateX(28px);opacity:.65}to{transform:none;opacity:1}}
+@keyframes paSettingsUp{from{transform:translateY(28px);opacity:.65}to{transform:none;opacity:1}}
+
+@media(max-width:640px){
+  .pa-settings-fab{right:14px;bottom:14px}
+  .pa-settings-panel{
+    padding:18px;border-radius:24px 24px 0 0;height:auto;max-height:min(86vh,760px);
+    align-self:flex-end;animation:paSettingsUp .28s cubic-bezier(.2,.8,.2,1)
+  }
+  .pa-settings-backdrop{align-items:flex-end}
+  .pa-settings-head{margin-bottom:18px}
+  .pa-settings-section{padding:16px;border-radius:18px}
+  .pa-settings-section-title{margin-bottom:13px}
+  .pa-comfort-row{padding:13px 0}
+  .pa-segmented button{min-height:46px}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .pa-settings-backdrop,.pa-settings-panel,.pa-settings-fab,.pa-language-options button,.pa-segmented button{animation:none!important;transition:none!important}
+}
