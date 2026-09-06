@@ -211,6 +211,33 @@ body[data-modal-open="true"]{overscroll-behavior:none}
   .ce3-quick-grid{grid-template-columns:1fr 1fr!important}
 }
 
+/* Users who request more contrast should not have to fight subtle borders or muted focus. */
+@media(prefers-contrast:more){
+  :root{--ux-focus:#ffffff;--ux-focus-shadow:transparent}
+  :where(.category-card,.resource-card,.guide-card,.chamber-card,.mechanic-card,.ce3-card,.panel-card,.ce3-panel,.filter-panel,.ce3-search,.ce3-filters,.x-panel,.adv-modal,.research-modal,.pa-settings-panel){
+    border-width:2px!important;
+  }
+  :where(.source-badge,.rarity,.priority,.ce3-verify,.ce3-tabs button,.chip-filter button){font-weight:900!important}
+  :where(a,button,input,select,summary,[tabindex]):focus-visible{outline-width:4px!important;box-shadow:none!important}
+}
+
+/* Respect operating-system requests for less glass/transparency. */
+@media(prefers-reduced-transparency:reduce){
+  .site-header,.pa-settings-fab,.x-fab,.adv-fab,.research-fab,.pa-settings-backdrop,.x-overlay,.adv-overlay,.research-overlay,.mobile-drawer-backdrop{
+    backdrop-filter:none!important;
+    -webkit-backdrop-filter:none!important;
+  }
+  .site-header,.pa-settings-fab,.x-fab,.adv-fab,.research-fab{background:var(--panel,#132019)!important}
+}
+
+/* Windows high-contrast / forced colors: keep native contrast authoritative. */
+@media(forced-colors:active){
+  *,*::before,*::after{box-shadow:none!important;text-shadow:none!important}
+  :where(a,button,input,select,summary,[tabindex]){forced-color-adjust:auto}
+  :where(.category-card,.resource-card,.guide-card,.chamber-card,.mechanic-card,.ce3-card,.panel-card,.ce3-panel,.filter-panel,.ce3-search,.ce3-filters){border:1px solid CanvasText!important}
+  :where(.source-badge,.rarity,.priority,.ce3-verify){border:1px solid currentColor!important;background:Canvas!important;color:CanvasText!important}
+}
+
 @media(prefers-reduced-motion:reduce){
   html{scroll-behavior:auto!important}
   *,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
