@@ -6,6 +6,7 @@ import CreatureLanguageRuntimeLite from './CreatureLanguageRuntimeLite';
 import TranslationCoverageLite from './TranslationCoverageLite';
 import UxBehaviorRuntime from './UxBehaviorRuntime';
 import AccessibilityPolishRuntime from './AccessibilityPolishRuntime';
+import ProgressiveDisclosureRuntime from './ProgressiveDisclosureRuntime';
 import { LanguageProvider, SiteSettings } from './LanguageProviderLite';
 import './index.css';
 import './sitePolish.css';
@@ -76,6 +77,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
       <TranslationCoverageLite />
       <UxBehaviorRuntime />
       <AccessibilityPolishRuntime />
+      <ProgressiveDisclosureRuntime />
       <DeferredExtras />
       <SiteSettings />
     </LanguageProvider>
