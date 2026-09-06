@@ -1,0 +1,58 @@
+/* Cognitive comfort layer: hierarchy, recognition over recall, progressive disclosure.
+   It intentionally does not copy any category's visual design. */
+
+:root{--pa-readable:760px;--pa-section-gap:14px}
+
+/* Keep long explanations readable and prevent every element from competing for width. */
+:where(.rdb-detail-copy>p,.td-hero p,.xt-hero p,.kx-more-head p,.hv2-hero-copy>p){max-width:var(--pa-readable)}
+
+/* Tools hub: goals are primary; admin-ish metrics and taxonomy are secondary. */
+.td-dashboard{opacity:.7}.td-dashboard strong{font-size:1.18rem}.td-dashboard article{padding:11px 13px}.td-goals{border-color:color-mix(in srgb,var(--accent) 24%,var(--line));background:color-mix(in srgb,var(--accent-soft) 20%,var(--surface))}.td-goal-row{gap:6px}.td-goal-row button{font-size:.78rem}.td-discovery{background:var(--bg-soft)}.td-category-row{opacity:.78}.td-category-row button{min-height:40px;font-size:.72rem}.td-grid{gap:10px}.td-card{min-height:118px;padding:14px}.td-card-icon{width:52px;height:52px;border-radius:14px;font-size:26px}.td-card-meta span{max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.td-card h2{font-size:1rem}.td-card p{font-size:.76rem;line-height:1.45;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}.td-recent{box-shadow:none}
+
+/* Tool details: make the task feel linear even though results update live. */
+.td-tool-body{gap:12px}.td-toolbar{min-height:42px}.td-toolbar>span{font-size:.72rem}.td-form-grid{padding:13px;border:1px solid var(--line);border-radius:15px;background:color-mix(in srgb,var(--bg-soft) 72%,transparent)}.td-field>span{font-size:.74rem;color:var(--text)}.td-field>small{font-size:.68rem}.td-results{padding-top:2px}.td-result{min-height:86px}.td-result span{font-size:.64rem}.td-result strong{font-size:1.4rem}.td-result-accent,.td-result-success{border-width:2px}.td-result-accent strong,.td-result-success strong{font-size:1.52rem}.td-status{max-width:820px}.td-formula{margin-top:2px}.td-formula summary{color:var(--muted)}.td-source-row{opacity:.78}.td-source{min-height:40px;font-size:.7rem}
+
+/* Extra tools follow the same mental model without copying the base tool appearance. */
+.xt-page{display:grid;gap:12px}.xt-body{display:grid;gap:12px}.xt-toolbar{margin:0}.xt-form-grid{padding:13px;border:1px solid var(--line);border-radius:15px;background:var(--bg-soft)}.xt-field>span{color:var(--text)}.xt-results{margin:0}.xt-result{min-height:84px}.xt-result.accent{border-width:2px}.xt-result.accent strong{font-size:1.28rem}.xt-notice{margin:0}.xt-sources{opacity:.78}.xt-formula{margin-top:0}
+
+/* Search and filter controls should read as one quiet tool, not another content block. */
+.kx-discovery .rdb-search,.td-search{box-shadow:none}.kx-filter-disclosure,.td-discovery{box-shadow:none}
+
+/* Secondary evidence is intentionally quieter than action blocks. */
+.kx-disclosure,.td-formula,.xt-formula{box-shadow:none}.kx-disclosure:not([open]){background:var(--bg-soft)}.kx-disclosure[open]{background:var(--surface)}
+
+/* Consistent states and plain-language feedback. */
+:where(.kx-disclosure,.kx-filter-disclosure,.td-formula,.xt-formula)>summary:focus-visible{outline:3px solid var(--pa-focus);outline-offset:2px;border-radius:10px}
+:where(.kx-card,.hv2-category,.hv2-quick>a,.kx-start-row a,.td-card,.td-recent):focus-visible{outline:3px solid var(--pa-focus);outline-offset:2px}
+
+/* Large touch areas without visually inflating the interface. */
+:where(.kx-start-row a,.kx-tool-cta,.hv2-quick>a,.td-card,.td-recent){min-block-size:64px}
+
+@media(max-width:760px){
+  /* Remove non-action metrics from the first mobile viewport. */
+  .td-dashboard{display:none}
+  .td-goals,.td-discovery{padding:12px}
+  .td-goal-row,.td-category-row{flex-wrap:nowrap;overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:none;padding-bottom:2px}
+  .td-goal-row::-webkit-scrollbar,.td-category-row::-webkit-scrollbar{display:none}
+  .td-goal-row button,.td-category-row button{flex:none}
+  .td-category-row{margin-top:1px}
+  .td-grid{grid-template-columns:1fr}
+  .td-card{grid-template-columns:50px minmax(0,1fr) auto;min-height:104px}
+  .td-card p{-webkit-line-clamp:2}
+  .td-form-grid,.xt-form-grid{padding:11px}
+  .td-results{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .td-result{min-height:80px}
+  .xt-result{min-height:76px}
+}
+
+@media(max-width:430px){
+  .td-card{grid-template-columns:46px minmax(0,1fr);padding:12px}.td-card>svg{display:none}.td-card-icon{width:46px;height:46px;font-size:23px}
+  .td-card-meta span{display:none} /* outcome is already expressed in title/description; hide duplicate chip on tiny screens */
+  .td-form-grid,.xt-form-grid{border-radius:13px}
+  .td-results,.xt-results{grid-template-columns:1fr 1fr}
+}
+
+@media(max-width:350px){.td-results,.xt-results{grid-template-columns:1fr}}
+
+@media(prefers-reduced-motion:reduce){.kx-disclosure>summary>svg,.kx-filter-disclosure>summary>svg,.td-card,.hv2-category,.kx-card{transition:none!important}}
+html[data-ux-effects="reduced"] :where(.td-card,.hv2-category,.kx-card){box-shadow:none!important;transition:none!important}
