@@ -7,6 +7,10 @@ function motionAllowed(){
   return document.documentElement.dataset.uxEffects !== 'reduced';
 }
 
+function coarsePointer(){
+  return Boolean(window.matchMedia?.('(pointer: coarse)').matches) || (navigator.maxTouchPoints > 0 && window.innerWidth < 960);
+}
+
 function eligibleAnchor(event){
   if(event.defaultPrevented || event.button !== 0) return null;
   if(event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return null;
@@ -23,7 +27,7 @@ function eligibleAnchor(event){
 }
 
 function nextFrame(){
-  return new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
+  return new Promise(resolve=>requestAnimationFrame(resolve));
 }
 
 export default function ViewTransitionRuntime(){
@@ -32,7 +36,7 @@ export default function ViewTransitionRuntime(){
 
     const onClick = event => {
       const target = eligibleAnchor(event);
-      if(!target || !motionAllowed() || typeof document.startViewTransition !== 'function') return;
+      if(!target || coarsePointer() || !motionAllowed() || typeof document.startViewTransition !== 'function') return;
 
       event.preventDefault();
       document.activeViewTransition?.skipTransition?.();
