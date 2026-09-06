@@ -9,6 +9,7 @@ import AccessibilityPolishRuntime from './AccessibilityPolishRuntime';
 import ProgressiveDisclosureRuntime from './ProgressiveDisclosureRuntime';
 import ViewTransitionRuntime from './ViewTransitionRuntime';
 import InteractionMotionRuntime from './InteractionMotionRuntime';
+import LocalizedTutorialRuntime from './LocalizedTutorialRuntime';
 import { LanguageProvider, SiteSettings } from './LanguageProviderLite';
 import './index.css';
 import './sitePolish.css';
@@ -85,6 +86,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
       <ProgressiveDisclosureRuntime />
       <ViewTransitionRuntime />
       <InteractionMotionRuntime />
+      <LocalizedTutorialRuntime />
       <DeferredExtras />
       <SiteSettings />
     </LanguageProvider>
