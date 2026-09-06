@@ -1,0 +1,156 @@
+/* Lightweight interaction motion — instant feedback without mobile tap flashes or heavy effects. */
+
+:root{
+  --ux-press-fast:70ms;
+  --ux-press-return:145ms;
+  --ux-route-motion:150ms;
+  --ux-motion-ease:cubic-bezier(.2,.8,.2,1);
+}
+
+/* Chrome/WebKit mobile adds its own blue/gray tap overlay. We replace it with our own pressed state. */
+:where(a,button,summary,[role="button"],label,input,select){
+  -webkit-tap-highlight-color:transparent;
+}
+
+/* Keep normal pan/pinch behavior while making taps feel immediate on controls. */
+:where(a,button,summary,[role="button"]){
+  touch-action:manipulation;
+}
+
+/* Small route entrance: content is already there; animation never delays navigation. */
+@media (prefers-reduced-motion:no-preference){
+  html:not([data-ux-effects="reduced"]) .site-main.ux-route-enter{
+    animation:uxRouteEnter var(--ux-route-motion) var(--ux-motion-ease) both;
+  }
+}
+@keyframes uxRouteEnter{
+  from{opacity:.94;transform:translate3d(0,3px,0)}
+  to{opacity:1;transform:translate3d(0,0,0)}
+}
+
+/* Mouse hover can float slightly. Touch devices should never get a sticky hover state. */
+@media (hover:none) and (pointer:coarse){
+  .category-card:hover,
+  .ce-category-tabs button:hover{
+    transform:none!important;
+  }
+
+  /* Large navigation/cards: tiny physical press, no glow, no fake loading delay. */
+  :where(
+    .category-card,
+    .mini-creature-card,
+    .creature-card,
+    .chamber-card,
+    .search-results>a,
+    .source-row,
+    .mobile-nav a,
+    .ce3-card-actions>a,
+    .ux-disclosure-card
+  ){
+    transform:translate3d(0,0,0);
+    transition:
+      transform var(--ux-press-return) var(--ux-motion-ease),
+      opacity var(--ux-press-return) ease,
+      border-color var(--ux-press-return) ease,
+      background-color var(--ux-press-return) ease!important;
+  }
+
+  :where(
+    .category-card,
+    .mini-creature-card,
+    .creature-card,
+    .chamber-card,
+    .search-results>a,
+    .source-row,
+    .mobile-nav a,
+    .ce3-card-actions>a,
+    .ux-disclosure-card
+  ):active{
+    transform:translate3d(0,1px,0) scale(.992)!important;
+    opacity:.94;
+    transition-duration:var(--ux-press-fast)!important;
+  }
+
+  /* Compact controls should feel snappy, not animate across the screen. */
+  :where(
+    .button,
+    .icon-button,
+    .chip-filter button,
+    .ce-category-tabs button,
+    .ce3-tabs button,
+    .ce3-filters summary,
+    .pa-settings-fab,
+    .research-fab,
+    .adv-fab,
+    .x-fab,
+    .pa-settings-close,
+    .research-close,
+    .pa-language-options button,
+    .pa-segmented button,
+    .source-filters button,
+    .research-tabs button,
+    .adv-tabs button,
+    .x-tabs button,
+    .x-stepper button,
+    .checklist button,
+    .collection-list button,
+    .tiny-button
+  ){
+    transform:translate3d(0,0,0);
+    transition:
+      transform var(--ux-press-return) var(--ux-motion-ease),
+      background-color var(--ux-press-return) ease,
+      border-color var(--ux-press-return) ease,
+      color var(--ux-press-return) ease,
+      opacity var(--ux-press-return) ease!important;
+  }
+
+  :where(
+    .button,
+    .icon-button,
+    .chip-filter button,
+    .ce-category-tabs button,
+    .ce3-tabs button,
+    .ce3-filters summary,
+    .pa-settings-fab,
+    .research-fab,
+    .adv-fab,
+    .x-fab,
+    .pa-settings-close,
+    .research-close,
+    .pa-language-options button,
+    .pa-segmented button,
+    .source-filters button,
+    .research-tabs button,
+    .adv-tabs button,
+    .x-tabs button,
+    .x-stepper button,
+    .checklist button,
+    .collection-list button,
+    .tiny-button
+  ):active{
+    transform:scale(.965)!important;
+    opacity:.9;
+    transition-duration:var(--ux-press-fast)!important;
+  }
+
+  /* Inputs/selects get a quiet acknowledgement instead of a browser flash. */
+  :where(input,select):active{
+    border-color:color-mix(in srgb,var(--accent,#62d889) 46%,var(--line,#2b3c33));
+  }
+}
+
+/* Hover remains restrained on real mouse/trackpad devices. */
+@media (hover:hover) and (pointer:fine){
+  :where(.button,.icon-button,.chip-filter button,.ce-category-tabs button,.ce3-tabs button):active{
+    transform:translateY(1px) scale(.985);
+    transition-duration:var(--ux-press-fast)!important;
+  }
+}
+
+/* Keyboard focus is intentionally untouched: focus-visible from uxProfessional.css remains authoritative. */
+@media (prefers-reduced-motion:reduce){
+  .site-main.ux-route-enter{animation:none!important}
+}
+
+html[data-ux-effects="reduced"] .site-main.ux-route-enter{animation:none!important}
