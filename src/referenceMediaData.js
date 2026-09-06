@@ -5,8 +5,8 @@ const file=name=>`${fandom}Special:Redirect/file/${name}`;
 
 /**
  * Real Pocket Ants screenshots only. No generated artwork.
- * The file names below are the screenshot names catalogued by the PocketAnts Wiki Screenshots Guide.
- * Keep media intentionally sparse: images are attached only when they help orientation or explain a visual UI.
+ * File names below are the screenshot names catalogued by the PocketAnts Wiki Screenshots Guide.
+ * Media stays intentionally sparse: an image is attached only when it directly helps orientation or explains a visual UI.
  */
 export const REFERENCE_MEDIA={
   world:{
@@ -21,25 +21,17 @@ export const REFERENCE_MEDIA={
     },
     tree:{
       image:file('Tree_Map_Pocket_Ants.png'),
-      fallback:'https://minireview.io/common/uploads/review/015a49e59d1e8596378aee1e94ca1808.jpg',
       alt:bi('Mapa da área da árvore em Pocket Ants.','Map of the Tree area in Pocket Ants.'),
       caption:bi('Referência visual da Tree, onde ficam Resin, Termites e o acesso à Beehive.','Visual reference for the Tree, home to Resin, Termites and Beehive access.'),
       source:screenshots,
       sourceLabel:bi('Screenshots Guide — Tree Map Pocket Ants','Screenshots Guide — Tree Map Pocket Ants')
-    },
-    garden:{
-      image:'https://minireview.io/common/uploads/review/076dd0532c46b42d66df7b0600324244.jpg',
-      alt:bi('Captura real do mapa de Pocket Ants durante chuva, mostrando a interface e minimapa.','Real Pocket Ants map screenshot during rain, showing the interface and minimap.'),
-      caption:bi('Exemplo real do mundo durante chuva. Para o Garden, a ficha também leva à página visual da comunidade.','Real example of the world during rain. The Garden entry also links to the community visual page.'),
-      source:'https://pocketants.fandom.com/wiki/Garden',
-      sourceLabel:bi('Garden — PocketAnts Wiki','Garden — PocketAnts Wiki')
     }
   },
   upgrades:{
     shops:{
       image:file('Shop_Resin_Pocket_Ants.png'),
       alt:bi('Tela real da Resin Shop de Pocket Ants.','Real Pocket Ants Resin Shop screen.'),
-      caption:bi('Exemplo da interface de uma das lojas permanentes.','Example of the interface used by one of the permanent shops.'),
+      caption:bi('Exemplo real da interface usada por uma das lojas permanentes.','Real example of the interface used by one of the permanent shops.'),
       source:screenshots,
       sourceLabel:bi('Screenshots Guide — Shop','Screenshots Guide — Shop')
     },
