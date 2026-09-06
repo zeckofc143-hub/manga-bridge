@@ -12,20 +12,30 @@ export const TOOL_SOURCE_URLS={
   creatures:'https://pocketants.fandom.com/wiki/Creatures',
   clan:'https://pocketants.fandom.com/wiki/Clans',
   queen:'https://pocketants.fandom.com/wiki/Queen%27s_Chamber',
-  resin:'https://pocketants.fandom.com/wiki/Resin_Chamber',
+  resin:'https://pocketants.fandom.com/wiki/Resin',
+  resinChamber:'https://pocketants.fandom.com/wiki/Resin_Chamber',
   tokens:'https://pocketants.fandom.com/wiki/Battle_Tokens',
   daily:'https://pocketants.fandom.com/wiki/Daily_Quests',
   coop:'https://pocketants.fandom.com/wiki/Co-op_Mode',
   legions:'https://pocketants.fandom.com/wiki/Legions',
-  gems:'https://pocketants.fandom.com/wiki/Gems'
+  gems:'https://pocketants.fandom.com/wiki/Gems',
+  aphid:'https://pocketants.fandom.com/wiki/Aphid_Farm',
+  war:'https://pocketants.fandom.com/wiki/Clan_Wars',
+  faq:'https://pocketants.fandom.com/wiki/FAQ',
+  event:'https://pocketants.fandom.com/wiki/Events'
 };
 
 export const TOOL_RECORDS=[
   {id:'fusion',icon:'🧬',category:'combat',priority:1,title:L('Calculadora de fusão','Fusion calculator'),desc:L('Chance final, custo e desperdício de bônus com fórmula aberta.','Final chance, cost and wasted bonus with an open formula.'),outcome:L('Chance + Body Parts + Gems','Chance + Body Parts + Gems'),keywords:'fusion creature chamber honeydew clan bluebells rock gems chance'},
   {id:'queen-resin',icon:'👑',category:'progression',priority:1,title:L('Planner Queen ↔ Resin','Queen ↔ Resin planner'),desc:L('Custo total, tempo, gargalo de capacidade e próximo nível necessário.','Total cost, time, capacity bottleneck and required next level.'),outcome:L('Custo + tempo + bloqueio','Cost + time + gate'),keywords:'queen resin chamber upgrade soldier progression'},
   {id:'daily',icon:'📅',category:'routine',priority:1,title:L('Rotina e ganhos diários','Daily routine & gains'),desc:L('Recompensas fixas e custo real de cada co-op, sem misturar Frog com Termite/Crab.','Fixed rewards and real cost of each co-op, without mixing Frog with Termite/Crab.'),outcome:L('Lucro bruto + custos','Gross rewards + costs'),keywords:'daily quests termite crab frog coop rewards resin honeydew body parts'},
+  {id:'aphid-yield',icon:'🍯',category:'farm',priority:1,title:L('Calculadora de Aphid Farm','Aphid Farm calculator'),desc:L('Honeydew por convoy, perdas de carriers, múltiplas farms e activity points de eventos que contam Honeydew.','Honeydew per convoy, carrier losses, multiple farms and event activity points when Honeydew counts.'),outcome:L('Honeydew + pontos','Honeydew + points'),keywords:'aphid farm honeydew convoy event multiplier carriers'},
+  {id:'resin-session',icon:'🟠',category:'farm',priority:1,title:L('Planner de sessão de Resin','Resin session planner'),desc:L('Combina Daily, Termite, Beehive e Resin source para calcular quanto ainda falta até sua meta.','Combines Daily, Termite, Beehive and Resin source to calculate what remains to your target.'),outcome:L('Fixos + cargas da árvore','Fixed sources + tree loads'),keywords:'resin termite beehive tree 30 minutes chamber source farm'},
+  {id:'gem-budget',icon:'💎',category:'progression',priority:1,title:L('Orçamento de Gems','Gem budget planner'),desc:L('Planeje slots e boosts de fusão e veja o custo total, déficit e dias de Gems diárias.','Plan slots and fusion boosts and see total cost, shortage and daily-Gem days.'),outcome:L('Custo + déficit + dias','Cost + shortage + days'),keywords:'gems slots fusion boost budget storage creature lab save'},
   {id:'battle-tokens',icon:'🎟️',category:'combat',priority:2,title:L('Planner de Battle Tokens','Battle Token planner'),desc:L('Entradas possíveis, déficit e efeito correto do reset das 00:00 UTC.','Affordable entries, shortage and the correct 00:00 UTC reset effect.'),outcome:L('Entradas + déficit','Entries + shortage'),keywords:'battle tokens reset dungeon coop'},
   {id:'farm',icon:'🌾',category:'farm',priority:2,title:L('Planejador de farm','Farm planner'),desc:L('Use sua própria média para estimar runs e tempo sem inventar drop rate.','Use your own average to estimate runs and time without invented drop rates.'),outcome:L('Runs + tempo','Runs + time'),keywords:'farm grind runs time estimate resource'},
+  {id:'event-points',icon:'🎉',category:'routine',priority:2,title:L('Calculadora de pontos de evento','Event points calculator'),desc:L('Template de Major Events: Red Ants, Aphid Honeydew, Acorns, Pheromones, anúncios e fonte processada.','Major Event template: Red Ants, Aphid Honeydew, Acorns, Pheromones, ads and processed source.'),outcome:L('Pontos + progresso','Points + progress'),keywords:'event activity points acorns red ants honeydew pheromones ads source'},
+  {id:'clan-week',icon:'🧵',category:'late',priority:1,title:L('Semana de Clan Wars','Clan War week'),desc:L('Mostra a fase UTC atual e um checklist para registro, preparo, 3 ataques e coleta da recompensa.','Shows the current UTC phase and a checklist for registration, prep, 3 attacks and reward claim.'),outcome:L('Fase + checklist','Phase + checklist'),keywords:'clan wars silk friday saturday sunday monday register reward attacks'},
   {id:'legions',icon:'🛡️',category:'late',priority:2,title:L('Planner de Legions','Legions planner'),desc:L('Separe custos de slots e espécies em Resin/Silk e veja o que ainda falta.','Separate slot and species costs in Resin/Silk and see what is still missing.'),outcome:L('Resin + Silk','Resin + Silk'),keywords:'legions carpenter bullet exploding silk resin clan wars'},
   {id:'collection',icon:'🪲',category:'tracker',priority:1,title:L('Coleção de criaturas','Creature collection'),desc:L('Tracker atualizado pela base moderna de criaturas, com filtros, progresso e faltantes.','Tracker powered by the modern creature database, with filters, progress and missing creatures.'),outcome:L('Progresso por grupo','Progress by group'),keywords:'collection creatures special event legendary missing tracker'}
 ];
@@ -72,11 +82,14 @@ export const TOOL_INTERNAL_LINKS={
 };
 
 export const TOOL_GOALS=[
-  {id:'stronger',icon:'⚔️',label:L('Ficar mais forte','Get stronger'),tools:['queen-resin','fusion']},
-  {id:'daily',icon:'📅',label:L('Organizar o dia','Plan my day'),tools:['daily','battle-tokens']},
-  {id:'farm',icon:'🌾',label:L('Planejar farm','Plan farming'),tools:['farm','daily']},
-  {id:'late',icon:'🛡️',label:L('Planejar late game','Plan late game'),tools:['legions','queen-resin']},
-  {id:'collect',icon:'🪲',label:L('Completar coleção','Complete collection'),tools:['collection','fusion']}
+  {id:'stronger',icon:'⚔️',label:L('Ficar mais forte','Get stronger'),tools:['queen-resin','fusion','gem-budget']},
+  {id:'daily',icon:'📅',label:L('Organizar o dia','Plan my day'),tools:['daily','battle-tokens','resin-session']},
+  {id:'farm',icon:'🌾',label:L('Planejar farm','Plan farming'),tools:['farm','resin-session','aphid-yield','daily']},
+  {id:'save',icon:'💎',label:L('Economizar Gems','Save Gems'),tools:['gem-budget','fusion','collection']},
+  {id:'event',icon:'🎉',label:L('Fazer evento','Play an event'),tools:['event-points','aphid-yield','daily']},
+  {id:'clan',icon:'🤝',label:L('Clã / War','Clan / War'),tools:['clan-week','legions','daily']},
+  {id:'late',icon:'🛡️',label:L('Planejar late game','Plan late game'),tools:['clan-week','legions','queen-resin']},
+  {id:'collect',icon:'🪲',label:L('Completar coleção','Complete collection'),tools:['collection','fusion','gem-budget']}
 ];
 
 export const FUSION_BASE={
@@ -104,6 +117,7 @@ export const QUEEN_UPGRADES={
 };
 
 export const RESIN_STORAGE={1:3000,2:6000,3:9000,4:12000,5:20000,6:25000,7:40000,8:50000,9:60000,10:70000,11:80000,12:99999};
+export const RESIN_SOURCE_AMOUNT={1:2000,2:2250,3:2500,4:2750,5:3000,6:3250,7:3500,8:4000,9:4500,10:5000,11:5500,12:6000};
 
 export const DAILY_ACTIVITIES=[
   {id:'quests',icon:'✅',label:L('4 Daily Quests','4 Daily Quests'),mode:'daily',reward:{resin:1500,honeydew:150,gems:10},cost:{},source:'daily'},
@@ -116,9 +130,9 @@ export const DAILY_ACTIVITIES=[
 
 export const LEGION_SLOT_COSTS={
   1:{resin:50000,silk:0},
-  2:{resin:50000,silk:5000},
-  3:{resin:50000,silk:10000},
-  4:{resin:50000,silk:15000}
+  2:{resin:0,silk:5000},
+  3:{resin:0,silk:5000},
+  4:{resin:0,silk:5000}
 };
 export const LEGION_SPECIES=[
   {id:'carpenter',icon:'🐜',label:'Carpenter Ants',resin:50000,silk:0},
