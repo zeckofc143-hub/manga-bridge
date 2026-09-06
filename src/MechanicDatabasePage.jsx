@@ -1,1 +1,1 @@
-export { default } from './MechanicDatabasePageV2';
+export { default } from './MechanicDatabasePageFinal';
