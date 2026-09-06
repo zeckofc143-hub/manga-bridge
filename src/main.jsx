@@ -12,7 +12,6 @@ import TranslationCoverageLite from './TranslationCoverageLite';
 import GlobalUiLanguageRuntime from './GlobalUiLanguageRuntime';
 import UxBehaviorRuntime from './UxBehaviorRuntime';
 import AccessibilityPolishRuntime from './AccessibilityPolishRuntime';
-import ProgressiveDisclosureRuntime from './ProgressiveDisclosureRuntime';
 import ViewTransitionRuntime from './ViewTransitionRuntime';
 import InteractionMotionRuntime from './InteractionMotionRuntime';
 import LocalizedTutorialRuntime from './LocalizedTutorialRuntime';
@@ -84,7 +83,6 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         <UxBehaviorRuntime />
         <GlobalUiLanguageRuntime />
         <AccessibilityPolishRuntime />
-        <ProgressiveDisclosureRuntime />
         <ViewTransitionRuntime />
         <InteractionMotionRuntime />
         <LocalizedTutorialRuntime />
