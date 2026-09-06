@@ -3,6 +3,7 @@ import './uxBehavior.css';
 
 const CREATURE_FILTER_KEY = 'pa-creature-filters-v1';
 const LAST_ROUTE_KEY = 'pa-last-route';
+const CREATURE_SCROLL_KEY = 'pa-creature-list-scroll';
 
 const DIALOGS = [
   { overlay: '.x-overlay', panel: '.x-panel', close: '.x-close' },
@@ -14,6 +15,7 @@ const DIALOGS = [
 
 const TRIGGER_SELECTOR = '.x-fab,.adv-fab,.research-fab,.pa-settings-fab,.mobile-menu-button';
 const FOCUSABLE = 'a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),summary,[tabindex]:not([tabindex="-1"])';
+const CHOICE_BUTTONS = '.ce3-tabs button,.cth-tabs button,.cth-view button,.cth-mode button,.cap-stars button,.adv-tabs button,.research-tabs button,.x-tabs button,.source-filters button,.chip-filter button';
 
 function getDialog(){
   for(const config of DIALOGS){
@@ -64,8 +66,12 @@ function safeSavedFilters(){
   }
 }
 
-function isCreatureListRoute(){
-  return /^#\/creatures(?:\?|$)/i.test(window.location.hash || '');
+function isCreatureListRoute(hash=window.location.hash || ''){
+  return /^#\/creatures(?:\?|$)/i.test(hash);
+}
+
+function isCreatureDetailRoute(hash=window.location.hash || ''){
+  return /^#\/creatures\/[^?/#]+/i.test(hash);
 }
 
 function paramsForCreatureList(){
@@ -76,7 +82,7 @@ function paramsForCreatureList(){
 
 function routeTitle(){
   const hash = window.location.hash || '#/';
-  if(/^#\/creatures\/[^?/#]+/i.test(hash)){
+  if(isCreatureDetailRoute(hash)){
     const heading = document.querySelector('.ce3-detail-page h1');
     return heading?.textContent?.trim() ? `${heading.textContent.trim()} · Pocket Ants Wiki BR` : 'Criatura · Pocket Ants Wiki BR';
   }
@@ -100,12 +106,60 @@ export default function UxBehaviorRuntime(){
     let saveTimer = 0;
     let applyTimer = 0;
     let statusTimer = 0;
+    let restoreTimer = 0;
     let modalActive = false;
+    let previousHash = window.location.hash || '#/';
+    let skipButton = null;
 
     const backgroundNodes = () => [...document.querySelectorAll('.site-header,.site-main,.site-footer')];
 
+    const ensureSkipControl = () => {
+      const main = document.querySelector('.site-main');
+      if(main){
+        main.id = 'ux-main-content';
+        if(!main.hasAttribute('tabindex')) main.setAttribute('tabindex','-1');
+      }
+      if(document.querySelector('.ux-skip-link')) return;
+      skipButton = document.createElement('button');
+      skipButton.type = 'button';
+      skipButton.className = 'ux-skip-link';
+      skipButton.textContent = 'Pular para o conteúdo';
+      skipButton.addEventListener('click',()=>{
+        const target = document.querySelector('.site-main');
+        if(!target) return;
+        target.focus({preventScroll:true});
+        target.scrollIntoView({block:'start'});
+      });
+      document.body.prepend(skipButton);
+    };
+
+    const syncChoiceSemantics = () => {
+      document.querySelectorAll(CHOICE_BUTTONS).forEach(button=>{
+        button.setAttribute('aria-pressed',button.classList.contains('active') ? 'true' : 'false');
+      });
+    };
+
+    const syncTriggerStates = () => {
+      const pairs = [
+        ['.x-fab','.x-overlay'],['.adv-fab','.adv-overlay'],['.research-fab','.research-overlay'],
+        ['.pa-settings-fab','.pa-settings-backdrop'],['.mobile-menu-button','.mobile-drawer-backdrop']
+      ];
+      pairs.forEach(([triggerSelector,overlaySelector])=>{
+        document.querySelectorAll(triggerSelector).forEach(trigger=>{
+          trigger.setAttribute('aria-haspopup','dialog');
+          trigger.setAttribute('aria-expanded',document.querySelector(overlaySelector) ? 'true' : 'false');
+        });
+      });
+    };
+
+    const syncSemantics = () => {
+      ensureSkipControl();
+      syncChoiceSemantics();
+      syncTriggerStates();
+    };
+
     const unlockBackground = (restore=true) => {
-      if(!modalActive) return;
+      if(!modalActive){ syncTriggerStates(); return; }
       modalActive = false;
       document.body.dataset.modalOpen = 'false';
       document.body.style.overflow = previousOverflow;
@@ -116,6 +170,7 @@ export default function UxBehaviorRuntime(){
           delete node.dataset.uxAriaHidden;
         }
       });
+      syncTriggerStates();
       if(restore && lastTrigger?.isConnected){
         requestAnimationFrame(()=>lastTrigger.focus({preventScroll:true}));
       }
@@ -144,6 +199,7 @@ export default function UxBehaviorRuntime(){
           node.dataset.uxAriaHidden = 'true';
         }
       });
+      syncTriggerStates();
       requestAnimationFrame(()=>{
         const first = panel.querySelector(close) || panel.querySelector(FOCUSABLE) || panel;
         if(first === panel && !panel.hasAttribute('tabindex')) panel.setAttribute('tabindex','-1');
@@ -224,18 +280,37 @@ export default function UxBehaviorRuntime(){
         setNativeSelectValue(selects[0],state.rarity);
         setNativeSelectValue(selects[1],state.acquisition);
         setNativeSelectValue(selects[2],state.sort);
-        window.setTimeout(()=>saveCreatureFilters(false),0);
+        window.setTimeout(()=>{ saveCreatureFilters(false); syncChoiceSemantics(); },0);
       },80);
     };
 
     const updateTitle = () => window.setTimeout(()=>{ document.title = routeTitle(); },60);
 
+    const saveCreatureScroll = () => {
+      if(!isCreatureListRoute()) return;
+      try{ sessionStorage.setItem(CREATURE_SCROLL_KEY,String(Math.max(0,window.scrollY || 0))); }catch{}
+    };
+
+    const restoreCreatureScroll = () => {
+      window.clearTimeout(restoreTimer);
+      restoreTimer = window.setTimeout(()=>{
+        let value = 0;
+        try{ value = Number(sessionStorage.getItem(CREATURE_SCROLL_KEY) || 0); }catch{}
+        if(Number.isFinite(value) && value > 0) window.scrollTo({top:value,behavior:'auto'});
+      },160);
+    };
+
     const onDocumentClick = event => {
       const trigger = event.target.closest?.(TRIGGER_SELECTOR);
       if(trigger) lastTrigger = trigger;
+
+      const creatureDetailLink = event.target.closest?.('a[href^="#/creatures/"]');
+      if(creatureDetailLink && isCreatureListRoute()) saveCreatureScroll();
+
       if(trigger || event.target.closest?.('.x-close,.adv-header button,.research-close,.pa-settings-close,.drawer-head .icon-button') || DIALOGS.some(item=>event.target.matches?.(item.overlay))){
         scheduleDialogSync();
       }
+      if(event.target.closest?.(CHOICE_BUTTONS)) requestAnimationFrame(syncChoiceSemantics);
       if(event.target.closest?.('.ce3-tabs button')) scheduleSaveFilters();
     };
 
@@ -254,10 +329,14 @@ export default function UxBehaviorRuntime(){
 
     const onRoute = () => {
       const hash = window.location.hash || '#/';
+      const shouldRestore = isCreatureDetailRoute(previousHash) && isCreatureListRoute(hash);
+      previousHash = hash;
       if(hash && hash !== '#/') try{ localStorage.setItem(LAST_ROUTE_KEY,hash); }catch{}
       unlockBackground(false);
       applyCreatureFilters();
       updateTitle();
+      window.setTimeout(syncSemantics,90);
+      if(shouldRestore) restoreCreatureScroll();
     };
 
     const onOffline = () => { window.clearTimeout(statusTimer); setNetworkState('offline'); };
@@ -278,9 +357,10 @@ export default function UxBehaviorRuntime(){
     window.addEventListener('online',onOnline);
     applyCreatureFilters();
     updateTitle();
+    window.setTimeout(syncSemantics,0);
 
     return ()=>{
-      window.clearTimeout(saveTimer); window.clearTimeout(applyTimer); window.clearTimeout(statusTimer);
+      window.clearTimeout(saveTimer); window.clearTimeout(applyTimer); window.clearTimeout(statusTimer); window.clearTimeout(restoreTimer);
       document.removeEventListener('click',onDocumentClick,true);
       document.removeEventListener('input',onDocumentInput,true);
       document.removeEventListener('change',onDocumentChange,true);
@@ -290,6 +370,7 @@ export default function UxBehaviorRuntime(){
       window.removeEventListener('app:navigation',onRoute);
       window.removeEventListener('offline',onOffline);
       window.removeEventListener('online',onOnline);
+      skipButton?.remove();
       unlockBackground(false);
     };
   },[]);
