@@ -2,6 +2,7 @@ import React, { Suspense, lazy, useEffect, useState } from 'react';
 import ReactDOM from 'react-dom/client';
 import './creatureAuditRuntime';
 import AppV2 from './AppV2';
+import CreatureLanguageRuntime from './CreatureLanguageRuntime';
 import { LanguageProvider, SiteSettings } from './i18n';
 import './index.css';
 import './sitePolish.css';
@@ -58,6 +59,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <LanguageProvider>
       <AppV2 />
+      <CreatureLanguageRuntime />
       <DeferredExtras />
       <SiteSettings />
     </LanguageProvider>
