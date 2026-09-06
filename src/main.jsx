@@ -4,6 +4,7 @@ import './creatureAuditRuntime';
 import AppV2 from './AppV2';
 import CreatureLanguageRuntimeLite from './CreatureLanguageRuntimeLite';
 import TranslationCoverageLite from './TranslationCoverageLite';
+import UxBehaviorRuntime from './UxBehaviorRuntime';
 import { LanguageProvider, SiteSettings } from './LanguageProviderLite';
 import './index.css';
 import './sitePolish.css';
@@ -71,6 +72,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
       <AppV2 />
       <CreatureLanguageRuntimeLite />
       <TranslationCoverageLite />
+      <UxBehaviorRuntime />
       <DeferredExtras />
       <SiteSettings />
     </LanguageProvider>
