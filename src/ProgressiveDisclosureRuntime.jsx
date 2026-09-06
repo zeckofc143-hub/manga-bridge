@@ -2,13 +2,16 @@ import { useEffect } from 'react';
 
 const MOBILE_QUERY = '(max-width: 760px)';
 const CARD_CONFIG = [
-  { selector: '.resource-card', details: '.resource-columns', kind: 'Recurso' },
-  { selector: '.guide-card', details: 'ul', kind: 'Guia' }
+  { selector: '.resource-card', details: '.resource-columns', kind: { pt:'Recurso', en:'Resource' } },
+  { selector: '.guide-card', details: 'ul', kind: { pt:'Guia', en:'Guide' } }
 ];
 
+function language(){
+  return document.documentElement.lang?.toLowerCase().startsWith('en') ? 'en' : 'pt';
+}
+
 function labels(){
-  const english = document.documentElement.lang?.toLowerCase().startsWith('en');
-  return english
+  return language() === 'en'
     ? { show:'Show details', hide:'Hide details' }
     : { show:'Mostrar detalhes', hide:'Ocultar detalhes' };
 }
@@ -21,9 +24,10 @@ function setExpanded(card,expanded,config){
   const detail = card.querySelector(config.details);
   if(!detail) return;
   const copy = labels();
+  const kind = config.kind[language()];
   card.setAttribute('aria-expanded',expanded ? 'true' : 'false');
   card.dataset.uxDisclosureLabel = expanded ? copy.hide : copy.show;
-  card.setAttribute('aria-label',`${config.kind}${cardName(card) ? `: ${cardName(card)}` : ''}. ${expanded ? copy.hide : copy.show}`);
+  card.setAttribute('aria-label',`${kind}${cardName(card) ? `: ${cardName(card)}` : ''}. ${expanded ? copy.hide : copy.show}`);
   detail.toggleAttribute('hidden',!expanded);
 }
 
@@ -45,7 +49,8 @@ function enhanceCard(card,config,mobile){
   card.classList.add('ux-disclosure-card');
   card.setAttribute('role','button');
   card.setAttribute('tabindex','0');
-  if(!card.hasAttribute('aria-expanded')) setExpanded(card,false,config);
+  const expanded = card.getAttribute('aria-expanded') === 'true';
+  setExpanded(card,expanded,config);
 }
 
 function syncAll(media){
@@ -65,7 +70,7 @@ export default function ProgressiveDisclosureRuntime(){
 
     const schedule = () => {
       window.clearTimeout(timer);
-      timer = window.setTimeout(()=>syncAll(media),80);
+      timer = window.setTimeout(()=>syncAll(media),70);
     };
 
     const toggle = card => {
@@ -77,8 +82,8 @@ export default function ProgressiveDisclosureRuntime(){
 
     const onClick = event => {
       const card = event.target.closest?.('.ux-disclosure-card');
-      if(!card || event.target.closest?.('a,button,input,select,textarea,summary')) return;
-      toggle(card);
+      if(card && !event.target.closest?.('a,button,input,select,textarea,summary')) toggle(card);
+      schedule();
     };
 
     const onKey = event => {
@@ -95,6 +100,8 @@ export default function ProgressiveDisclosureRuntime(){
     window.addEventListener('app:navigation',schedule);
     window.addEventListener('pa:language',schedule);
     document.addEventListener('click',onClick,true);
+    document.addEventListener('change',schedule,true);
+    document.addEventListener('input',schedule,true);
     document.addEventListener('keydown',onKey,true);
     media.addEventListener?.('change',onMedia);
 
@@ -104,6 +111,8 @@ export default function ProgressiveDisclosureRuntime(){
       window.removeEventListener('app:navigation',schedule);
       window.removeEventListener('pa:language',schedule);
       document.removeEventListener('click',onClick,true);
+      document.removeEventListener('change',schedule,true);
+      document.removeEventListener('input',schedule,true);
       document.removeEventListener('keydown',onKey,true);
       media.removeEventListener?.('change',onMedia);
       syncAll({matches:false});
