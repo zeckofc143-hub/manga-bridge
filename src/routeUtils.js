@@ -7,6 +7,10 @@ export const DATABASE_KINDS = Object.freeze([
   'tools',
   'farms',
   'strategies',
+  'world',
+  'upgrades',
+  'events',
+  'quests',
   'search'
 ]);
 
@@ -18,11 +22,15 @@ export const NATIVE_I18N_KINDS = Object.freeze([
   'tools',
   'farms',
   'strategies',
+  'world',
+  'upgrades',
+  'events',
+  'quests',
   'search'
 ]);
 
 const ROUTE_CLASS_STEMS = Object.freeze({
-  creatures:'creature',resources:'resource',chambers:'chamber',mechanics:'mechanic',guides:'guide',tools:'tool',farms:'farm',strategies:'strategy',search:'search'
+  creatures:'creature',resources:'resource',chambers:'chamber',mechanics:'mechanic',guides:'guide',tools:'tool',farms:'farm',strategies:'strategy',world:'world',upgrades:'upgrade',events:'event',quests:'quest',search:'search'
 });
 
 const escapeRegExp = value => String(value).replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
