@@ -30,7 +30,7 @@ const AdvancedPlanner = lazy(() => import('./AdvancedPlanner'));
 const CommunityResearchHub = lazy(() => import('./CommunityResearchHub'));
 
 function isDedicatedDatabaseRoute(){
-  return /^#\/(?:creatures|resources|chambers|mechanics)(?:\/|$|\?)/i.test(window.location.hash || '#/');
+  return /^#\/(?:creatures|resources|chambers|mechanics|guides)(?:\/|$|\?)/i.test(window.location.hash || '#/');
 }
 
 function DeferredExtras(){
