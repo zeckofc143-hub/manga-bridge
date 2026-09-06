@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 
 const ROUTE_CLASS = 'ux-route-enter';
 const ROUTE_CLEANUP_MS = 280;
-const SCHEDULE_DEBOUNCE_MS = 28;
+const SCHEDULE_DEBOUNCE_MS = 8;
 
 function motionAllowed(){
   if(window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return false;
@@ -13,14 +13,13 @@ function nativeTransitionActive(){
   return document.documentElement.dataset.uxViewTransition === 'active' || Boolean(document.activeViewTransition);
 }
 
-function isCreatureRoute(){
-  return /^#\/creatures(?:\/|$|\?)/i.test(window.location.hash || '#/');
+function isDedicatedDatabaseRoute(){
+  return /^#\/(?:creatures|resources)(?:\/|$|\?)/i.test(window.location.hash || '#/');
 }
 
 export default function InteractionMotionRuntime(){
   useEffect(()=>{
     let rafA = 0;
-    let rafB = 0;
     let cleanupTimer = 0;
     let scheduleTimer = 0;
     let scrollTimer = 0;
@@ -30,27 +29,23 @@ export default function InteractionMotionRuntime(){
       if(!main || !motionAllowed() || nativeTransitionActive()) return;
       main.classList.remove(ROUTE_CLASS);
       rafA = requestAnimationFrame(()=>{
-        rafB = requestAnimationFrame(()=>{
-          const currentMain = document.querySelector('.site-main');
-          if(!currentMain || !motionAllowed() || nativeTransitionActive()) return;
-          currentMain.classList.remove(ROUTE_CLASS);
-          currentMain.classList.add(ROUTE_CLASS);
-          window.clearTimeout(cleanupTimer);
-          cleanupTimer = window.setTimeout(()=>currentMain.classList.remove(ROUTE_CLASS),ROUTE_CLEANUP_MS);
-        });
+        const currentMain = document.querySelector('.site-main');
+        if(!currentMain || !motionAllowed() || nativeTransitionActive()) return;
+        currentMain.classList.add(ROUTE_CLASS);
+        window.clearTimeout(cleanupTimer);
+        cleanupTimer = window.setTimeout(()=>currentMain.classList.remove(ROUTE_CLASS),ROUTE_CLEANUP_MS);
       });
     };
 
     const run = () => {
       cancelAnimationFrame(rafA);
-      cancelAnimationFrame(rafB);
       window.clearTimeout(scrollTimer);
 
-      /* Some legacy routes still request smooth scrolling themselves. Force the final
-         position back to an immediate scroll so navigation never feels delayed. */
-      if(!isCreatureRoute()){
+      /* Legacy routes can still request smooth scrolling themselves. Dedicated database
+         shells already own their scroll position, so do not fight them with extra jumps. */
+      if(!isDedicatedDatabaseRoute()){
         requestAnimationFrame(()=>window.scrollTo({top:0,left:0,behavior:'auto'}));
-        scrollTimer = window.setTimeout(()=>window.scrollTo({top:0,left:0,behavior:'auto'}),48);
+        scrollTimer = window.setTimeout(()=>window.scrollTo({top:0,left:0,behavior:'auto'}),40);
       }
 
       animate();
@@ -67,7 +62,6 @@ export default function InteractionMotionRuntime(){
 
     return ()=>{
       cancelAnimationFrame(rafA);
-      cancelAnimationFrame(rafB);
       window.clearTimeout(cleanupTimer);
       window.clearTimeout(scheduleTimer);
       window.clearTimeout(scrollTimer);
