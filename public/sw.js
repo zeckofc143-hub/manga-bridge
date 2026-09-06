@@ -1,4 +1,4 @@
-const VERSION = 'pa-wiki-v1';
+const VERSION = 'pa-wiki-v2';
 const SHELL = ['./', './index.html', './manifest.webmanifest', './ant-wiki-icon.svg'];
 
 self.addEventListener('install', event => {
