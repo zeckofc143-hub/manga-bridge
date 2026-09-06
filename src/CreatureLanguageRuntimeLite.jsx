@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { allCatalogCreatures } from './creatureCatalogData';
 import { enrichCreature, nonCapturableCreatures } from './creatureCatalogExtras';
-import { creatureDescription, creatureName, translateRawText, CREATURE_NAMES } from './i18n';
+import { creatureDescription, creatureName, translateRawText, CREATURE_NAMES } from './i18nCore';
 import { useLanguage } from './LanguageProviderLite';
 
 const RAW_CREATURES=[...allCatalogCreatures.map(enrichCreature),...nonCapturableCreatures];
@@ -135,55 +135,50 @@ function applyCreatureDetail(root,language){
   }
 }
 
-function processRoot(root,language){
-  if(!root || root.nodeType!==Node.ELEMENT_NODE) return;
-  if(root.matches?.('.ce3-card')) applyCreatureCard(root,language);
-  root.querySelectorAll?.('.ce3-card').forEach(card=>applyCreatureCard(card,language));
-  if(root.matches?.('.ce3-detail-page')) applyCreatureDetail(root,language);
-  else {
-    const detail=root.querySelector?.('.ce3-detail-page');
-    if(detail) applyCreatureDetail(detail,language);
-  }
+function syncCreatureLanguage(language){
+  document.querySelectorAll('.ce3-card').forEach(card=>applyCreatureCard(card,language));
+  const detail=document.querySelector('.ce3-detail-page');
+  if(detail) applyCreatureDetail(detail,language);
 }
 
 export default function CreatureLanguageRuntimeLite(){
   const {language}=useLanguage();
   useEffect(()=>{
     let frame=0;
-    const pending=new Set();
+    const timers=new Set();
+
     const flush=()=>{
       frame=0;
-      const roots=[...pending]; pending.clear();
-      if(!roots.length){
-        document.querySelectorAll('.ce3-card').forEach(card=>applyCreatureCard(card,language));
-        const detail=document.querySelector('.ce3-detail-page');
-        if(detail) applyCreatureDetail(detail,language);
-        return;
-      }
-      roots.forEach(root=>processRoot(root,language));
+      syncCreatureLanguage(language);
     };
-    const queue=root=>{
-      if(root?.nodeType===Node.ELEMENT_NODE) pending.add(root);
+    const schedule=(delays=[0,70,220])=>{
       if(!frame) frame=requestAnimationFrame(flush);
+      delays.filter(delay=>delay>0).forEach(delay=>{
+        const id=window.setTimeout(()=>{timers.delete(id);syncCreatureLanguage(language);},delay);
+        timers.add(id);
+      });
     };
+    const onInteraction=event=>{
+      if(event.target.closest?.('.ce3-page,.ce3-detail-page,.cth-root')) schedule([0,80]);
+    };
+    const onRoute=()=>schedule([0,70,220]);
 
-    flush();
-    const observer=new MutationObserver(records=>{
-      for(const record of records){
-        for(const node of record.addedNodes) queue(node);
-      }
-    });
-    observer.observe(document.body,{subtree:true,childList:true});
-    const onHash=()=>{
-      pending.clear();
-      if(frame) cancelAnimationFrame(frame);
-      frame=requestAnimationFrame(flush);
-    };
-    window.addEventListener('hashchange',onHash);
+    schedule([0,80,260,900]);
+    window.addEventListener('hashchange',onRoute);
+    window.addEventListener('app:navigation',onRoute);
+    document.addEventListener('click',onInteraction,true);
+    document.addEventListener('input',onInteraction,true);
+    document.addEventListener('change',onInteraction,true);
+
     return ()=>{
-      observer.disconnect();
-      window.removeEventListener('hashchange',onHash);
+      window.removeEventListener('hashchange',onRoute);
+      window.removeEventListener('app:navigation',onRoute);
+      document.removeEventListener('click',onInteraction,true);
+      document.removeEventListener('input',onInteraction,true);
+      document.removeEventListener('change',onInteraction,true);
       if(frame) cancelAnimationFrame(frame);
+      timers.forEach(id=>window.clearTimeout(id));
+      timers.clear();
     };
   },[language]);
   return null;
