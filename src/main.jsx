@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 import './creatureAuditRuntime';
 import './mechanicResearchExpansion';
 import './mechanicDecisionExpansion';
+import './mechanicResearchCorrections';
 import AppV2 from './AppV2';
 import CreatureLanguageRuntimeLite from './CreatureLanguageRuntimeLite';
 import ResourceLanguageRuntimeLite from './ResourceLanguageRuntimeLite';
