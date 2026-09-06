@@ -1,12 +1,14 @@
-/* Lightweight interaction motion — instant feedback without mobile tap flashes or heavy effects. */
+/* Lightweight interaction motion — responsive feedback without browser tap flashes or heavy effects. */
 
 :root{
-  --ux-press-fast:70ms;
-  --ux-press-return:145ms;
-  --ux-route-motion:150ms;
-  --ux-overlay-motion:120ms;
-  --ux-panel-motion:175ms;
-  --ux-motion-ease:cubic-bezier(.2,.8,.2,1);
+  --ux-press-fast:120ms;
+  --ux-press-return:205ms;
+  --ux-route-motion:220ms;
+  --ux-overlay-motion:180ms;
+  --ux-panel-motion:260ms;
+  --ux-state-motion:190ms;
+  --ux-motion-ease:cubic-bezier(.2,.72,.2,1);
+  --ux-motion-ease-out:cubic-bezier(.16,1,.3,1);
 }
 
 /* Chrome/WebKit mobile adds its own blue/gray tap overlay. We replace it with our own pressed state. */
@@ -14,15 +16,15 @@
   -webkit-tap-highlight-color:transparent;
 }
 
-/* Keep normal pan/pinch behavior while making taps feel immediate on controls. */
+/* Keep normal pan/pinch behavior while making taps feel direct. */
 :where(a,button,summary,[role="button"]){
   touch-action:manipulation;
 }
 
-/* Small route entrance: content is already there; animation never delays navigation. */
+/* Content is already mounted before this plays; navigation is never held back by animation. */
 @media (prefers-reduced-motion:no-preference){
   html:not([data-ux-effects="reduced"]) .site-main.ux-route-enter{
-    animation:uxRouteEnter var(--ux-route-motion) var(--ux-motion-ease) both;
+    animation:uxRouteEnter var(--ux-route-motion) var(--ux-motion-ease-out) both;
   }
 
   html:not([data-ux-effects="reduced"]) :where(.pa-settings-backdrop,.research-overlay,.adv-overlay,.x-overlay,.mobile-drawer-backdrop){
@@ -30,20 +32,24 @@
   }
 
   html:not([data-ux-effects="reduced"]) :where(.research-modal,.adv-modal,.x-panel){
-    animation:uxPanelIn var(--ux-panel-motion) var(--ux-motion-ease) both!important;
+    animation:uxPanelIn var(--ux-panel-motion) var(--ux-motion-ease-out) both!important;
   }
 
   html:not([data-ux-effects="reduced"]) .pa-settings-panel{
-    animation:uxSettingsIn var(--ux-panel-motion) var(--ux-motion-ease) both!important;
+    animation:uxSettingsIn var(--ux-panel-motion) var(--ux-motion-ease-out) both!important;
   }
 
   html:not([data-ux-effects="reduced"]) .mobile-drawer{
-    animation:uxDrawerIn var(--ux-panel-motion) var(--ux-motion-ease) both!important;
+    animation:uxDrawerIn var(--ux-panel-motion) var(--ux-motion-ease-out) both!important;
+  }
+
+  html:not([data-ux-effects="reduced"]) :where(.cth-tab-stage,.adv-body>.adv-card,.x-panel-body>*:first-child){
+    animation:uxStateEnter var(--ux-state-motion) var(--ux-motion-ease-out) both;
   }
 }
 
 @keyframes uxRouteEnter{
-  from{opacity:.94;transform:translate3d(0,3px,0)}
+  from{opacity:.93;transform:translate3d(0,5px,0)}
   to{opacity:1;transform:translate3d(0,0,0)}
 }
 @keyframes uxOverlayIn{
@@ -51,15 +57,19 @@
   to{opacity:1}
 }
 @keyframes uxPanelIn{
-  from{opacity:.94;transform:translate3d(0,5px,0) scale(.998)}
+  from{opacity:.92;transform:translate3d(0,8px,0) scale(.996)}
   to{opacity:1;transform:translate3d(0,0,0) scale(1)}
 }
 @keyframes uxSettingsIn{
-  from{opacity:.95;transform:translate3d(7px,0,0)}
+  from{opacity:.92;transform:translate3d(10px,0,0)}
   to{opacity:1;transform:translate3d(0,0,0)}
 }
 @keyframes uxDrawerIn{
-  from{opacity:.96;transform:translate3d(-7px,0,0)}
+  from{opacity:.92;transform:translate3d(-10px,0,0)}
+  to{opacity:1;transform:translate3d(0,0,0)}
+}
+@keyframes uxStateEnter{
+  from{opacity:.94;transform:translate3d(0,4px,0)}
   to{opacity:1;transform:translate3d(0,0,0)}
 }
 
@@ -70,7 +80,7 @@
     transform:none!important;
   }
 
-  /* Large navigation/cards: tiny physical press, no glow, no fake loading delay. */
+  /* Large navigation/cards: visible press, but never a fake loading effect. */
   :where(
     .category-card,
     .mini-creature-card,
@@ -80,11 +90,12 @@
     .source-row,
     .mobile-nav a,
     .ce3-card-actions>a,
-    .ux-disclosure-card
+    .ux-disclosure-card,
+    .cth-event-list a
   ){
     transform:translate3d(0,0,0);
     transition:
-      transform var(--ux-press-return) var(--ux-motion-ease),
+      transform var(--ux-press-return) var(--ux-motion-ease-out),
       opacity var(--ux-press-return) ease,
       border-color var(--ux-press-return) ease,
       background-color var(--ux-press-return) ease!important;
@@ -99,14 +110,15 @@
     .source-row,
     .mobile-nav a,
     .ce3-card-actions>a,
-    .ux-disclosure-card
+    .ux-disclosure-card,
+    .cth-event-list a
   ):active{
-    transform:translate3d(0,1px,0) scale(.992)!important;
-    opacity:.94;
+    transform:translate3d(0,2px,0) scale(.989)!important;
+    opacity:.95;
     transition-duration:var(--ux-press-fast)!important;
   }
 
-  /* Compact controls should feel snappy, not animate across the screen. */
+  /* Compact controls respond clearly without shrinking enough to feel twitchy. */
   :where(
     .button,
     .icon-button,
@@ -129,11 +141,17 @@
     .x-stepper button,
     .checklist button,
     .collection-list button,
-    .tiny-button
+    .tiny-button,
+    .cth-tabs button,
+    .cth-view button,
+    .cth-mode button,
+    .cth-record-actions button,
+    .cth-backup button,
+    .cth-progress-cards button
   ){
     transform:translate3d(0,0,0);
     transition:
-      transform var(--ux-press-return) var(--ux-motion-ease),
+      transform var(--ux-press-return) var(--ux-motion-ease-out),
       background-color var(--ux-press-return) ease,
       border-color var(--ux-press-return) ease,
       color var(--ux-press-return) ease,
@@ -162,14 +180,20 @@
     .x-stepper button,
     .checklist button,
     .collection-list button,
-    .tiny-button
+    .tiny-button,
+    .cth-tabs button,
+    .cth-view button,
+    .cth-mode button,
+    .cth-record-actions button,
+    .cth-backup button,
+    .cth-progress-cards button
   ):active{
-    transform:scale(.965)!important;
-    opacity:.9;
+    transform:translate3d(0,1px,0) scale(.978)!important;
+    opacity:.92;
     transition-duration:var(--ux-press-fast)!important;
   }
 
-  /* Inputs/selects get a quiet acknowledgement instead of a browser flash. */
+  /* Inputs/selects acknowledge touch without browser flash or layout shifts. */
   :where(input,select):active{
     border-color:color-mix(in srgb,var(--accent,#62d889) 46%,var(--line,#2b3c33));
   }
@@ -178,18 +202,18 @@
 /* Settings is a bottom sheet on small screens, so its entrance follows that direction. */
 @media (max-width:640px) and (prefers-reduced-motion:no-preference){
   html:not([data-ux-effects="reduced"]) .pa-settings-panel{
-    animation:uxSettingsMobileIn var(--ux-panel-motion) var(--ux-motion-ease) both!important;
+    animation:uxSettingsMobileIn var(--ux-panel-motion) var(--ux-motion-ease-out) both!important;
   }
 }
 @keyframes uxSettingsMobileIn{
-  from{opacity:.95;transform:translate3d(0,7px,0)}
+  from{opacity:.92;transform:translate3d(0,11px,0)}
   to{opacity:1;transform:translate3d(0,0,0)}
 }
 
 /* Hover remains restrained on real mouse/trackpad devices. */
 @media (hover:hover) and (pointer:fine){
-  :where(.button,.icon-button,.chip-filter button,.ce-category-tabs button,.ce3-tabs button):active{
-    transform:translateY(1px) scale(.985);
+  :where(.button,.icon-button,.chip-filter button,.ce-category-tabs button,.ce3-tabs button,.cth-tabs button):active{
+    transform:translateY(1px) scale(.988);
     transition-duration:var(--ux-press-fast)!important;
   }
 }
@@ -198,7 +222,8 @@
 @media (prefers-reduced-motion:reduce){
   .site-main.ux-route-enter,
   .pa-settings-backdrop,.research-overlay,.adv-overlay,.x-overlay,.mobile-drawer-backdrop,
-  .research-modal,.adv-modal,.x-panel,.pa-settings-panel,.mobile-drawer{
+  .research-modal,.adv-modal,.x-panel,.pa-settings-panel,.mobile-drawer,
+  .cth-tab-stage,.adv-body>.adv-card,.x-panel-body>*:first-child{
     animation:none!important;
   }
 }
@@ -206,5 +231,6 @@
 html[data-ux-effects="reduced"] :where(
   .site-main.ux-route-enter,
   .pa-settings-backdrop,.research-overlay,.adv-overlay,.x-overlay,.mobile-drawer-backdrop,
-  .research-modal,.adv-modal,.x-panel,.pa-settings-panel,.mobile-drawer
+  .research-modal,.adv-modal,.x-panel,.pa-settings-panel,.mobile-drawer,
+  .cth-tab-stage,.adv-body>.adv-card,.x-panel-body>*:first-child
 ){animation:none!important}
