@@ -20,6 +20,22 @@
     <meta property="og:description" content="Guias, criaturas, recursos, câmaras e ferramentas para Pocket Ants: Colony Simulator." />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://zeckofc143-hub.github.io/manga-bridge/" />
+    <script>
+      (() => {
+        try {
+          const root = document.documentElement;
+          const theme = localStorage.getItem('pa-theme');
+          const language = localStorage.getItem('pa-language');
+          const comfort = JSON.parse(localStorage.getItem('pa-visual-comfort-v1') || '{}');
+          if (theme === 'dark' || theme === 'light') root.dataset.theme = theme;
+          if (language === 'en') { root.lang = 'en'; root.dataset.language = 'en'; }
+          else { root.lang = 'pt-BR'; root.dataset.language = 'pt'; }
+          root.dataset.uxText = comfort.text === 'large' ? 'large' : 'standard';
+          root.dataset.uxDensity = comfort.density === 'compact' ? 'compact' : 'comfortable';
+          root.dataset.uxEffects = comfort.effects === 'reduced' ? 'reduced' : 'normal';
+        } catch {}
+      })();
+    </script>
     <title>Pocket Ants Wiki BR</title>
   </head>
   <body>
