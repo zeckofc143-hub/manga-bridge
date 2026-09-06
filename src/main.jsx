@@ -7,6 +7,7 @@ import TranslationCoverageLite from './TranslationCoverageLite';
 import UxBehaviorRuntime from './UxBehaviorRuntime';
 import AccessibilityPolishRuntime from './AccessibilityPolishRuntime';
 import ProgressiveDisclosureRuntime from './ProgressiveDisclosureRuntime';
+import ViewTransitionRuntime from './ViewTransitionRuntime';
 import InteractionMotionRuntime from './InteractionMotionRuntime';
 import { LanguageProvider, SiteSettings } from './LanguageProviderLite';
 import './index.css';
@@ -82,6 +83,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
       <UxBehaviorRuntime />
       <AccessibilityPolishRuntime />
       <ProgressiveDisclosureRuntime />
+      <ViewTransitionRuntime />
       <InteractionMotionRuntime />
       <DeferredExtras />
       <SiteSettings />
