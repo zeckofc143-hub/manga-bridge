@@ -36,6 +36,15 @@ const normalize = (value = '') => value
   .replace(/[\u0300-\u036f]/g, '')
   .toLowerCase();
 
+function safeStorageJson(key, fallback = {}) {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(key) || 'null');
+    return parsed ?? fallback;
+  } catch {
+    return fallback;
+  }
+}
+
 function SourcePill({ type = 'community' }) {
   const source = sources[type] || sources.community;
   return (
@@ -72,14 +81,17 @@ function ProgressTab() {
   const exportBackup = () => {
     const payload = {
       format: 'pocket-ants-wiki-br-backup',
-      version: 1,
+      version: 2,
       exportedAt: new Date().toISOString(),
       dataCheckedAt: gameMeta.dataCheckedAt,
       localStorage: {
-        collection: JSON.parse(localStorage.getItem('pa-collection') || '{}'),
-        daily: JSON.parse(localStorage.getItem('pa-daily') || '{}'),
-        chamberLevels: JSON.parse(localStorage.getItem('pa-chamber-levels') || '{}'),
-        theme: localStorage.getItem('pa-theme') || 'dark'
+        collection: safeStorageJson('pa-collection', {}),
+        creatureProfile: safeStorageJson('pa-creature-profile-v2', {}),
+        creatureFilters: safeStorageJson('pa-creature-filters-v1', {}),
+        daily: safeStorageJson('pa-daily', {}),
+        chamberLevels: safeStorageJson('pa-chamber-levels', {}),
+        theme: localStorage.getItem('pa-theme') || 'dark',
+        language: localStorage.getItem('pa-language') === 'en' ? 'en' : 'pt'
       }
     };
     const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
@@ -87,32 +99,50 @@ function ProgressTab() {
     const anchor = document.createElement('a');
     anchor.href = url;
     anchor.download = `pocket-ants-wiki-backup-${new Date().toISOString().slice(0,10)}.json`;
+    document.body.appendChild(anchor);
     anchor.click();
-    URL.revokeObjectURL(url);
-    setNotice('Backup exportado. Guarde o arquivo para restaurar seu progresso depois.');
+    anchor.remove();
+    window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+    setNotice('Backup completo exportado: coleção atual, exércitos/Lab, filtros, checklist, câmaras, tema e idioma.');
   };
 
   const importBackup = async (event) => {
     const file = event.target.files?.[0];
     if (!file) return;
     try {
+      if (file.size > 2 * 1024 * 1024) throw new Error('Arquivo grande demais');
       const parsed = JSON.parse(await file.text());
-      if (parsed?.format !== 'pocket-ants-wiki-br-backup' || !parsed?.localStorage) throw new Error('Formato inválido');
+      if (parsed?.format !== 'pocket-ants-wiki-br-backup' || !parsed?.localStorage || typeof parsed.localStorage !== 'object') throw new Error('Formato inválido');
+      if (Number(parsed.version || 1) > 2) throw new Error('Versão futura não suportada');
+
       const storage = parsed.localStorage;
-      localStorage.setItem('pa-collection', JSON.stringify(storage.collection || {}));
-      localStorage.setItem('pa-daily', JSON.stringify(storage.daily || {}));
-      localStorage.setItem('pa-chamber-levels', JSON.stringify(storage.chamberLevels || {}));
-      localStorage.setItem('pa-theme', storage.theme || 'dark');
-      setLevels(storage.chamberLevels || {});
-      setNotice('Backup importado. Recarregue a página para todos os painéis refletirem os dados restaurados.');
+      const confirmed = window.confirm('Importar este backup vai substituir os trackers salvos neste aparelho. Continuar?');
+      if (!confirmed) {
+        setNotice('Importação cancelada. Nada foi alterado.');
+        return;
+      }
+
+      localStorage.setItem('pa-collection', JSON.stringify(storage.collection && typeof storage.collection === 'object' ? storage.collection : {}));
+      localStorage.setItem('pa-daily', JSON.stringify(storage.daily && typeof storage.daily === 'object' ? storage.daily : {}));
+      localStorage.setItem('pa-chamber-levels', JSON.stringify(storage.chamberLevels && typeof storage.chamberLevels === 'object' ? storage.chamberLevels : {}));
+      if (storage.creatureProfile && typeof storage.creatureProfile === 'object') localStorage.setItem('pa-creature-profile-v2', JSON.stringify(storage.creatureProfile));
+      if (storage.creatureFilters && typeof storage.creatureFilters === 'object') localStorage.setItem('pa-creature-filters-v1', JSON.stringify(storage.creatureFilters));
+      localStorage.setItem('pa-theme', storage.theme === 'light' ? 'light' : 'dark');
+      localStorage.setItem('pa-language', storage.language === 'en' ? 'en' : 'pt');
+
+      setLevels(storage.chamberLevels && typeof storage.chamberLevels === 'object' ? storage.chamberLevels : {});
+      window.dispatchEvent(new CustomEvent('pa-creature-profile-changed'));
+      setNotice('Backup importado com segurança. Recarregue a página para todos os painéis, idioma e tema refletirem o arquivo restaurado.');
     } catch {
-      setNotice('Não consegui importar esse arquivo. Use um backup exportado por esta wiki.');
+      setNotice('Não consegui importar esse arquivo. Use um backup válido exportado por esta wiki.');
     } finally {
       event.target.value = '';
     }
   };
 
   const resetChambers = () => {
+    const confirmed = window.confirm('Zerar apenas o progresso das câmaras? Coleção e checklist não serão alterados.');
+    if (!confirmed) return;
     saveLevels({});
     setNotice('Progresso das câmaras zerado. Coleção e checklist não foram alterados.');
   };
@@ -141,9 +171,9 @@ function ProgressTab() {
                 <small>Nível {level} de {chamber.maxLevel}</small>
               </div>
               <div className="x-stepper">
-                <button onClick={() => adjust(chamber, -1)} disabled={level <= 0} aria-label={`Diminuir ${chamber.pt}`}><Minus size={15}/></button>
+                <button type="button" onClick={() => adjust(chamber, -1)} disabled={level <= 0} aria-label={`Diminuir ${chamber.pt}`}><Minus size={15}/></button>
                 <strong>{level}</strong>
-                <button onClick={() => adjust(chamber, 1)} disabled={level >= chamber.maxLevel} aria-label={`Aumentar ${chamber.pt}`}><Plus size={15}/></button>
+                <button type="button" onClick={() => adjust(chamber, 1)} disabled={level >= chamber.maxLevel} aria-label={`Aumentar ${chamber.pt}`}><Plus size={15}/></button>
               </div>
             </article>
           );
@@ -152,14 +182,14 @@ function ProgressTab() {
 
       <section className="x-backup-card">
         <div className="x-section-heading"><div><span className="x-kicker">Backup local</span><h3>Não perca seus trackers</h3></div><Save size={22}/></div>
-        <p>Exporta coleção, checklist diário, níveis das câmaras e tema para um arquivo JSON. Nenhuma conta é necessária.</p>
+        <p>Exporta a coleção atual, exércitos/Lab, filtros, checklist diário, níveis das câmaras, tema e idioma para um JSON. Nenhuma conta é necessária.</p>
         <div className="x-button-row">
-          <button className="x-primary" onClick={exportBackup}><Download size={16}/> Exportar backup</button>
-          <button className="x-secondary" onClick={() => fileInput.current?.click()}><Upload size={16}/> Importar</button>
-          <button className="x-danger-ghost" onClick={resetChambers}><RotateCcw size={15}/> Zerar câmaras</button>
+          <button type="button" className="x-primary" onClick={exportBackup}><Download size={16}/> Exportar backup</button>
+          <button type="button" className="x-secondary" onClick={() => fileInput.current?.click()}><Upload size={16}/> Importar</button>
+          <button type="button" className="x-danger-ghost" onClick={resetChambers}><RotateCcw size={15}/> Zerar câmaras</button>
           <input ref={fileInput} type="file" accept="application/json,.json" hidden onChange={importBackup}/>
         </div>
-        {notice && <div className="x-notice"><Info size={15}/><span>{notice}</span></div>}
+        {notice && <div className="x-notice" role="status" aria-live="polite"><Info size={15}/><span>{notice}</span></div>}
       </section>
     </div>
   );
@@ -187,7 +217,7 @@ function FaqTab() {
           const expanded = Boolean(open[item.id]);
           return (
             <article key={item.id} className={expanded ? 'open' : ''}>
-              <button className="x-faq-question" onClick={() => setOpen(prev => ({...prev,[item.id]:!prev[item.id]}))}>
+              <button type="button" className="x-faq-question" aria-expanded={expanded} onClick={() => setOpen(prev => ({...prev,[item.id]:!prev[item.id]}))}>
                 <div><span>{item.category}</span><strong>{item.question}</strong></div>
                 {expanded ? <ChevronUp size={18}/> : <ChevronDown size={18}/>}
               </button>
@@ -269,7 +299,7 @@ export default function Enhancements() {
 
   return (
     <>
-      <button className="x-fab" onClick={() => setOpen(true)} aria-label="Abrir central da wiki">
+      <button type="button" className="x-fab" onClick={() => setOpen(true)} aria-label="Abrir central da wiki">
         <Layers3 size={19}/><span>Central</span>
       </button>
       {open && (
@@ -277,10 +307,10 @@ export default function Enhancements() {
           <aside className="x-panel" onClick={event => event.stopPropagation()}>
             <header className="x-panel-header">
               <div><span className="x-kicker">Pocket Ants Wiki BR</span><h2>Central do jogador</h2></div>
-              <button className="x-close" onClick={() => setOpen(false)} aria-label="Fechar"><X size={20}/></button>
+              <button type="button" className="x-close" onClick={() => setOpen(false)} aria-label="Fechar"><X size={20}/></button>
             </header>
-            <nav className="x-tabs">
-              {tabs.map(([id,label,Icon])=><button key={id} className={tab===id?'active':''} onClick={()=>setTab(id)}><Icon size={16}/><span>{label}</span></button>)}
+            <nav className="x-tabs" aria-label="Seções da Central">
+              {tabs.map(([id,label,Icon])=><button type="button" key={id} aria-pressed={tab===id} className={tab===id?'active':''} onClick={()=>setTab(id)}><Icon size={16}/><span>{label}</span></button>)}
             </nav>
             <div className="x-panel-body">
               {tab==='progress' && <ProgressTab/>}
