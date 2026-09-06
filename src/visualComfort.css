@@ -55,6 +55,73 @@ html[data-ux-effects="reduced"] :where(*,*::before,*::after){
   transition-duration:.001ms!important;
 }
 
+/* Global reading hierarchy: secondary copy stays readable without competing with headings. */
+:where(.muted,.result-count,.progress-label,.tool-disclaimer,.footer-bottom,.resource-head>div>span,.guide-top>span,.latin-name,.ce3-result-line,small){
+  color:color-mix(in srgb,var(--text,#eef3ef) 68%,var(--muted,#9aa8a0))!important;
+}
+:where(.page-heading p,.hero-copy p,.guide-card>p,.resource-card>p,.mechanic-card>p,.tool-card-head p,.source-box p){
+  max-width:68ch;
+}
+:where(h1,h2,h3,[tabindex],button,a,input,select,summary){
+  scroll-margin-top:96px;
+  scroll-margin-bottom:96px;
+}
+
+/* Chunk dense information into calm, recognizable groups. */
+:where(.resource-columns,.guide-card ul,.fact-list,.info-list,.source-notes,.calc-results,.compare-table){
+  border-top:1px solid color-mix(in srgb,var(--line,#2b3c33) 72%,transparent);
+  padding-top:13px;
+  margin-top:13px;
+}
+:where(.resource-columns>div,.guide-card li,.fact-list>div,.source-notes>div){
+  line-height:1.5;
+}
+:where(.tip-line,.note-card,.warning-card,.hero-panel-note){
+  line-height:1.5;
+}
+
+/* Filter groups should look like one control family instead of many unrelated pills. */
+.chip-filter{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  align-items:center;
+}
+.chip-filter button{
+  min-height:44px;
+  padding-inline:14px;
+}
+.chip-filter button:not(.active){
+  filter:saturate(.72);
+}
+
+/* Reduce initial rendering cost for long mobile pages without removing content. */
+:where(.resource-card,.guide-card,.chamber-card,.mechanic-card,.tool-card,.glossary-list>div,.search-results>a){
+  content-visibility:auto;
+  contain-intrinsic-size:auto 260px;
+}
+
+/* Tool cards are separate tasks; spacing should reinforce that mental model. */
+.tools-grid{
+  align-items:start;
+}
+.tool-card{
+  scroll-margin-top:96px;
+}
+.tool-card-head{
+  gap:12px;
+}
+.tool-card-head h2{
+  line-height:1.22;
+}
+.form-grid label{
+  line-height:1.35;
+}
+.form-grid input,.compare-selects select,.big-search input{
+  min-height:46px;
+  font-size:16px;
+}
+
 /* Route-level loading feedback: never present a blank app while a lazy bundle arrives. */
 .ux-page-loading{
   min-height:58vh;
@@ -101,7 +168,7 @@ html[data-ux-effects="reduced"] :where(*,*::before,*::after){
   to{opacity:1}
 }
 
-/* Reading comfort on phones: avoid edge-hugging text and accidental taps. */
+/* Reading comfort on phones: avoid edge-hugging text, dense grids and accidental taps. */
 @media(max-width:760px){
   html[data-ux-text="large"]{font-size:17px}
   html[data-ux-density="comfortable"] :where(.content-width,.ce3-page,.creature-db-main){
@@ -111,7 +178,77 @@ html[data-ux-effects="reduced"] :where(*,*::before,*::after){
   html[data-ux-density="comfortable"] :where(.resource-card,.guide-card,.chamber-card,.mechanic-card,.ce3-card,.panel-card,.ce3-panel){
     border-radius:16px!important;
   }
+
+  .chip-filter{
+    flex-wrap:nowrap;
+    overflow-x:auto;
+    padding:2px 2px 7px;
+    margin-inline:-2px;
+    scroll-snap-type:x proximity;
+    scrollbar-width:none;
+    -webkit-overflow-scrolling:touch;
+  }
+  .chip-filter::-webkit-scrollbar{display:none}
+  .chip-filter button{
+    flex:0 0 auto;
+    min-height:48px;
+    scroll-snap-align:start;
+  }
+
+  .resource-columns{
+    grid-template-columns:1fr!important;
+    gap:12px!important;
+  }
+  .guide-card ul{
+    padding-left:0;
+  }
+  .mechanics-grid,.resource-grid,.guide-grid,.tools-grid{
+    grid-template-columns:1fr!important;
+  }
+  .map-flow{
+    display:flex!important;
+    flex-wrap:wrap!important;
+    gap:8px!important;
+    justify-content:flex-start!important;
+  }
+  .map-flow svg{width:16px;height:16px;opacity:.55}
+  .tool-card{
+    border-radius:16px!important;
+  }
+  .compare-selects{
+    grid-template-columns:1fr!important;
+    gap:8px!important;
+  }
+  .compare-selects>span{
+    justify-self:center;
+    font-size:.78rem;
+    opacity:.7;
+  }
+  .form-grid{
+    grid-template-columns:1fr!important;
+  }
+  .calc-results{
+    grid-template-columns:1fr!important;
+    gap:8px!important;
+  }
+  .big-search{
+    display:grid!important;
+    grid-template-columns:auto 1fr!important;
+  }
+  .big-search .button{
+    grid-column:1/-1;
+    width:100%;
+    justify-content:center;
+    min-height:48px;
+  }
   .ux-page-loading{min-height:52vh;padding-inline:14px}
+}
+
+@media(max-width:390px){
+  html[data-ux-density="comfortable"] :where(.content-width,.ce3-page,.creature-db-main){
+    padding-left:max(14px,env(safe-area-inset-left));
+    padding-right:max(14px,env(safe-area-inset-right));
+  }
 }
 
 @media(prefers-reduced-motion:reduce){
