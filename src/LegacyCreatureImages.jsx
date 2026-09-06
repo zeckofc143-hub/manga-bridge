@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import {robustMediaCandidates} from './mediaCandidateUtils';
 import './legacyCreatureImages.css';
 
 const FALLBACK = 'https://static.wikia.nocookie.net/pocketants/images/f/fd/Creature_attract_guide.png/revision/latest/scale-to-width-down/1200?cb=20231230231004';
@@ -32,24 +33,45 @@ async function resolveWikiImage(name){
   }
 }
 
+function assignCandidates(img,values){
+  const candidates=robustMediaCandidates(values);
+  let index=0;
+  const apply=()=>{
+    const src=candidates[index];
+    if(!src){img.removeAttribute('src');return;}
+    img.src=src;
+  };
+  img.onerror=()=>{
+    if(index<candidates.length-1){index+=1;apply();return;}
+    img.onerror=null;
+    img.style.display='none';
+  };
+  apply();
+}
+
 function upgradeBox(box,name){
   if(!box || !name || box.dataset.realCreatureImage===name) return;
   box.dataset.realCreatureImage = name;
   box.textContent = '';
   const img = document.createElement('img');
-  img.src = FALLBACK;
   img.alt = `Imagem de ${name} em Pocket Ants`;
   img.loading = 'lazy';
+  img.decoding = 'async';
   img.referrerPolicy = 'no-referrer';
+  assignCandidates(img,[FALLBACK]);
   box.appendChild(img);
-  resolveWikiImage(name).then(src=>{ if(img.isConnected) img.src = src || FALLBACK; });
+  resolveWikiImage(name).then(src=>{
+    if(img.isConnected) assignCandidates(img,[src,FALLBACK]);
+  });
 }
 
 function upgradeExistingImg(img,name){
   if(!img || !name || img.dataset.wikiResolved===name) return;
   img.dataset.wikiResolved = name;
+  img.referrerPolicy='no-referrer';
+  const original=img.currentSrc||img.src;
   resolveWikiImage(name).then(src=>{
-    if(img.isConnected && src && src!==FALLBACK) img.src = src;
+    if(img.isConnected && src) assignCandidates(img,[src,original,FALLBACK]);
   });
 }
 
