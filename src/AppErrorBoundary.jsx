@@ -18,6 +18,12 @@ export default class AppErrorBoundary extends React.Component{
     console.error('[Pocket Ants Wiki] render error',error,info);
   }
 
+  goHome=()=>{
+    this.setState({error:null},()=>{
+      window.location.hash='/';
+    });
+  };
+
   render(){
     if(!this.state.error) return this.props.children;
     const en=currentLanguage()==='en';
@@ -28,7 +34,7 @@ export default class AppErrorBoundary extends React.Component{
         <p style={{margin:'0 0 18px',opacity:.78}}>{en?'The rest of the site is safe. Reload this page; if the problem persists, go back to the home page.':'O restante do site está seguro. Recarregue esta página; se continuar, volte para o início.'}</p>
         <div style={{display:'flex',gap:'10px',flexWrap:'wrap'}}>
           <button type="button" onClick={()=>window.location.reload()} style={{minHeight:'44px',padding:'0 16px',borderRadius:'12px'}}>{en?'Reload':'Recarregar'}</button>
-          <a href="#/" style={{minHeight:'44px',padding:'0 16px',borderRadius:'12px',display:'inline-flex',alignItems:'center'}}>{en?'Home':'Início'}</a>
+          <button type="button" onClick={this.goHome} style={{minHeight:'44px',padding:'0 16px',borderRadius:'12px'}}>{en?'Home':'Início'}</button>
         </div>
       </section>
     </main>;
