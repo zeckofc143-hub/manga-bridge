@@ -9,6 +9,7 @@ import AppErrorBoundary from './AppErrorBoundary';
 import CreatureLanguageRuntimeLite from './CreatureLanguageRuntimeLite';
 import ResourceLanguageRuntimeLite from './ResourceLanguageRuntimeLite';
 import TranslationCoverageLite from './TranslationCoverageLite';
+import GlobalUiLanguageRuntime from './GlobalUiLanguageRuntime';
 import UxBehaviorRuntime from './UxBehaviorRuntime';
 import AccessibilityPolishRuntime from './AccessibilityPolishRuntime';
 import ProgressiveDisclosureRuntime from './ProgressiveDisclosureRuntime';
@@ -81,6 +82,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         <ResourceLanguageRuntimeLite />
         <TranslationCoverageLite />
         <UxBehaviorRuntime />
+        <GlobalUiLanguageRuntime />
         <AccessibilityPolishRuntime />
         <ProgressiveDisclosureRuntime />
         <ViewTransitionRuntime />
