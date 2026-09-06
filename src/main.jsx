@@ -15,6 +15,7 @@ import './uxProfessional.css';
 import './visualComfort.css';
 import './interactionMotion.css';
 import './responsiveComfort.css';
+import './denseUiComfort.css';
 
 const Enhancements = lazy(() => import('./Enhancements'));
 const AdvancedPlanner = lazy(() => import('./AdvancedPlanner'));
