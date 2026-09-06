@@ -21,9 +21,26 @@
   touch-action:manipulation;
 }
 
-/* Content is already mounted before this plays; navigation is never held back by animation. */
+/* Modern browsers can animate only the route surface while keeping header/dock stable. */
+.site-main{view-transition-name:pa-main}
+::view-transition-group(pa-main){
+  animation-duration:var(--ux-route-motion);
+  animation-timing-function:var(--ux-motion-ease-out);
+}
+::view-transition-old(pa-main){animation:uxViewOld 170ms ease-out both}
+::view-transition-new(pa-main){animation:uxViewNew var(--ux-route-motion) var(--ux-motion-ease-out) both}
+@keyframes uxViewOld{
+  from{opacity:1;transform:translate3d(0,0,0)}
+  to{opacity:.86;transform:translate3d(0,-3px,0)}
+}
+@keyframes uxViewNew{
+  from{opacity:.9;transform:translate3d(0,6px,0)}
+  to{opacity:1;transform:translate3d(0,0,0)}
+}
+
+/* Content is already mounted before fallback motion plays; navigation is never held back by animation. */
 @media (prefers-reduced-motion:no-preference){
-  html:not([data-ux-effects="reduced"]) .site-main.ux-route-enter{
+  html:not([data-ux-effects="reduced"]):not([data-ux-view-transition="active"]) .site-main.ux-route-enter{
     animation:uxRouteEnter var(--ux-route-motion) var(--ux-motion-ease-out) both;
   }
 
@@ -220,6 +237,7 @@
 
 /* Keyboard focus is intentionally untouched: focus-visible from uxProfessional.css remains authoritative. */
 @media (prefers-reduced-motion:reduce){
+  .site-main{view-transition-name:none}
   .site-main.ux-route-enter,
   .pa-settings-backdrop,.research-overlay,.adv-overlay,.x-overlay,.mobile-drawer-backdrop,
   .research-modal,.adv-modal,.x-panel,.pa-settings-panel,.mobile-drawer,
@@ -228,6 +246,7 @@
   }
 }
 
+html[data-ux-effects="reduced"] .site-main{view-transition-name:none}
 html[data-ux-effects="reduced"] :where(
   .site-main.ux-route-enter,
   .pa-settings-backdrop,.research-overlay,.adv-overlay,.x-overlay,.mobile-drawer-backdrop,
