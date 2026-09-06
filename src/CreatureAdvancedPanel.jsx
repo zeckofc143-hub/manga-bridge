@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { AlertTriangle, Bot, CheckCircle2, Crosshair, Image as ImageIcon, ShieldCheck, Sparkles, Star, Swords } from 'lucide-react';
 import { currentAvailability, galleryCandidates, matchupFor, starDamageFor, verifiedAiType } from './creatureAdvancedData';
 import './creatureAdvancedPanel.css';
@@ -8,11 +8,20 @@ function StarDamage({creature}) {
   const [level,setLevel] = useState(1);
   const max = data?.values?.[4] != null ? 5 : 4;
   const value = data?.values?.[level-1];
+
+  useEffect(()=>{
+    setLevel(1);
+  },[creature?.id]);
+
+  useEffect(()=>{
+    if(level > max) setLevel(max);
+  },[level,max]);
+
   return <article className="cap-card">
     <div className="cap-title"><Star/><div><h3>Stats por estrela</h3><span>Tabela comunitária medida em combate</span></div></div>
-    <div className="cap-stars">{Array.from({length:max},(_,i)=>i+1).map(v=><button key={v} className={level===v?'active':''} onClick={()=>setLevel(v)}>{v===5?'4★ Golden':`${v}★`}</button>)}</div>
+    <div className="cap-stars">{Array.from({length:max},(_,i)=>i+1).map(v=><button type="button" key={v} aria-pressed={level===v} className={level===v?'active':''} onClick={()=>setLevel(v)}>{v===5?'4★ Golden':`${v}★`}</button>)}</div>
     {data ? <>
-      <div className="cap-big-number"><strong>{value != null ? `${value.toFixed(2)}%` : 'Sem dado'}</strong><span>{String(creature.name).toLowerCase().includes('butterfly') ? 'cura registrada' : 'dano por golpe registrado'}</span></div>
+      <div className="cap-big-number" aria-live="polite"><strong>{value != null ? `${value.toFixed(2)}%` : 'Sem dado'}</strong><span>{String(creature.name).toLowerCase().includes('butterfly') ? 'cura registrada' : 'dano por golpe registrado'}</span></div>
       <p>{data.note}</p>
       <small>Os valores não são “tier score”: são medições da tabela de Creature Stats. Quando a fonte não confirma Golden, o banco mostra “Sem dado”.</small>
     </> : <div className="cap-empty"><AlertTriangle/><div><b>Tabela exata por estrela ainda não carregada para esta criatura.</b><span>O seletor pessoal continua disponível na seção “Meu registro”, mas o site não inventa números ausentes.</span></div></div>}
@@ -57,10 +66,19 @@ function AvailabilityPanel({creature}) {
 function GalleryPanel({creature}) {
   const candidates = useMemo(()=>galleryCandidates(creature),[creature]);
   const [failed,setFailed] = useState({});
-  const visible = candidates.filter((_,i)=>!failed[i]).slice(0,6);
+
+  useEffect(()=>{
+    setFailed({});
+  },[creature?.id]);
+
+  const visible = candidates
+    .map((src,index)=>({src,index}))
+    .filter(item=>!failed[item.index])
+    .slice(0,6);
+
   return <article className="cap-card cap-gallery-card">
     <div className="cap-title"><ImageIcon/><div><h3>Galeria</h3><span>Imagens disponíveis na base/fonte</span></div></div>
-    {visible.length ? <div className="cap-gallery">{visible.map((src,i)=><a href={src} target="_blank" rel="noreferrer" key={`${src}-${i}`}><img src={src} loading="lazy" decoding="async" alt={`${creature.name} - imagem ${i+1}`} onError={()=>setFailed(p=>({...p,[i]:true}))}/></a>)}</div> : <div className="cap-empty"><ImageIcon/><div><b>Sem galeria adicional confiável.</b><span>A imagem principal da ficha continua acima. Não usamos foto de inseto real como substituta.</span></div></div>}
+    {visible.length ? <div className="cap-gallery">{visible.map(({src,index},position)=><a href={src} target="_blank" rel="noreferrer" key={`${src}-${index}`}><img src={src} loading="lazy" decoding="async" alt={`${creature.name} - imagem ${position+1}`} onError={()=>setFailed(p=>({...p,[index]:true}))}/></a>)}</div> : <div className="cap-empty"><ImageIcon/><div><b>Sem galeria adicional confiável.</b><span>A imagem principal da ficha continua acima. Não usamos foto de inseto real como substituta.</span></div></div>}
     <small>Golden e especial só aparecem aqui quando existe um arquivo visual claramente associado; o site não recolore imagens artificialmente.</small>
   </article>;
 }
