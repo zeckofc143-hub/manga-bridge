@@ -36,7 +36,7 @@ export const TOOL_RECORDS=[
   {id:'farm',icon:'🌾',category:'farm',priority:2,title:L('Planejador de farm','Farm planner'),desc:L('Use sua própria média para estimar runs e tempo sem inventar drop rate.','Use your own average to estimate runs and time without invented drop rates.'),outcome:L('Runs + tempo','Runs + time'),keywords:'farm grind runs time estimate resource'},
   {id:'event-points',icon:'🎉',category:'routine',priority:2,title:L('Calculadora de pontos de evento','Event points calculator'),desc:L('Template de Major Events: Red Ants, Aphid Honeydew, Acorns, Pheromones, anúncios e fonte processada.','Major Event template: Red Ants, Aphid Honeydew, Acorns, Pheromones, ads and processed source.'),outcome:L('Pontos + progresso','Points + progress'),keywords:'event activity points acorns red ants honeydew pheromones ads source'},
   {id:'clan-week',icon:'🧵',category:'late',priority:1,title:L('Semana de Clan Wars','Clan War week'),desc:L('Mostra a fase UTC atual e um checklist para registro, preparo, 3 ataques e coleta da recompensa.','Shows the current UTC phase and a checklist for registration, prep, 3 attacks and reward claim.'),outcome:L('Fase + checklist','Phase + checklist'),keywords:'clan wars silk friday saturday sunday monday register reward attacks'},
-  {id:'legions',icon:'🛡️',category:'late',priority:2,title:L('Planner de Legions','Legions planner'),desc:L('Separe custos de slots e espécies em Resin/Silk e veja o que ainda falta.','Separate slot and species costs in Resin/Silk and see what is still missing.'),outcome:L('Resin + Silk','Resin + Silk'),keywords:'legions carpenter bullet exploding silk resin clan wars'},
+  {id:'legions',icon:'🛡️',category:'late',priority:2,title:L('Planner de Legions','Legions planner'),desc:L('Separe custos acumulados de slots e espécies em Resin/Silk e veja o que ainda falta.','Separate cumulative slot costs and species costs in Resin/Silk and see what is still missing.'),outcome:L('Resin + Silk','Resin + Silk'),keywords:'legions carpenter bullet exploding silk resin clan wars'},
   {id:'collection',icon:'🪲',category:'tracker',priority:1,title:L('Coleção de criaturas','Creature collection'),desc:L('Tracker atualizado pela base moderna de criaturas, com filtros, progresso e faltantes.','Tracker powered by the modern creature database, with filters, progress and missing creatures.'),outcome:L('Progresso por grupo','Progress by group'),keywords:'collection creatures special event legendary missing tracker'}
 ];
 
@@ -128,11 +128,12 @@ export const DAILY_ACTIVITIES=[
   {id:'frog-public',icon:'🐸',label:L('Frog Pond','Frog Pond'),mode:'public',reward:{honeydew:250,frogPoint:1,redSage:1},cost:{tokens:3,bodyParts:150,resin:1500},source:'coop'}
 ];
 
+/* Cumulative cost to have N Legion slots unlocked: first slot is 50k Resin; each additional slot adds 5k Silk. */
 export const LEGION_SLOT_COSTS={
   1:{resin:50000,silk:0},
-  2:{resin:0,silk:5000},
-  3:{resin:0,silk:5000},
-  4:{resin:0,silk:5000}
+  2:{resin:50000,silk:5000},
+  3:{resin:50000,silk:10000},
+  4:{resin:50000,silk:15000}
 };
 export const LEGION_SPECIES=[
   {id:'carpenter',icon:'🐜',label:'Carpenter Ants',resin:50000,silk:0},
