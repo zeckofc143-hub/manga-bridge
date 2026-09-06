@@ -3,6 +3,7 @@ import { allCatalogCreatures } from './creatureCatalogData';
 import { enrichCreature, nonCapturableCreatures } from './creatureCatalogExtras';
 import { creatureDescription, creatureName, translateRawText, CREATURE_NAMES } from './i18nCore';
 import { useLanguage } from './LanguageProviderLite';
+import { isCreatureRoute } from './routeUtils';
 
 const RAW_CREATURES=[...allCatalogCreatures.map(enrichCreature),...nonCapturableCreatures];
 const BY_ID=new Map(RAW_CREATURES.map(c=>[c.id,c]));
@@ -136,6 +137,7 @@ function applyCreatureDetail(root,language){
 }
 
 function syncCreatureLanguage(language){
+  if(!isCreatureRoute()) return;
   document.querySelectorAll('.ce3-card').forEach(card=>applyCreatureCard(card,language));
   const detail=document.querySelector('.ce3-detail-page');
   if(detail) applyCreatureDetail(detail,language);
@@ -145,40 +147,34 @@ export default function CreatureLanguageRuntimeLite(){
   const {language}=useLanguage();
   useEffect(()=>{
     let frame=0;
-    const timers=new Set();
 
-    const flush=()=>{
-      frame=0;
-      syncCreatureLanguage(language);
-    };
-    const schedule=(delays=[0,70,220])=>{
-      if(!frame) frame=requestAnimationFrame(flush);
-      delays.filter(delay=>delay>0).forEach(delay=>{
-        const id=window.setTimeout(()=>{timers.delete(id);syncCreatureLanguage(language);},delay);
-        timers.add(id);
+    const schedule=()=>{
+      if(!isCreatureRoute()) return;
+      if(frame) cancelAnimationFrame(frame);
+      frame=requestAnimationFrame(()=>{
+        frame=0;
+        syncCreatureLanguage(language);
       });
     };
     const onInteraction=event=>{
-      if(event.target.closest?.('.ce3-page,.ce3-detail-page,.cth-root')) schedule([0,80]);
+      if(!isCreatureRoute()) return;
+      if(event.target.closest?.('.ce3-page,.ce3-detail-page,.cth-root')) schedule();
     };
-    const onRoute=()=>schedule([0,70,220]);
 
-    schedule([0,80,260,900]);
-    window.addEventListener('hashchange',onRoute);
-    window.addEventListener('app:navigation',onRoute);
+    schedule();
+    window.addEventListener('hashchange',schedule);
+    window.addEventListener('app:navigation',schedule);
     document.addEventListener('click',onInteraction,true);
     document.addEventListener('input',onInteraction,true);
     document.addEventListener('change',onInteraction,true);
 
     return ()=>{
-      window.removeEventListener('hashchange',onRoute);
-      window.removeEventListener('app:navigation',onRoute);
+      window.removeEventListener('hashchange',schedule);
+      window.removeEventListener('app:navigation',schedule);
       document.removeEventListener('click',onInteraction,true);
       document.removeEventListener('input',onInteraction,true);
       document.removeEventListener('change',onInteraction,true);
       if(frame) cancelAnimationFrame(frame);
-      timers.forEach(id=>window.clearTimeout(id));
-      timers.clear();
     };
   },[language]);
   return null;
