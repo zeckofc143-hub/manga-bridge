@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import './uxBehavior.css';
 
 const CREATURE_FILTER_KEY = 'pa-creature-filters-v1';
@@ -92,6 +92,7 @@ function routeTitle(){
 export default function UxBehaviorRuntime(){
   const [networkState,setNetworkState] = useState(()=>navigator.onLine ? null : 'offline');
   const [updateReady,setUpdateReady] = useState(false);
+  const registrationRef = useRef(null);
 
   useEffect(()=>{
     let lastTrigger = null;
@@ -299,6 +300,7 @@ export default function UxBehaviorRuntime(){
     const register = async () => {
       try{
         const registration = await navigator.serviceWorker.register(`${import.meta.env.BASE_URL}sw.js`,{scope:import.meta.env.BASE_URL});
+        registrationRef.current = registration;
         if(cancelled) return;
         const watch = worker => worker?.addEventListener('statechange',()=>{
           if(worker.state === 'installed' && navigator.serviceWorker.controller) setUpdateReady(true);
@@ -312,10 +314,17 @@ export default function UxBehaviorRuntime(){
     return ()=>{ cancelled = true; window.removeEventListener('load',register); };
   },[]);
 
+  const applyUpdate = () => {
+    const waiting = registrationRef.current?.waiting;
+    if(!waiting){ window.location.reload(); return; }
+    navigator.serviceWorker.addEventListener('controllerchange',()=>window.location.reload(),{once:true});
+    waiting.postMessage({type:'SKIP_WAITING'});
+  };
+
   if(!networkState && !updateReady) return null;
   return <div className="ux-status-stack" aria-live="polite" aria-atomic="true">
     {networkState === 'offline' && <div className="ux-status ux-status-offline"><strong>Sem internet</strong><span>O que já estiver em cache continua disponível.</span></div>}
     {networkState === 'online' && <div className="ux-status ux-status-online"><strong>Conexão restaurada</strong><span>A wiki voltou a atualizar normalmente.</span></div>}
-    {updateReady && <div className="ux-status ux-status-update"><div><strong>Nova versão disponível</strong><span>Atualize quando quiser para usar as melhorias mais recentes.</span></div><button type="button" onClick={()=>window.location.reload()}>Atualizar</button></div>}
+    {updateReady && <div className="ux-status ux-status-update"><div><strong>Nova versão disponível</strong><span>Atualize quando quiser para usar as melhorias mais recentes.</span></div><button type="button" onClick={applyUpdate}>Atualizar</button></div>}
   </div>;
 }
