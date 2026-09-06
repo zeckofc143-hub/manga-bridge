@@ -14,7 +14,7 @@ function nativeTransitionActive(){
 }
 
 function isDedicatedDatabaseRoute(){
-  return /^#\/(?:creatures|resources|chambers)(?:\/|$|\?)/i.test(window.location.hash || '#/');
+  return /^#\/(?:creatures|resources|chambers|mechanics|guides)(?:\/|$|\?)/i.test(window.location.hash || '#/');
 }
 
 export default function InteractionMotionRuntime(){
