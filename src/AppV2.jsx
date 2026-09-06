@@ -2,6 +2,7 @@ import React, { Suspense, lazy, useEffect, useMemo, useState } from 'react';
 import { Menu, Moon, Search, Sun, X } from 'lucide-react';
 import CreatureDatabasePage from './CreatureDatabasePage';
 import ResourceDatabasePage from './ResourceDatabasePage';
+import ChamberDatabasePage from './ChamberDatabasePage';
 import { useLanguage } from './LanguageProviderLite';
 
 const LegacyApp = lazy(() => import('./App'));
@@ -16,114 +17,68 @@ const mainNav = [
   ['#/tools', 'Ferramentas', 'Tools']
 ];
 
+const databaseConfig = {
+  creatures:{href:'#/creatures',route:'creatures',shell:'creature-database-shell',main:'creature-db-main',footer:'creature-db-footer',search:['Buscar no banco de criaturas...','Search the creature database...'],aria:['Buscar criaturas','Search creatures']},
+  resources:{href:'#/resources',route:'resources',shell:'resource-database-shell',main:'resource-db-main',footer:'resource-db-footer',search:['Buscar no banco de recursos...','Search the resource database...'],aria:['Buscar recursos','Search resources']},
+  chambers:{href:'#/chambers',route:'chambers',shell:'chamber-database-shell',main:'chamber-db-main',footer:'chamber-db-footer',search:['Buscar no banco de câmaras...','Search the chamber database...'],aria:['Buscar câmaras','Search chambers']}
+};
+
 function currentDatabaseRoute(hash){
   const value = hash || window.location.hash || '#/';
-  const creature = value.match(/^#\/creatures(?:\/([^?/#]+))?/i);
-  if(creature) return { active:true, kind:'creatures', id:creature[1] ? decodeURIComponent(creature[1]) : null };
-  const resource = value.match(/^#\/resources(?:\/([^?/#]+))?/i);
-  if(resource) return { active:true, kind:'resources', id:resource[1] ? decodeURIComponent(resource[1]) : null };
-  return { active:false, kind:null, id:null };
+  for(const kind of ['creatures','resources','chambers']){
+    const match = value.match(new RegExp(`^#\\/${kind}(?:\\/([^?/#]+))?`,'i'));
+    if(match) return {active:true,kind,id:match[1]?decodeURIComponent(match[1]):null};
+  }
+  return {active:false,kind:null,id:null};
 }
 
 function PageLoadingState(){
   return <main className="site-main ux-page-loading" role="status" aria-live="polite" aria-label="Carregando conteúdo">
-    <div className="ux-loading-card">
-      <div className="ux-loading-title" aria-hidden="true"/>
-      <div className="ux-loading-line" aria-hidden="true"/>
-      <div className="ux-loading-line" aria-hidden="true"/>
-      <div className="ux-loading-line" aria-hidden="true"/>
-      <span className="ux-loading-note">Organizando o conteúdo da wiki…</span>
-    </div>
+    <div className="ux-loading-card"><div className="ux-loading-title" aria-hidden="true"/><div className="ux-loading-line" aria-hidden="true"/><div className="ux-loading-line" aria-hidden="true"/><div className="ux-loading-line" aria-hidden="true"/><span className="ux-loading-note">Organizando o conteúdo da wiki…</span></div>
   </main>;
+}
+
+function DatabaseContent({kind,routeId}){
+  if(kind==='resources') return <ResourceDatabasePage routeId={routeId}/>;
+  if(kind==='chambers') return <ChamberDatabasePage routeId={routeId}/>;
+  return <CreatureDatabasePage routeId={routeId}/>;
+}
+
+function DatabaseFooter({kind,t}){
+  if(kind==='resources') return t('Banco de Dados de Recursos · Pocket Ants Wiki BR · obtenção, usos, prioridade e fontes organizadas.','Resource Database · Pocket Ants Wiki EN · acquisition, uses, priority and sources organized.');
+  if(kind==='chambers') return t('Central de Câmaras · Pocket Ants Wiki BR · níveis, gargalos, dependências e fontes organizadas.','Chamber Hub · Pocket Ants Wiki EN · levels, bottlenecks, dependencies and sources organized.');
+  return t('Banco de Dados de Criaturas · Pocket Ants Wiki BR · dados comunitários revisados e conflitos sinalizados.','Creature Database · Pocket Ants Wiki EN · community data reviewed and conflicts flagged.');
 }
 
 function DatabaseShell({ kind, routeId }){
   const {t} = useLanguage();
+  const config=databaseConfig[kind]||databaseConfig.creatures;
   const [mobileOpen,setMobileOpen] = useState(false);
   const [theme,setTheme] = useState(()=>localStorage.getItem('pa-theme') || 'dark');
   const [query,setQuery] = useState('');
-  const resourceMode = kind === 'resources';
-  const activeHref = resourceMode ? '#/resources' : '#/creatures';
 
-  useEffect(()=>{
-    document.documentElement.dataset.theme = theme;
-    localStorage.setItem('pa-theme',theme);
-  },[theme]);
-
-  useEffect(()=>{
-    setMobileOpen(false);
-    window.scrollTo({top:0,behavior:'auto'});
-  },[routeId,kind]);
+  useEffect(()=>{document.documentElement.dataset.theme=theme;localStorage.setItem('pa-theme',theme);},[theme]);
+  useEffect(()=>{setMobileOpen(false);window.scrollTo({top:0,behavior:'auto'});},[routeId,kind]);
 
   const submitSearch = event => {
     event.preventDefault();
-    const q = query.trim();
+    const q=query.trim();
     if(!q) return;
-    window.location.hash = `/${resourceMode?'resources':'creatures'}?dbq=${encodeURIComponent(q)}`;
+    window.location.hash=`/${config.route}?dbq=${encodeURIComponent(q)}`;
   };
 
-  return <div className={`app-shell database-shell ${resourceMode?'resource-database-shell':'creature-database-shell'}`}>
-    <header className="site-header">
-      <div className="header-inner">
-        <a href="#/" className="brand" aria-label={t('Voltar ao início da Pocket Ants Wiki BR','Back to Pocket Ants Wiki home')}>
-          <span className="brand-mark">🐜</span>
-          <span className="brand-copy"><strong>Pocket Ants</strong><small>{t('Wiki BR','Wiki EN')}</small></span>
-        </a>
+  return <div className={`app-shell database-shell ${config.shell}`}>
+    <header className="site-header"><div className="header-inner">
+      <a href="#/" className="brand" aria-label={t('Voltar ao início da Pocket Ants Wiki BR','Back to Pocket Ants Wiki home')}><span className="brand-mark">🐜</span><span className="brand-copy"><strong>Pocket Ants</strong><small>{t('Wiki BR','Wiki EN')}</small></span></a>
+      <form className="header-search" onSubmit={submitSearch} role="search"><Search size={18}/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder={t(...config.search)} aria-label={t(...config.aria)} autoComplete="off" enterKeyHint="search" inputMode="search"/><kbd>↵</kbd></form>
+      <nav className="desktop-nav" aria-label={t('Navegação principal','Main navigation')}>{mainNav.slice(1).map(([href,pt,en])=>{const active=href===config.href;return <a key={href} href={href} className={active?'active':''} aria-current={active?'page':undefined}>{t(pt,en)}</a>;})}</nav>
+      <div className="header-actions"><button className="icon-button" type="button" onClick={()=>setTheme(theme==='dark'?'light':'dark')} aria-label={t('Alternar tema','Toggle theme')}>{theme==='dark'?<Sun size={18}/>:<Moon size={18}/>}</button><button className="icon-button mobile-menu-button" type="button" onClick={()=>setMobileOpen(true)} aria-label={t('Abrir menu','Open menu')}><Menu size={20}/></button></div>
+    </div></header>
 
-        <form className="header-search" onSubmit={submitSearch} role="search">
-          <Search size={18}/>
-          <input
-            value={query}
-            onChange={e=>setQuery(e.target.value)}
-            placeholder={resourceMode?t('Buscar no banco de recursos...','Search the resource database...'):t('Buscar no banco de criaturas...','Search the creature database...')}
-            aria-label={resourceMode?t('Buscar recursos','Search resources'):t('Buscar criaturas','Search creatures')}
-            autoComplete="off"
-            enterKeyHint="search"
-            inputMode="search"
-          />
-          <kbd>↵</kbd>
-        </form>
+    {mobileOpen&&<div className="mobile-drawer-backdrop" onClick={()=>setMobileOpen(false)}><aside className="mobile-drawer" onClick={e=>e.stopPropagation()} aria-label={t('Menu de navegação','Navigation menu')}><div className="drawer-head"><div className="brand"><span className="brand-mark">🐜</span><strong>Pocket Ants {t('Wiki BR','Wiki EN')}</strong></div><button className="icon-button" type="button" onClick={()=>setMobileOpen(false)} aria-label={t('Fechar menu','Close menu')}><X size={20}/></button></div><nav className="mobile-nav" aria-label={t('Navegação móvel','Mobile navigation')}>{mainNav.map(([href,pt,en])=>{const active=href===config.href;return <a key={href} href={href} className={active?'active':''} aria-current={active?'page':undefined}>{t(pt,en)}</a>;})}</nav></aside></div>}
 
-        <nav className="desktop-nav" aria-label={t('Navegação principal','Main navigation')}>
-          {mainNav.slice(1).map(([href,pt,en])=>{
-            const active = href===activeHref;
-            return <a key={href} href={href} className={active?'active':''} aria-current={active?'page':undefined}>{t(pt,en)}</a>;
-          })}
-        </nav>
-
-        <div className="header-actions">
-          <button className="icon-button" type="button" onClick={()=>setTheme(theme==='dark'?'light':'dark')} aria-label={t('Alternar tema','Toggle theme')}>
-            {theme==='dark'?<Sun size={18}/>:<Moon size={18}/>} 
-          </button>
-          <button className="icon-button mobile-menu-button" type="button" onClick={()=>setMobileOpen(true)} aria-label={t('Abrir menu','Open menu')}><Menu size={20}/></button>
-        </div>
-      </div>
-    </header>
-
-    {mobileOpen && <div className="mobile-drawer-backdrop" onClick={()=>setMobileOpen(false)}>
-      <aside className="mobile-drawer" onClick={e=>e.stopPropagation()} aria-label={t('Menu de navegação','Navigation menu')}>
-        <div className="drawer-head">
-          <div className="brand"><span className="brand-mark">🐜</span><strong>Pocket Ants {t('Wiki BR','Wiki EN')}</strong></div>
-          <button className="icon-button" type="button" onClick={()=>setMobileOpen(false)} aria-label={t('Fechar menu','Close menu')}><X size={20}/></button>
-        </div>
-        <nav className="mobile-nav" aria-label={t('Navegação móvel','Mobile navigation')}>
-          {mainNav.map(([href,pt,en])=>{
-            const active = href===activeHref;
-            return <a key={href} href={href} className={active?'active':''} aria-current={active?'page':undefined}>{t(pt,en)}</a>;
-          })}
-        </nav>
-      </aside>
-    </div>}
-
-    <main className={`site-main ${resourceMode?'resource-db-main':'creature-db-main'}`}>
-      {resourceMode ? <ResourceDatabasePage routeId={routeId}/> : <CreatureDatabasePage routeId={routeId}/>} 
-    </main>
-
-    <footer className={`site-footer ${resourceMode?'resource-db-footer':'creature-db-footer'}`}>
-      <div className="footer-bottom">{resourceMode
-        ? t('Banco de Dados de Recursos · Pocket Ants Wiki BR · obtenção, usos, prioridade e fontes organizadas.','Resource Database · Pocket Ants Wiki EN · acquisition, uses, priority and sources organized.')
-        : t('Banco de Dados de Criaturas · Pocket Ants Wiki BR · dados comunitários revisados e conflitos sinalizados.','Creature Database · Pocket Ants Wiki EN · community data reviewed and conflicts flagged.')}</div>
-    </footer>
+    <main className={`site-main ${config.main}`}><DatabaseContent kind={kind} routeId={routeId}/></main>
+    <footer className={`site-footer ${config.footer}`}><div className="footer-bottom"><DatabaseFooter kind={kind} t={t}/></div></footer>
   </div>;
 }
 
@@ -131,47 +86,21 @@ export default function AppV2(){
   const [hash,setHash] = useState(()=>window.location.hash || '#/');
 
   useEffect(()=>{
-    const syncRoute = ()=>setHash(window.location.hash || '#/');
-    const originalPushState = window.history.pushState;
-    const originalReplaceState = window.history.replaceState;
-
-    window.history.pushState = function(...args){
-      const result = originalPushState.apply(this,args);
-      window.dispatchEvent(new Event('app:navigation'));
-      return result;
-    };
-
-    window.history.replaceState = function(...args){
-      const result = originalReplaceState.apply(this,args);
-      window.dispatchEvent(new Event('app:navigation'));
-      return result;
-    };
-
-    window.addEventListener('hashchange',syncRoute);
-    window.addEventListener('popstate',syncRoute);
-    window.addEventListener('app:navigation',syncRoute);
-
-    return ()=>{
-      window.history.pushState = originalPushState;
-      window.history.replaceState = originalReplaceState;
-      window.removeEventListener('hashchange',syncRoute);
-      window.removeEventListener('popstate',syncRoute);
-      window.removeEventListener('app:navigation',syncRoute);
-    };
+    const syncRoute=()=>setHash(window.location.hash||'#/');
+    const originalPushState=window.history.pushState;
+    const originalReplaceState=window.history.replaceState;
+    window.history.pushState=function(...args){const result=originalPushState.apply(this,args);window.dispatchEvent(new Event('app:navigation'));return result;};
+    window.history.replaceState=function(...args){const result=originalReplaceState.apply(this,args);window.dispatchEvent(new Event('app:navigation'));return result;};
+    window.addEventListener('hashchange',syncRoute);window.addEventListener('popstate',syncRoute);window.addEventListener('app:navigation',syncRoute);
+    return()=>{window.history.pushState=originalPushState;window.history.replaceState=originalReplaceState;window.removeEventListener('hashchange',syncRoute);window.removeEventListener('popstate',syncRoute);window.removeEventListener('app:navigation',syncRoute);};
   },[]);
 
-  const route = useMemo(()=>currentDatabaseRoute(hash),[hash]);
+  const route=useMemo(()=>currentDatabaseRoute(hash),[hash]);
 
   useEffect(()=>{
-    const creatureActive = route.active && route.kind==='creatures';
-    const resourceActive = route.active && route.kind==='resources';
-    document.body.classList.toggle('creature-database-route',creatureActive);
-    document.body.classList.toggle('resource-database-route',resourceActive);
+    for(const kind of ['creatures','resources','chambers']) document.body.classList.toggle(`${kind.slice(0,-1)}-database-route`,route.active&&route.kind===kind);
     document.body.classList.remove('encyclopedia-route');
-    return ()=>{
-      document.body.classList.remove('creature-database-route');
-      document.body.classList.remove('resource-database-route');
-    };
+    return()=>{document.body.classList.remove('creature-database-route','resource-database-route','chamber-database-route');};
   },[route.active,route.kind]);
 
   if(route.active) return <DatabaseShell kind={route.kind} routeId={route.id}/>;
