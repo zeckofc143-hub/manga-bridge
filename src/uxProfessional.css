@@ -1,0 +1,185 @@
+/* Professional UX layer — cognitive load, touch ergonomics, hierarchy and accessibility. */
+
+:root{
+  --ux-touch:44px;
+  --ux-touch-mobile:48px;
+  --ux-radius:14px;
+  --ux-focus:color-mix(in srgb,var(--accent,#62d889) 82%,white 18%);
+  --ux-focus-shadow:color-mix(in srgb,var(--accent,#62d889) 28%,transparent);
+  --ux-reading:72ch;
+}
+
+html{scroll-padding-top:86px;scroll-padding-bottom:92px}
+body{line-height:1.55;text-rendering:optimizeLegibility;-webkit-font-smoothing:antialiased}
+
+/* Clear keyboard focus: visible, consistent and not dependent on color alone. */
+:where(a,button,input,select,summary,[tabindex]):focus-visible{
+  outline:3px solid var(--ux-focus)!important;
+  outline-offset:3px!important;
+  box-shadow:0 0 0 5px var(--ux-focus-shadow)!important;
+}
+
+/* Fitts: important interactive controls get a comfortable hit area. */
+:where(.button,.icon-button,.mobile-nav a,.desktop-nav a,.chip-filter button,.ce3-tabs button,.ce3-filters summary,.ce3-card-actions a,.ce3-back,.ce3-tutorial,.x-tabs button,.adv-tabs button,.research-tabs button,.source-filters button,.pa-language-options button,.pa-settings-close,.research-close,.x-close){
+  min-height:var(--ux-touch);
+}
+
+.icon-button,.pa-settings-close,.research-close,.x-close{min-width:var(--ux-touch)}
+
+/* Reading comfort: long copy should not become an endless line. */
+:where(.hero-copy p,.page-heading p,.source-box p,.resource-card p,.mechanic-card p,.guide-card p,.ce3-description,.ce3-lead,.ce3-panel p,.research-header p,.consensus-card p,.knowledge-card p,.x-faq-answer p){
+  line-height:1.65;
+  max-width:var(--ux-reading);
+}
+
+:where(.page-stack,.home-stack){gap:clamp(22px,4vw,42px)}
+.section-title-row{margin-bottom:14px}
+.section-title-row h2,.page-heading h1,.ce3-panel h2{letter-spacing:-.018em}
+
+/* Visual hierarchy: reduce decorative competition and reserve elevation for active/interactive items. */
+:where(.category-card,.resource-card,.guide-card,.chamber-card,.mechanic-card,.ce3-card,.panel-card,.ce3-panel){
+  box-shadow:0 8px 22px rgba(0,0,0,.08);
+}
+@media(hover:hover) and (pointer:fine){
+  :where(.category-card,.resource-card,.guide-card,.chamber-card,.mechanic-card,.ce3-card){transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease}
+  :where(.category-card,.resource-card,.guide-card,.chamber-card,.mechanic-card,.ce3-card):hover{transform:translateY(-2px);box-shadow:0 14px 34px rgba(0,0,0,.14)}
+}
+
+/* Gestalt / proximity: related controls stay together and unrelated sections get more air. */
+.filter-panel,.ce3-search-row,.ce3-filters>div,.research-searchbar,.adv-fields{gap:10px}
+.category-card,.ce3-card,.resource-card,.chamber-card,.guide-card,.mechanic-card{border-radius:var(--ux-radius)}
+.category-card{min-height:86px;padding-block:16px}
+.category-card>div p{line-height:1.45;margin-top:4px}
+
+/* Progressive disclosure in the creature database. */
+.ce3-search{min-height:48px}
+.ce3-search input{min-height:46px;font-size:16px}
+.ce3-filters summary{padding:0 14px;cursor:pointer}
+.ce3-filters[open] summary{margin-bottom:8px}
+.ce3-filters>div{padding-top:6px}
+.ce3-filters select{min-height:44px}
+.ce3-result-line{margin-top:2px;color:var(--muted,#9aa8a0)}
+.ce3-result-line b{color:var(--text,#eef3ef)}
+.ce3-tabs{scroll-padding-inline:10px}
+.ce3-tabs button{padding-inline:15px}
+.ce3-card-body{gap:12px}
+.ce3-description{margin:0;color:color-mix(in srgb,var(--text,#eef3ef) 82%,var(--muted,#9aa8a0))}
+.ce3-obtain-preview{border-left:3px solid color-mix(in srgb,var(--accent,#62d889) 70%,transparent)}
+.ce3-card-actions{gap:8px}
+.ce3-card-actions>a{display:inline-flex;align-items:center;justify-content:center;padding-inline:13px}
+
+/* Detail pages use strong chunking: each section reads as one mental unit. */
+.ce3-detail-grid,.detail-grid{gap:16px}
+.ce3-panel,.panel-card{padding:clamp(16px,3vw,22px)}
+.ce3-panel-title{margin-bottom:14px}
+.ce3-panel-title h2{margin-bottom:2px}
+.ce3-facts,.info-list{gap:8px}
+
+/* Sticky/floating UI should not become more visually important than the content. */
+.site-header{box-shadow:0 1px 0 color-mix(in srgb,var(--line,#2b3c33) 70%,transparent)}
+
+/* Motion is short, predictable, and only communicates state. */
+:where(.button,.icon-button,.chip-filter button,.ce3-tabs button,.ce3-card-actions a,.ce3-filters summary,.mobile-nav a,.desktop-nav a){
+  transition:background-color .18s ease,border-color .18s ease,color .18s ease,transform .18s ease,box-shadow .18s ease;
+}
+:where(button,a):active{transition-duration:.08s}
+
+@media(max-width:760px){
+  :root{--ux-touch:var(--ux-touch-mobile)}
+  html{scroll-padding-top:76px;scroll-padding-bottom:94px}
+
+  /* Primary navigation should be scannable, not hidden in a horizontal carousel. */
+  .category-grid{
+    display:grid!important;
+    grid-template-columns:1fr!important;
+    overflow:visible!important;
+    margin-right:0!important;
+    padding-right:0!important;
+    gap:9px!important;
+  }
+  .category-card{
+    flex:auto!important;
+    scroll-snap-align:none!important;
+    min-height:82px;
+    padding:13px 14px!important;
+  }
+  .category-icon{width:42px;height:42px;display:grid;place-items:center;flex:0 0 42px}
+
+  /* Reduce GPU-heavy blur on mobile while retaining separation. */
+  .site-header{backdrop-filter:blur(8px)!important;-webkit-backdrop-filter:blur(8px)!important}
+
+  .hero-copy p,.page-heading p,.ce3-hero p,.ce3-lead{font-size:max(.96rem,15px);line-height:1.62}
+  .hero-actions{display:grid;grid-template-columns:1fr;gap:8px}
+  .hero-actions .button{width:100%;justify-content:center;min-height:48px}
+  .trust-row{gap:8px 12px}
+
+  /* Creature cards: essential information first; advanced numeric/meta data lives in the full record. */
+  .ce3-grid{gap:14px!important}
+  .ce3-card{border-radius:16px}
+  .ce3-card-body{padding:14px!important}
+  .ce3-description{
+    display:-webkit-box;
+    -webkit-box-orient:vertical;
+    -webkit-line-clamp:3;
+    overflow:hidden;
+  }
+  .ce3-mini-stats,.ce3-ability{display:none!important}
+  .ce3-quick-grid{grid-template-columns:1fr 1fr!important;gap:7px!important}
+  .ce3-quick-grid>div{min-height:58px;padding:9px!important}
+  .ce3-obtain-preview{padding:11px!important}
+  .ce3-role-scroll{padding-bottom:3px}
+  .ce3-card-actions{display:grid!important;grid-template-columns:1fr 1fr!important}
+  .ce3-card-actions>a{min-height:48px;width:100%}
+
+  .ce3-search-row{display:grid!important;grid-template-columns:1fr!important;gap:8px!important}
+  .ce3-tabs{gap:6px!important;margin-inline:-4px;padding-inline:4px}
+  .ce3-tabs button{min-height:46px;padding-inline:13px!important}
+  .ce3-filters summary{min-height:48px}
+
+  /* Bottom action dock: group secondary actions by proximity instead of four unrelated floating pills. */
+  body:has(.x-fab) .x-fab,
+  body:has(.x-fab) .adv-fab,
+  body:has(.x-fab) .research-fab,
+  body:has(.x-fab) .pa-settings-fab{
+    position:fixed!important;
+    bottom:max(10px,env(safe-area-inset-bottom))!important;
+    top:auto!important;
+    right:auto!important;
+    width:48px!important;
+    height:48px!important;
+    min-width:48px!important;
+    min-height:48px!important;
+    padding:0!important;
+    border-radius:14px!important;
+    display:grid!important;
+    place-items:center!important;
+    z-index:145!important;
+  }
+  body:has(.x-fab) .x-fab{left:calc(50% - 114px)!important}
+  body:has(.x-fab) .adv-fab{left:calc(50% - 54px)!important}
+  body:has(.x-fab) .research-fab{left:calc(50% + 6px)!important}
+  body:has(.x-fab) .pa-settings-fab{left:calc(50% + 66px)!important}
+  body:has(.x-fab) :is(.x-fab,.adv-fab,.research-fab) span{display:none!important}
+  body:has(.x-fab) .site-main{padding-bottom:82px}
+
+  /* If extras are not mounted (e.g. creature database), Settings remains a normal single FAB. */
+  body:not(:has(.x-fab)) .pa-settings-fab{right:14px!important;bottom:max(14px,env(safe-area-inset-bottom))!important;left:auto!important}
+
+  .mobile-nav a{min-height:48px;padding-block:10px}
+  .drawer-search input{font-size:16px}
+
+  /* Research/calculator overlays become touch-friendly sheets. */
+  .adv-tabs,.research-tabs,.x-tabs{overflow-x:auto;scrollbar-width:none;justify-content:flex-start}
+  .adv-tabs button,.research-tabs button,.x-tabs button{flex:0 0 auto;min-height:48px}
+  .adv-fields label select,.research-searchbar input,.x-search-row input,.x-search-row select{min-height:48px;font-size:16px}
+}
+
+@media(max-width:390px){
+  .ce3-card-actions{grid-template-columns:1fr!important}
+  .ce3-quick-grid{grid-template-columns:1fr 1fr!important}
+}
+
+@media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto!important}
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
+}
