@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { translateRawText } from './i18n';
+import { translateRawText } from './i18nCore';
 import { useLanguage } from './LanguageProviderLite';
 
 const EXTRA_EN = new Map(Object.entries({
@@ -62,6 +62,7 @@ const FRAGMENTS_EN = [
 const FRAGMENTS_PT = FRAGMENTS_EN.map(([pt,en]) => [en,pt]);
 const TEXT_STATE = new WeakMap();
 const ATTR_STATE = new WeakMap();
+const ROLE_CONTEXT = '.ce3-card,.ce3-detail-page,.ce3-role-scroll,.cth-root,.creature-card,.role-row,.tag-cloud';
 
 const clean = value => String(value ?? '').replace(/\s+/g,' ').trim();
 
@@ -87,13 +88,22 @@ function convertText(raw,language){
   return `${leading}${core}${trailing}`;
 }
 
+function contextualText(node,source,language){
+  if(language==='en' && clean(source)==='Início' && node.parentElement?.closest?.(ROLE_CONTEXT)){
+    const leading=source.match(/^\s*/)?.[0] || '';
+    const trailing=source.match(/\s*$/)?.[0] || '';
+    return `${leading}Early game${trailing}`;
+  }
+  return convertText(source,language);
+}
+
 function translateTextNode(node,language){
   if(node.nodeType!==Node.TEXT_NODE || !node.nodeValue?.trim()) return;
   if(node.parentElement?.closest?.('[data-no-auto-i18n="true"]')) return;
   const current=node.nodeValue;
   let state=TEXT_STATE.get(node);
   if(!state || (state.applied!==undefined && current!==state.applied)) state={source:current,applied:undefined};
-  const next=convertText(state.source,language);
+  const next=contextualText(node,state.source,language);
   if(current!==next) node.nodeValue=next;
   state.applied=next;
   TEXT_STATE.set(node,state);
@@ -128,36 +138,39 @@ export default function TranslationCoverageLite(){
   const {language}=useLanguage();
   useEffect(()=>{
     let frame=0;
-    const pending=new Set();
-    const flush=()=>{
-      frame=0;
-      if(!pending.size){ processRoot(document.body,language); return; }
-      const items=[...pending]; pending.clear();
-      items.forEach(node=>processRoot(node,language));
-    };
-    const queue=node=>{
-      if(node) pending.add(node);
+    const timers=new Set();
+
+    const flush=()=>{frame=0;processRoot(document.body,language);};
+    const schedule=(delays=[0,70,220])=>{
       if(!frame) frame=requestAnimationFrame(flush);
+      delays.filter(delay=>delay>0).forEach(delay=>{
+        const id=window.setTimeout(()=>{timers.delete(id);processRoot(document.body,language);},delay);
+        timers.add(id);
+      });
+    };
+    const onRoute=()=>schedule([0,70,220,900]);
+    const onInteraction=event=>{
+      if(event.type==='input' && !event.target.matches?.('input,textarea,select')) return;
+      schedule([0,80]);
     };
 
-    processRoot(document.body,language);
-    const observer=new MutationObserver(records=>{
-      for(const record of records){
-        for(const node of record.addedNodes) queue(node);
-      }
-    });
-    observer.observe(document.body,{subtree:true,childList:true});
-
-    const onRoute=()=>{
-      pending.clear();
-      if(frame) cancelAnimationFrame(frame);
-      frame=requestAnimationFrame(()=>{ frame=0; processRoot(document.body,language); });
-    };
+    /* Bursts cover lazy panels without observing every DOM mutation continuously. */
+    schedule([0,80,260,900,1800,3200]);
     window.addEventListener('hashchange',onRoute);
+    window.addEventListener('app:navigation',onRoute);
+    document.addEventListener('click',onInteraction,true);
+    document.addEventListener('input',onInteraction,true);
+    document.addEventListener('change',onInteraction,true);
+
     return ()=>{
-      observer.disconnect();
       window.removeEventListener('hashchange',onRoute);
+      window.removeEventListener('app:navigation',onRoute);
+      document.removeEventListener('click',onInteraction,true);
+      document.removeEventListener('input',onInteraction,true);
+      document.removeEventListener('change',onInteraction,true);
       if(frame) cancelAnimationFrame(frame);
+      timers.forEach(id=>window.clearTimeout(id));
+      timers.clear();
     };
   },[language]);
   return null;
