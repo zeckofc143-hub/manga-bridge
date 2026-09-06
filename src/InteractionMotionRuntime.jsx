@@ -14,7 +14,7 @@ function nativeTransitionActive(){
 }
 
 function isDedicatedDatabaseRoute(){
-  return /^#\/(?:creatures|resources)(?:\/|$|\?)/i.test(window.location.hash || '#/');
+  return /^#\/(?:creatures|resources|chambers)(?:\/|$|\?)/i.test(window.location.hash || '#/');
 }
 
 export default function InteractionMotionRuntime(){
@@ -40,14 +40,10 @@ export default function InteractionMotionRuntime(){
     const run = () => {
       cancelAnimationFrame(rafA);
       window.clearTimeout(scrollTimer);
-
-      /* Legacy routes can still request smooth scrolling themselves. Dedicated database
-         shells already own their scroll position, so do not fight them with extra jumps. */
       if(!isDedicatedDatabaseRoute()){
         requestAnimationFrame(()=>window.scrollTo({top:0,left:0,behavior:'auto'}));
         scrollTimer = window.setTimeout(()=>window.scrollTo({top:0,left:0,behavior:'auto'}),40);
       }
-
       animate();
     };
 
