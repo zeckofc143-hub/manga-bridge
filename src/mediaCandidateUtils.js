@@ -40,9 +40,11 @@ export function robustMediaCandidates(input=[]){
   ]);
 }
 
+/**
+ * Kept for the older reference-gallery loader. Native loading="lazy" may
+ * intentionally postpone a request while the image is off screen, so a short
+ * timer would create a false failure. Browser onError remains the real signal.
+ */
 export function mediaLoadTimeoutMs(){
-  const connection=typeof navigator!=='undefined'?navigator.connection:null;
-  if(connection?.saveData) return 5500;
-  if(connection?.effectiveType==='2g'||connection?.effectiveType==='slow-2g') return 7000;
-  return 9000;
+  return 2147483000;
 }
