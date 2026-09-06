@@ -1,5 +1,5 @@
 import React,{useEffect,useMemo,useState} from 'react';
-import {BookOpen,ChevronRight,Search,Sparkles} from 'lucide-react';
+import {BookOpen,ChevronRight,Search,Sparkles,X} from 'lucide-react';
 import {useLanguage} from './LanguageProviderLite';
 import {allCatalogCreatures} from './creatureCatalogData';
 import {nonCapturableCreatures} from './creatureCatalogExtras';
@@ -54,7 +54,15 @@ function scoreItem(item,tokens){
 export default function GlobalSearchPage(){
   const {language,t}=useLanguage();
   const [query,setQuery]=useState(queryFromHash);
-  useEffect(()=>{const sync=()=>setQuery(queryFromHash());window.addEventListener('hashchange',sync);return()=>window.removeEventListener('hashchange',sync);},[]);
+  useEffect(()=>{
+    const sync=()=>setQuery(queryFromHash());
+    window.addEventListener('hashchange',sync);
+    window.addEventListener('app:navigation',sync);
+    return()=>{
+      window.removeEventListener('hashchange',sync);
+      window.removeEventListener('app:navigation',sync);
+    };
+  },[]);
 
   const index=useMemo(()=>buildIndex(language),[language]);
   const results=useMemo(()=>{
@@ -63,10 +71,19 @@ export default function GlobalSearchPage(){
     return index.map(item=>({...item,score:scoreItem(item,tokens)})).filter(item=>item.score>0).sort((a,b)=>b.score-a.score||a.title.localeCompare(b.title,language==='en'?'en':'pt-BR')).slice(0,60);
   },[index,query,language]);
 
+  const suggestions=language==='en'
+    ? [['resin','Resin'],['fusion','Fusion'],['frog','Frog'],['battle tokens','Battle Tokens'],['queen','Queen'],['collection','Collection']]
+    : [['resina','Resina'],['fusão','Fusão'],['frog','Frog'],['battle tokens','Battle Tokens'],['queen','Queen'],['coleção','Coleção']];
+
   const submit=event=>{
     event.preventDefault();
     const q=query.trim();
     window.location.hash=q?`/search?q=${encodeURIComponent(q)}`:'/search';
+  };
+
+  const clear=()=>{
+    setQuery('');
+    window.location.hash='/search';
   };
 
   return <div className="rdb-page gs-page">
@@ -77,9 +94,11 @@ export default function GlobalSearchPage(){
     </section>
 
     <form className="gs-search" onSubmit={submit} role="search">
-      <Search size={20}/><input autoFocus value={query} onChange={e=>setQuery(e.target.value)} placeholder={t('Ex.: resina, escorpião, fusão, clã…','E.g.: resin, scorpion, fusion, clan…')} aria-label={t('Buscar em toda a wiki','Search the whole wiki')}/><button type="submit">{t('Buscar','Search')}</button>
+      <Search size={20} aria-hidden="true"/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder={t('Ex.: resina, escorpião, fusão, clã…','E.g.: resin, scorpion, fusion, clan…')} aria-label={t('Buscar em toda a wiki','Search the whole wiki')} autoComplete="off" enterKeyHint="search" inputMode="search"/>
+      <div className="gs-search-actions">{query&&<button className="gs-clear" type="button" onClick={clear} aria-label={t('Limpar busca','Clear search')} title={t('Limpar','Clear')}><X size={17}/></button>}<button className="gs-submit" type="submit">{t('Buscar','Search')}</button></div>
     </form>
 
+    {!query.trim()&&<section className="gs-start" aria-label={t('Buscas rápidas','Quick searches')}><span>{t('Comece por algo comum','Start with something common')}</span><div>{suggestions.map(([q,label])=><a key={q} href={`#/search?q=${encodeURIComponent(q)}`}>{label}</a>)}</div></section>}
     {query.trim()?<div className="gs-count"><b>{results.length}</b> {t('resultados','results')}</div>:<div className="gs-hint">{t('Digite um recurso, criatura, sistema, objetivo ou ferramenta.','Type a resource, creature, system, goal or tool.')}</div>}
 
     {results.length>0&&<section className="gs-results">{results.map(item=><a href={item.path} key={item.id} className="gs-result"><span className="gs-icon">{item.icon||'🐜'}</span><div><small>{typeLabel(item.type,t)}</small><strong>{item.title}</strong><p>{item.text||t('Abrir ficha','Open profile')}</p></div><ChevronRight size={18}/></a>)}</section>}
