@@ -68,9 +68,11 @@ function FarmHub(){
   </div>;
 }
 
+function FarmNotFound(){const {t}=useLanguage();return <div className="rdb-page"><div className="rdb-empty"><Search size={26}/><b>404</b><span>{t('Esse farm não existe ou mudou de endereço.','This farm does not exist or moved.')}</span><a href="#/farms">{t('Voltar para Farms','Back to Farms')}</a></div></div>;}
+
 export default function FarmDatabasePage({routeId}){
   if(!routeId)return <FarmHub/>;
   const record=FARM_RECORDS.find(item=>item.id===routeId);
-  if(!record)return <div className="rdb-page"><div className="rdb-empty"><Search size={26}/><b>404</b><span>{t=>t}</span><a href="#/farms">Farms</a></div></div>;
+  if(!record)return <FarmNotFound/>;
   return <FarmDetail record={record}/>;
 }
