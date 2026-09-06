@@ -1,6 +1,7 @@
-import React, { useEffect } from 'react';
+import { useLayoutEffect } from 'react';
 import { translateRawText } from './i18nCore';
 import { useLanguage } from './LanguageProviderLite';
+import { isNativeI18nRoute } from './routeUtils';
 
 const EXTRA_EN = new Map(Object.entries({
   'Base atualizada em setembro de 2026':'Base updated in September 2026',
@@ -27,7 +28,7 @@ const EXTRA_EN = new Map(Object.entries({
   'Tracker de coleção':'Collection tracker','marcadas como obtidas.':'marked as obtained.','Filtrar coleção...':'Filter collection...',
   'Coisas que uma wiki tradicional quase nunca entrega: comparação, planejamento e trackers salvos no navegador.':'Things a traditional wiki rarely provides: comparison, planning and trackers saved in your browser.',
   'Siglas e termos que aparecem em guias e conversas da comunidade.':'Abbreviations and terms used in guides and community discussions.',
-  'A busca cobre criaturas, recursos, câmaras, mecânicas e guias.':'Search covers creatures, resources, chambers, mechanics and guides.',
+  'A busca cobre criaturas, recursos, câmaras, mecânicas e guias.':'Search covers creatures, resources, chambers, mechanics, guides and tools.',
   'Buscar':'Search','Ex.: resina, scorpion, rainha...':'E.g.: resin, scorpion, queen...','Tente outro nome, função, raridade ou sistema.':'Try another name, role, rarity or system.','Digite algo para buscar em toda a wiki.':'Type something to search across the wiki.',
   'Página não encontrada':'Page not found','Essa formiga cavou para o lado errado.':'This ant dug in the wrong direction.','Voltar ao início':'Back to home',
   'Nada encontrado com esses filtros.':'Nothing found with these filters.','Nenhum resultado':'No results',
@@ -65,7 +66,6 @@ const ATTR_STATE = new WeakMap();
 const ROLE_CONTEXT = '.ce3-card,.ce3-detail-page,.ce3-role-scroll,.cth-root,.creature-card,.role-row,.tag-cloud';
 
 const clean = value => String(value ?? '').replace(/\s+/g,' ').trim();
-const isNativeDatabaseRoute = () => /^#\/(?:resources|chambers|mechanics|guides|tools)(?:\/|$|\?)/i.test(window.location.hash || '#/');
 
 function convertText(raw,language){
   const source=String(raw ?? '');
@@ -125,10 +125,10 @@ function translateAttributes(el,language){
 }
 
 function processRoot(root,language){
-  if(isNativeDatabaseRoute()) return;
-  if(!root) return;
+  if(!root || isNativeI18nRoute()) return;
   if(root.nodeType===Node.TEXT_NODE){ translateTextNode(root,language); return; }
   if(root.nodeType!==Node.ELEMENT_NODE) return;
+  if(root.closest?.('[data-no-auto-i18n="true"]')) return;
   translateAttributes(root,language);
   const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);
   let node;
@@ -138,42 +138,84 @@ function processRoot(root,language){
 
 export default function TranslationCoverageLite(){
   const {language}=useLanguage();
-  useEffect(()=>{
-    let frame=0;
-    const timers=new Set();
 
-    const flush=()=>{frame=0;processRoot(document.body,language);};
-    const schedule=(delays=[0,70,220])=>{
-      if(isNativeDatabaseRoute()) return;
-      if(!frame) frame=requestAnimationFrame(flush);
-      delays.filter(delay=>delay>0).forEach(delay=>{
-        const id=window.setTimeout(()=>{timers.delete(id);processRoot(document.body,language);},delay);
-        timers.add(id);
+  useLayoutEffect(()=>{
+    let observer=null;
+    let frame=0;
+    let routeFrame=0;
+    const pending=new Set();
+
+    const connectObserver=()=>{
+      observer?.disconnect();
+      if(isNativeI18nRoute() || !document.body) return;
+      observer=new MutationObserver(records=>{
+        if(isNativeI18nRoute()){
+          observer?.disconnect();
+          pending.clear();
+          return;
+        }
+        for(const record of records){
+          if(record.type==='childList') record.addedNodes.forEach(node=>pending.add(node));
+          else if(record.type==='characterData') pending.add(record.target);
+          else if(record.type==='attributes') pending.add(record.target);
+        }
+        if(pending.size && !frame) frame=requestAnimationFrame(flushPending);
+      });
+      observer.observe(document.body,{
+        subtree:true,
+        childList:true,
+        characterData:true,
+        attributes:true,
+        attributeFilter:['placeholder','aria-label','title']
       });
     };
-    const onRoute=()=>schedule([0,70,220,900]);
-    const onInteraction=event=>{
-      if(event.type==='input' && !event.target.matches?.('input,textarea,select')) return;
-      schedule([0,80]);
+
+    const flushPending=()=>{
+      frame=0;
+      if(isNativeI18nRoute()){
+        pending.clear();
+        observer?.disconnect();
+        return;
+      }
+      const roots=[...pending];
+      pending.clear();
+      observer?.disconnect();
+      roots.forEach(root=>processRoot(root,language));
+      connectObserver();
     };
 
-    schedule([0,80,260,900,1800,3200]);
+    const fullSync=()=>{
+      if(frame){cancelAnimationFrame(frame);frame=0;}
+      pending.clear();
+      observer?.disconnect();
+      if(isNativeI18nRoute()) return;
+      processRoot(document.body,language);
+      connectObserver();
+    };
+
+    const onRoute=()=>{
+      observer?.disconnect();
+      pending.clear();
+      if(routeFrame) cancelAnimationFrame(routeFrame);
+      routeFrame=requestAnimationFrame(()=>{
+        routeFrame=0;
+        fullSync();
+      });
+    };
+
+    fullSync();
     window.addEventListener('hashchange',onRoute);
     window.addEventListener('app:navigation',onRoute);
-    document.addEventListener('click',onInteraction,true);
-    document.addEventListener('input',onInteraction,true);
-    document.addEventListener('change',onInteraction,true);
 
     return ()=>{
       window.removeEventListener('hashchange',onRoute);
       window.removeEventListener('app:navigation',onRoute);
-      document.removeEventListener('click',onInteraction,true);
-      document.removeEventListener('input',onInteraction,true);
-      document.removeEventListener('change',onInteraction,true);
+      observer?.disconnect();
       if(frame) cancelAnimationFrame(frame);
-      timers.forEach(id=>window.clearTimeout(id));
-      timers.clear();
+      if(routeFrame) cancelAnimationFrame(routeFrame);
+      pending.clear();
     };
   },[language]);
+
   return null;
 }
