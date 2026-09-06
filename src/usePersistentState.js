@@ -1,4 +1,4 @@
-import {useCallback,useEffect,useState} from 'react';
+import {useCallback,useEffect,useRef,useState} from 'react';
 
 export function readStoredJson(key,fallback){
   if(typeof window==='undefined') return typeof fallback==='function'?fallback():fallback;
@@ -32,7 +32,11 @@ export function removeStoredValue(key){
 }
 
 export function usePersistentState(key,initialValue){
-  const makeInitial=useCallback(()=>typeof initialValue==='function'?initialValue():initialValue,[initialValue]);
+  const initialRef=useRef(initialValue);
+  const makeInitial=useCallback(()=>{
+    const source=initialRef.current;
+    return typeof source==='function'?source():source;
+  },[]);
   const [value,setValue]=useState(()=>readStoredJson(key,makeInitial));
 
   useEffect(()=>{
