@@ -1,0 +1,119 @@
+/* User-controlled visual comfort layer. Keeps content intact while changing reading density/effects. */
+
+html[data-ux-text="large"]{
+  font-size:17px;
+}
+html[data-ux-text="large"] :where(.hero-copy p,.page-heading p,.resource-card p,.mechanic-card p,.guide-card p,.ce3-description,.ce3-lead,.ce3-panel p,.knowledge-card p,.consensus-card p){
+  line-height:1.72;
+}
+html[data-ux-text="large"] :where(input,select,button){
+  font-size:max(1rem,16px);
+}
+
+html[data-ux-density="comfortable"] :where(.content-width,.ce3-page,.creature-db-main){
+  --comfort-section-gap:clamp(26px,4.5vw,48px);
+}
+html[data-ux-density="comfortable"] :where(.page-stack,.home-stack,.ce3-page){
+  gap:var(--comfort-section-gap,32px);
+}
+html[data-ux-density="comfortable"] :where(.category-card,.resource-card,.guide-card,.chamber-card,.mechanic-card,.ce3-card,.panel-card,.ce3-panel){
+  padding-top:max(16px,1.05em);
+  padding-bottom:max(16px,1.05em);
+}
+
+html[data-ux-density="compact"] :where(.page-stack,.home-stack,.ce3-page){
+  gap:clamp(16px,2.8vw,28px)!important;
+}
+html[data-ux-density="compact"] :where(.category-grid,.creature-grid,.resource-grid,.chamber-grid,.guide-grid,.mechanic-grid,.ce3-grid,.knowledge-grid,.consensus-grid){
+  gap:10px!important;
+}
+html[data-ux-density="compact"] :where(.category-card,.resource-card,.guide-card,.chamber-card,.mechanic-card,.ce3-card,.panel-card,.ce3-panel){
+  padding-top:12px!important;
+  padding-bottom:12px!important;
+}
+html[data-ux-density="compact"] :where(.section-title-row,.ce3-panel-title){
+  margin-bottom:10px!important;
+}
+
+html[data-ux-effects="reduced"]{
+  scroll-behavior:auto!important;
+}
+html[data-ux-effects="reduced"] :where(.hero-glow,.live-dot)::before,
+html[data-ux-effects="reduced"] :where(.hero-glow){
+  display:none!important;
+}
+html[data-ux-effects="reduced"] :where(.site-header,.pa-settings-fab,.x-fab,.adv-fab,.research-fab,.pa-settings-backdrop,.x-overlay,.adv-overlay,.research-overlay,.mobile-drawer-backdrop){
+  backdrop-filter:none!important;
+  -webkit-backdrop-filter:none!important;
+}
+html[data-ux-effects="reduced"] :where(.category-card,.resource-card,.guide-card,.chamber-card,.mechanic-card,.ce3-card,.panel-card,.ce3-panel,.hero-panel,.source-box){
+  box-shadow:none!important;
+}
+html[data-ux-effects="reduced"] :where(*,*::before,*::after){
+  animation-duration:.001ms!important;
+  animation-iteration-count:1!important;
+  transition-duration:.001ms!important;
+}
+
+/* Route-level loading feedback: never present a blank app while a lazy bundle arrives. */
+.ux-page-loading{
+  min-height:58vh;
+  display:grid;
+  place-items:center;
+  padding:clamp(24px,5vw,56px) 18px;
+}
+.ux-loading-card{
+  width:min(620px,100%);
+  display:grid;
+  gap:14px;
+  padding:clamp(18px,4vw,28px);
+  border:1px solid color-mix(in srgb,var(--line,#2b3c33) 78%,transparent);
+  border-radius:18px;
+  background:color-mix(in srgb,var(--panel,#132019) 94%,transparent);
+}
+.ux-loading-title{
+  width:min(220px,52%);
+  height:22px;
+  border-radius:8px;
+  background:color-mix(in srgb,var(--text,#eef3ef) 16%,transparent);
+}
+.ux-loading-line{
+  height:13px;
+  border-radius:999px;
+  background:color-mix(in srgb,var(--text,#eef3ef) 10%,transparent);
+}
+.ux-loading-line:nth-child(2){width:92%}
+.ux-loading-line:nth-child(3){width:76%}
+.ux-loading-line:nth-child(4){width:84%}
+.ux-loading-note{
+  margin-top:4px;
+  color:var(--muted,#9aa8a0);
+  font-size:.88rem;
+  line-height:1.45;
+}
+@media(prefers-reduced-motion:no-preference){
+  .ux-loading-title,.ux-loading-line{
+    animation:uxComfortPulse 1.25s ease-in-out infinite alternate;
+  }
+}
+@keyframes uxComfortPulse{
+  from{opacity:.5}
+  to{opacity:1}
+}
+
+/* Reading comfort on phones: avoid edge-hugging text and accidental taps. */
+@media(max-width:760px){
+  html[data-ux-text="large"]{font-size:17px}
+  html[data-ux-density="comfortable"] :where(.content-width,.ce3-page,.creature-db-main){
+    padding-left:max(16px,env(safe-area-inset-left));
+    padding-right:max(16px,env(safe-area-inset-right));
+  }
+  html[data-ux-density="comfortable"] :where(.resource-card,.guide-card,.chamber-card,.mechanic-card,.ce3-card,.panel-card,.ce3-panel){
+    border-radius:16px!important;
+  }
+  .ux-page-loading{min-height:52vh;padding-inline:14px}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .ux-loading-title,.ux-loading-line{animation:none!important}
+}
