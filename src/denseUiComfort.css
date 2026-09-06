@@ -1,0 +1,60 @@
+/* Comfort overrides for older dense utility panels. Loaded last so legacy micro-UI cannot win the cascade. */
+
+.x-overlay{backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}
+.x-panel{height:100dvh;min-width:0;overflow:hidden}
+.x-panel-header{gap:14px}.x-panel-header>div{min-width:0}.x-panel-header h2{font-size:clamp(1.3rem,4vw,1.55rem);line-height:1.18;overflow-wrap:anywhere}.x-kicker{font-size:max(.76rem,12px);line-height:1.3}
+.x-close{width:44px;height:44px;flex:0 0 44px}
+
+.x-tabs{overflow-x:auto;overscroll-behavior-x:contain;scroll-snap-type:x proximity;scrollbar-width:none}.x-tabs::-webkit-scrollbar{display:none}.x-tabs button{min-height:44px;scroll-snap-align:start;font-size:max(.82rem,13px);padding:8px 11px}
+.x-panel-body{min-width:0;overscroll-behavior:contain;scrollbar-gutter:stable}
+.x-stack,.x-hero-card,.x-backup-card,.x-quality-card,.x-info-banner,.x-special-index,.x-chamber-row,.x-chamber-copy,.x-event-card,.x-source-registry article{min-width:0}
+
+.x-hero-card p,.x-backup-card p,.x-quality-card p,.x-info-banner p{font-size:max(.86rem,13px);line-height:1.55;overflow-wrap:anywhere}
+.x-chamber-title strong{font-size:max(.86rem,13px)}.x-chamber-title span{font-size:max(.75rem,12px);line-height:1.3}.x-chamber-copy small{font-size:max(.76rem,12px);line-height:1.35}
+.x-mini-progress,.x-coverage-bar{min-height:7px}
+.x-stepper{gap:7px}.x-stepper button{width:44px;height:44px;flex:0 0 44px}.x-stepper strong{width:32px;font-size:.9rem}
+
+.x-primary,.x-secondary,.x-danger-ghost{min-height:44px;padding:9px 12px;font-size:max(.82rem,13px);line-height:1.3}
+.x-notice{padding:11px 12px;font-size:max(.82rem,13px);line-height:1.5}
+.x-search-row label,.x-search-row select{min-height:46px}.x-search-row input,.x-search-row select{font-size:16px}
+
+.x-faq-question{min-height:52px;padding:12px 14px}.x-faq-question span{font-size:max(.74rem,12px)}.x-faq-question strong{font-size:max(.88rem,14px);line-height:1.35}.x-faq-answer p{font-size:max(.86rem,13px);line-height:1.55}.x-faq-answer small{font-size:max(.74rem,12px);line-height:1.35}
+.x-source-pill{min-height:28px;padding:5px 8px;font-size:max(.7rem,11px)}
+.x-empty span{font-size:max(.82rem,13px);line-height:1.45}.x-info-banner strong{font-size:max(.88rem,14px)}
+
+.x-event-top>span{font-size:max(.76rem,12px)}.x-event-card h3{font-size:1rem;line-height:1.3}.x-event-card>p{font-size:max(.86rem,13px);line-height:1.55}.x-event-creature small{font-size:max(.74rem,12px)}.x-event-creature strong{font-size:max(.84rem,13px)}
+.x-tag-row strong{font-size:max(.82rem,13px)}.x-tag-row small{font-size:max(.73rem,11px);line-height:1.3}
+.x-data-summary span{font-size:max(.72rem,11px);line-height:1.3}.x-data-summary strong{font-size:1.3rem}.x-data-summary small{font-size:max(.72rem,11px);line-height:1.35}
+.x-coverage-title strong{font-size:max(.84rem,13px)}.x-status{font-size:max(.7rem,11px)}.x-coverage-row p{font-size:max(.82rem,13px)!important;line-height:1.5}
+.x-source-registry article>strong{font-size:max(.84rem,13px)}.x-source-registry article p{font-size:max(.82rem,13px)!important;line-height:1.5}.x-source-registry article small{font-size:max(.72rem,11px);line-height:1.35}
+.x-rule-list>div{font-size:max(.82rem,13px);line-height:1.5}
+
+/* Keep all dense cards readable when text mode is enlarged instead of clipping. */
+html[data-ux-text="large"] :where(.x-chamber-title,.x-event-top,.x-coverage-title){align-items:flex-start;flex-wrap:wrap}
+html[data-ux-text="large"] .x-chamber-title strong{white-space:normal;overflow:visible;text-overflow:clip}
+
+@media(max-width:650px){
+  .x-overlay{backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px)}
+  .x-panel{width:100vw;max-width:none;height:100dvh}
+  .x-panel-header{padding:14px max(12px,env(safe-area-inset-right)) 14px max(12px,env(safe-area-inset-left))}
+  .x-tabs{display:flex;gap:7px;padding:8px 10px}
+  .x-tabs button{flex:0 0 auto;min-width:max-content;min-height:48px;padding:9px 13px;font-size:.84rem}
+  .x-tabs button span{display:inline!important}
+  .x-panel-body{padding:12px max(10px,env(safe-area-inset-right)) max(92px,calc(env(safe-area-inset-bottom) + 80px)) max(10px,env(safe-area-inset-left))}
+  .x-stepper button{width:48px;height:48px;flex-basis:48px}
+  .x-primary,.x-secondary,.x-danger-ghost{min-height:48px}
+  .x-chamber-row{grid-template-columns:44px minmax(0,1fr);gap:10px}
+  .x-chamber-symbol{width:44px;height:44px}
+  .x-stepper{grid-column:1/-1;justify-content:flex-end}
+  .x-data-summary{grid-template-columns:1fr 1fr}
+}
+
+@media(max-width:420px){
+  .x-hero-card{grid-template-columns:1fr}.x-progress-ring{justify-self:start}
+  .x-data-summary{grid-template-columns:1fr}
+  .x-button-row{display:grid;grid-template-columns:1fr}.x-button-row>*{width:100%;justify-content:center}
+  .x-chamber-title{align-items:flex-start;flex-direction:column;gap:4px}
+}
+
+@media(prefers-reduced-transparency:reduce){.x-overlay{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}}
+html[data-ux-effects="reduced"] .x-overlay{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
