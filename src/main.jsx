@@ -16,7 +16,7 @@ import ViewTransitionRuntime from './ViewTransitionRuntime';
 import InteractionMotionRuntime from './InteractionMotionRuntime';
 import LocalizedTutorialRuntime from './LocalizedTutorialRuntime';
 import { LanguageProvider, SiteSettings } from './LanguageProviderLite';
-import { isDedicatedDatabaseRoute } from './routeUtils';
+import { isDedicatedDatabaseRoute, isModernHomeRoute } from './routeUtils';
 import './index.css';
 import './sitePolish.css';
 import './uxProfessional.css';
@@ -37,12 +37,16 @@ const bootLanguage=initialLanguage();
 document.documentElement.lang=bootLanguage==='en'?'en':'pt-BR';
 document.documentElement.dataset.language=bootLanguage;
 
+function shouldBlockLegacyExtras(){
+  return isDedicatedDatabaseRoute() || isModernHomeRoute();
+}
+
 function DeferredExtras(){
   const [stage,setStage] = useState(0);
-  const [blocked,setBlocked] = useState(()=>isDedicatedDatabaseRoute());
+  const [blocked,setBlocked] = useState(shouldBlockLegacyExtras);
 
   useEffect(()=>{
-    const onHashChange = () => setBlocked(isDedicatedDatabaseRoute());
+    const onHashChange = () => setBlocked(shouldBlockLegacyExtras());
     window.addEventListener('hashchange',onHashChange);
     window.addEventListener('app:navigation',onHashChange);
     return ()=>{
