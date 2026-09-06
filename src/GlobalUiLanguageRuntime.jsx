@@ -17,6 +17,12 @@ function routeTitle(language){
     [/^#\/mechanics/i,en?'Mechanics':'Mecânicas'],
     [/^#\/guides/i,en?'Guides':'Guias'],
     [/^#\/tools/i,en?'Tools':'Ferramentas'],
+    [/^#\/farms/i,'Farms'],
+    [/^#\/strategies/i,en?'Strategies':'Estratégias'],
+    [/^#\/world/i,en?'World & Environment':'Mundo & Ambiente'],
+    [/^#\/upgrades/i,en?'Shops & Upgrades':'Lojas & Upgrades'],
+    [/^#\/events/i,en?'Events & History':'Eventos & Histórico'],
+    [/^#\/quests/i,en?'Quests & Rewards':'Quests & Recompensas'],
     [/^#\/glossary/i,en?'Glossary':'Glossário'],
     [/^#\/search/i,en?'Search':'Busca']
   ];
