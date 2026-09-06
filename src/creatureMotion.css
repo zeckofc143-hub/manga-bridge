@@ -1,5 +1,5 @@
 /* Stable motion layer for the Creature database.
-   Motion communicates state changes; it must not replay just because React remounted a card. */
+   Motion communicates state changes and must not replay just because React remounted a card. */
 
 :root{
   --creature-ease:cubic-bezier(.22,.8,.24,1);
@@ -9,31 +9,22 @@
   --creature-slow:320ms;
 }
 
-@keyframes creature-enter{
-  from{opacity:0;transform:translate3d(0,8px,0) scale(.995)}
-  to{opacity:1;transform:translate3d(0,0,0) scale(1)}
-}
-
-@keyframes creature-fade{
-  from{opacity:.2}
-  to{opacity:1}
-}
-
 @keyframes creature-menu-in{
-  from{opacity:0;transform:translate3d(0,-5px,0) scale(.99)}
-  to{opacity:1;transform:translate3d(0,0,0) scale(1)}
+  from{opacity:0;transform:translate3d(0,-4px,0)}
+  to{opacity:1;transform:translate3d(0,0,0)}
 }
 
 /* Do not force smooth scrolling on a highly dynamic route. It can fight route/filter updates. */
 .creature-db-root{scroll-behavior:auto}
 
-/* Only route-level surfaces animate on first appearance. Internal cards/panels stay visually stable. */
+/* Route surfaces are intentionally stable. No generic mount animation here:
+   lazy loading, language changes and filter updates must not replay entrances. */
 .creature-db-identity,
 .cth-root,
 .cap-root,
 .ce3-detail-hero,
 .cth-record{
-  animation:creature-enter var(--creature-slow) var(--creature-ease) both;
+  animation:none;
 }
 
 .cth-tabs button,
@@ -108,13 +99,14 @@
   box-shadow:0 4px 14px rgba(58,220,140,.09);
 }
 
-/* Small disclosure animation is intentional: it explains where the filter controls came from. */
+/* The only entrance motion left in this route is a short disclosure transition.
+   It explains that filters were revealed, and it is tied directly to the user's action. */
 .ce3-filters[open]>div{
-  transform-origin:top right;
-  animation:creature-menu-in 170ms var(--creature-ease) both;
+  transform-origin:top center;
+  animation:creature-menu-in 150ms var(--creature-ease) both;
 }
 
-/* Values respond to user changes, but they no longer have a separate mount/pop animation. */
+/* Values respond to user changes without pop/mount animations. */
 .cth-progressbar i,
 .ce3-stat-track i,
 .x-mini-progress>div,
@@ -122,18 +114,15 @@
   transition:width var(--creature-slow) var(--creature-ease);
 }
 
-.cap-gallery a,
-.ce3-image-host img{
-  animation:creature-fade 220ms ease both;
-}
-
+/* Images no longer run a mount animation. Switching from fallback/wiki/lazy sources
+   must not cause a visible fade replay or flash. */
 .cap-gallery a{
   transition:transform var(--creature-mid) var(--creature-ease),border-color var(--creature-mid) ease,box-shadow var(--creature-mid) ease;
 }
 
 .cap-gallery img,
 .ce3-image-host img{
-  transition:transform var(--creature-slow) var(--creature-ease),opacity var(--creature-mid) ease;
+  transition:transform var(--creature-slow) var(--creature-ease);
 }
 
 .cth-search:focus-within,
