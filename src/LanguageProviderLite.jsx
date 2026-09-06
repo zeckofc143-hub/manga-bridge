@@ -1,5 +1,5 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { Check, Eye, Languages, Settings, X } from 'lucide-react';
+import { Check, Eye, Languages, RotateCcw, Settings, X } from 'lucide-react';
 import { creatureDescription, creatureName } from './i18nCore';
 import './settings.css';
 
@@ -29,7 +29,7 @@ function readComfort(){
       effects: parsed.effects === 'reduced' ? 'reduced' : 'normal'
     };
   }catch{
-    return defaultComfort;
+    return {...defaultComfort};
   }
 }
 
@@ -92,57 +92,58 @@ export function SiteSettings(){
   },[comfort]);
 
   const updateComfort = (key,value) => setComfort(current=>({...current,[key]:value}));
+  const resetComfort = () => setComfort({...defaultComfort});
 
   return <>
-    <button className="pa-settings-fab" onClick={()=>setOpen(true)} aria-label={t('Abrir configurações','Open settings')} title={t('Configurações','Settings')}><Settings size={20}/></button>
+    <button type="button" className={`pa-settings-fab${open?' is-open':''}`} onClick={()=>setOpen(true)} aria-label={t('Abrir configurações','Open settings')} aria-haspopup="dialog" aria-expanded={open} aria-controls="pa-settings-panel" title={t('Configurações','Settings')}><Settings size={20}/></button>
     {open && <div className="pa-settings-backdrop" onClick={()=>setOpen(false)}>
-      <aside className="pa-settings-panel" onClick={e=>e.stopPropagation()} role="dialog" aria-modal="true" aria-labelledby="pa-settings-title">
+      <aside id="pa-settings-panel" className="pa-settings-panel" onClick={e=>e.stopPropagation()} role="dialog" aria-modal="true" aria-labelledby="pa-settings-title" aria-describedby="pa-settings-note">
         <div className="pa-settings-head">
           <div><span className="pa-settings-kicker"><Settings size={15}/>{t('Configurações','Settings')}</span><h2 id="pa-settings-title">{t('Configurações do site','Site settings')}</h2></div>
-          <button className="pa-settings-close" onClick={()=>setOpen(false)} aria-label={t('Fechar configurações','Close settings')}><X size={20}/></button>
+          <button type="button" className="pa-settings-close" onClick={()=>setOpen(false)} aria-label={t('Fechar configurações','Close settings')}><X size={20}/></button>
         </div>
 
         <section className="pa-settings-section">
-          <div className="pa-settings-section-title"><Languages size={18}/><div><strong>{t('Idioma','Language')}</strong><span>{t('A linguagem é salva neste aparelho.','Language is saved on this device.')}</span></div></div>
+          <div className="pa-settings-section-title"><Languages size={18}/><div><strong>{t('Idioma','Language')}</strong><span>{t('Muda o site inteiro e fica salvo neste aparelho.','Changes the whole site and is saved on this device.')}</span></div></div>
           <div className="pa-language-options">
-            <button className={language==='pt'?'active':''} onClick={()=>setLanguage('pt')} aria-pressed={language==='pt'}>
+            <button type="button" className={language==='pt'?'active':''} onClick={()=>setLanguage('pt')} aria-pressed={language==='pt'}>
               <span className="pa-language-flag">🇧🇷</span><div><strong>Português (Brasil)</strong><small>PT-BR</small></div>{language==='pt'&&<Check size={18}/>} 
             </button>
-            <button className={language==='en'?'active':''} onClick={()=>setLanguage('en')} aria-pressed={language==='en'}>
+            <button type="button" className={language==='en'?'active':''} onClick={()=>setLanguage('en')} aria-pressed={language==='en'}>
               <span className="pa-language-flag">🇺🇸</span><div><strong>English</strong><small>EN</small></div>{language==='en'&&<Check size={18}/>} 
             </button>
           </div>
         </section>
 
         <section className="pa-settings-section pa-comfort-section">
-          <div className="pa-settings-section-title"><Eye size={18}/><div><strong>{t('Conforto visual','Visual comfort')}</strong><span>{t('Ajuste leitura, espaço e movimento sem mudar o conteúdo.','Tune reading, spacing and motion without changing content.')}</span></div></div>
+          <div className="pa-settings-section-title pa-settings-section-title-actions"><Eye size={18}/><div><strong>{t('Conforto visual','Visual comfort')}</strong><span>{t('Ajuste leitura, espaço e movimento sem mudar o conteúdo.','Tune reading, spacing and motion without changing content.')}</span></div><button type="button" className="pa-reset-comfort" onClick={resetComfort}><RotateCcw size={14}/>{t('Padrão','Reset')}</button></div>
 
           <div className="pa-comfort-row">
-            <div className="pa-comfort-label"><strong>{t('Tamanho do texto','Text size')}</strong><span>{t('Aumente a leitura sem usar zoom do navegador.','Increase readability without browser zoom.')}</span></div>
+            <div className="pa-comfort-label"><strong>{t('Tamanho do texto','Text size')}</strong><span>{t('Grande ajuda a leitura sem precisar ampliar toda a página.','Large improves readability without zooming the whole page.')}</span></div>
             <div className="pa-segmented" role="group" aria-label={t('Tamanho do texto','Text size')}>
-              <button className={comfort.text==='standard'?'active':''} onClick={()=>updateComfort('text','standard')} aria-pressed={comfort.text==='standard'}>{t('Padrão','Standard')}</button>
-              <button className={comfort.text==='large'?'active':''} onClick={()=>updateComfort('text','large')} aria-pressed={comfort.text==='large'}>{t('Grande','Large')}</button>
+              <button type="button" className={comfort.text==='standard'?'active':''} onClick={()=>updateComfort('text','standard')} aria-pressed={comfort.text==='standard'}>{t('Padrão','Standard')}</button>
+              <button type="button" className={comfort.text==='large'?'active':''} onClick={()=>updateComfort('text','large')} aria-pressed={comfort.text==='large'}>{t('Grande','Large')}</button>
             </div>
           </div>
 
           <div className="pa-comfort-row">
-            <div className="pa-comfort-label"><strong>{t('Espaçamento','Spacing')}</strong><span>{t('Confortável reduz aperto visual; compacto mostra mais por tela.','Comfortable reduces visual crowding; compact shows more per screen.')}</span></div>
+            <div className="pa-comfort-label"><strong>{t('Espaçamento','Spacing')}</strong><span>{t('Confortável deixa as ações mais separadas; compacto mostra mais por tela.','Comfortable separates actions more; compact shows more per screen.')}</span></div>
             <div className="pa-segmented" role="group" aria-label={t('Espaçamento','Spacing')}>
-              <button className={comfort.density==='comfortable'?'active':''} onClick={()=>updateComfort('density','comfortable')} aria-pressed={comfort.density==='comfortable'}>{t('Confortável','Comfortable')}</button>
-              <button className={comfort.density==='compact'?'active':''} onClick={()=>updateComfort('density','compact')} aria-pressed={comfort.density==='compact'}>{t('Compacto','Compact')}</button>
+              <button type="button" className={comfort.density==='comfortable'?'active':''} onClick={()=>updateComfort('density','comfortable')} aria-pressed={comfort.density==='comfortable'}>{t('Confortável','Comfortable')}</button>
+              <button type="button" className={comfort.density==='compact'?'active':''} onClick={()=>updateComfort('density','compact')} aria-pressed={comfort.density==='compact'}>{t('Compacto','Compact')}</button>
             </div>
           </div>
 
           <div className="pa-comfort-row">
-            <div className="pa-comfort-label"><strong>{t('Movimento e efeitos','Motion & effects')}</strong><span>{t('Equilibrado mantém animações fluidas e leves; reduzido corta movimento não essencial, transparência e sombras.','Balanced keeps motion fluid and lightweight; reduced cuts non-essential motion, transparency and shadows.')}</span></div>
+            <div className="pa-comfort-label"><strong>{t('Movimento e efeitos','Motion & effects')}</strong><span>{t('Reduzido corta animações, transparência e sombras que não são necessárias para usar a wiki.','Reduced cuts animations, transparency and shadows that are not needed to use the wiki.')}</span></div>
             <div className="pa-segmented" role="group" aria-label={t('Movimento e efeitos','Motion and effects')}>
-              <button className={comfort.effects==='normal'?'active':''} onClick={()=>updateComfort('effects','normal')} aria-pressed={comfort.effects==='normal'}>{t('Equilibrado','Balanced')}</button>
-              <button className={comfort.effects==='reduced'?'active':''} onClick={()=>updateComfort('effects','reduced')} aria-pressed={comfort.effects==='reduced'}>{t('Reduzido','Reduced')}</button>
+              <button type="button" className={comfort.effects==='normal'?'active':''} onClick={()=>updateComfort('effects','normal')} aria-pressed={comfort.effects==='normal'}>{t('Equilibrado','Balanced')}</button>
+              <button type="button" className={comfort.effects==='reduced'?'active':''} onClick={()=>updateComfort('effects','reduced')} aria-pressed={comfort.effects==='reduced'}>{t('Reduzido','Reduced')}</button>
             </div>
           </div>
         </section>
 
-        <div className="pa-settings-note">{t('Preferências de idioma e conforto ficam salvas só neste aparelho.','Language and comfort preferences are saved only on this device.')}</div>
+        <div id="pa-settings-note" className="pa-settings-note">{t('Idioma e conforto ficam salvos apenas neste aparelho. Você pode restaurar o conforto padrão quando quiser.','Language and comfort are saved only on this device. You can restore the default comfort settings at any time.')}</div>
       </aside>
     </div>}
   </>;
