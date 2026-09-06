@@ -4,6 +4,7 @@ import './creatureAuditRuntime';
 import AppV2 from './AppV2';
 import CreatureLanguageRuntimeLite from './CreatureLanguageRuntimeLite';
 import ResourceLanguageRuntimeLite from './ResourceLanguageRuntimeLite';
+import ChamberLanguageRuntimeLite from './ChamberLanguageRuntimeLite';
 import TranslationCoverageLite from './TranslationCoverageLite';
 import UxBehaviorRuntime from './UxBehaviorRuntime';
 import AccessibilityPolishRuntime from './AccessibilityPolishRuntime';
@@ -66,6 +67,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
       <AppV2 />
       <CreatureLanguageRuntimeLite />
       <ResourceLanguageRuntimeLite />
+      <ChamberLanguageRuntimeLite />
       <TranslationCoverageLite />
       <UxBehaviorRuntime />
       <AccessibilityPolishRuntime />
