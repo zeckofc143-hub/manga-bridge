@@ -213,14 +213,6 @@
     --creature-mid:220ms;
     --creature-slow:330ms;
   }
-
-  .creature-db-identity,
-  .cth-root,
-  .cap-root,
-  .ce3-detail-hero,
-  .cth-record{
-    animation-distance:8px;
-  }
 }
 
 @media(prefers-reduced-motion:reduce){
