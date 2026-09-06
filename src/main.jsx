@@ -2,9 +2,9 @@ import React, { Suspense, lazy, useEffect, useState } from 'react';
 import ReactDOM from 'react-dom/client';
 import './creatureAuditRuntime';
 import AppV2 from './AppV2';
-import CreatureLanguageRuntime from './CreatureLanguageRuntime';
-import TranslationCoverage from './TranslationCoverage';
-import { LanguageProvider, SiteSettings } from './i18n';
+import CreatureLanguageRuntimeLite from './CreatureLanguageRuntimeLite';
+import TranslationCoverageLite from './TranslationCoverageLite';
+import { LanguageProvider, SiteSettings } from './LanguageProviderLite';
 import './index.css';
 import './sitePolish.css';
 
@@ -17,7 +17,7 @@ function isCreatureDatabaseRoute(){
 }
 
 function DeferredExtras(){
-  const [ready,setReady] = useState(false);
+  const [stage,setStage] = useState(0);
   const [blocked,setBlocked] = useState(()=>isCreatureDatabaseRoute());
 
   useEffect(()=>{
@@ -28,31 +28,39 @@ function DeferredExtras(){
 
   useEffect(()=>{
     if(blocked){
-      setReady(false);
+      setStage(0);
       return;
     }
 
-    let timeoutId;
     let idleId;
-    const show = () => setReady(true);
+    let firstTimer;
+    let secondTimer;
+    let thirdTimer;
+    const begin = () => {
+      setStage(1);
+      secondTimer = window.setTimeout(()=>setStage(2),700);
+      thirdTimer = window.setTimeout(()=>setStage(3),1500);
+    };
 
     if('requestIdleCallback' in window){
-      idleId = window.requestIdleCallback(show,{timeout:1400});
+      idleId = window.requestIdleCallback(begin,{timeout:2200});
     }else{
-      timeoutId = window.setTimeout(show,650);
+      firstTimer = window.setTimeout(begin,1200);
     }
 
     return ()=>{
       if(idleId && 'cancelIdleCallback' in window) window.cancelIdleCallback(idleId);
-      if(timeoutId) window.clearTimeout(timeoutId);
+      if(firstTimer) window.clearTimeout(firstTimer);
+      if(secondTimer) window.clearTimeout(secondTimer);
+      if(thirdTimer) window.clearTimeout(thirdTimer);
     };
   },[blocked]);
 
-  if(blocked || !ready) return null;
+  if(blocked || stage===0) return null;
   return <Suspense fallback={null}>
-    <Enhancements />
-    <AdvancedPlanner />
-    <CommunityResearchHub />
+    {stage>=1 && <Enhancements />}
+    {stage>=2 && <AdvancedPlanner />}
+    {stage>=3 && <CommunityResearchHub />}
   </Suspense>;
 }
 
@@ -60,8 +68,8 @@ ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <LanguageProvider>
       <AppV2 />
-      <CreatureLanguageRuntime />
-      <TranslationCoverage />
+      <CreatureLanguageRuntimeLite />
+      <TranslationCoverageLite />
       <DeferredExtras />
       <SiteSettings />
     </LanguageProvider>
