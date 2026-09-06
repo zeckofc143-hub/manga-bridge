@@ -5,10 +5,9 @@ import './mechanicResearchExpansion';
 import './mechanicDecisionExpansion';
 import './mechanicResearchCorrections';
 import AppV2 from './AppV2';
+import AppErrorBoundary from './AppErrorBoundary';
 import CreatureLanguageRuntimeLite from './CreatureLanguageRuntimeLite';
 import ResourceLanguageRuntimeLite from './ResourceLanguageRuntimeLite';
-import ChamberLanguageRuntimeLite from './ChamberLanguageRuntimeLite';
-import MechanicLanguageRuntimeLite from './MechanicLanguageRuntimeLite';
 import TranslationCoverageLite from './TranslationCoverageLite';
 import UxBehaviorRuntime from './UxBehaviorRuntime';
 import AccessibilityPolishRuntime from './AccessibilityPolishRuntime';
@@ -17,6 +16,7 @@ import ViewTransitionRuntime from './ViewTransitionRuntime';
 import InteractionMotionRuntime from './InteractionMotionRuntime';
 import LocalizedTutorialRuntime from './LocalizedTutorialRuntime';
 import { LanguageProvider, SiteSettings } from './LanguageProviderLite';
+import { isDedicatedDatabaseRoute } from './routeUtils';
 import './index.css';
 import './sitePolish.css';
 import './uxProfessional.css';
@@ -29,9 +29,12 @@ const Enhancements = lazy(() => import('./Enhancements'));
 const AdvancedPlanner = lazy(() => import('./AdvancedPlanner'));
 const CommunityResearchHub = lazy(() => import('./CommunityResearchHub'));
 
-function isDedicatedDatabaseRoute(){
-  return /^#\/(?:creatures|resources|chambers|mechanics|guides|tools)(?:\/|$|\?)/i.test(window.location.hash || '#/');
+function initialLanguage(){
+  try{return localStorage.getItem('pa-language')==='en'?'en':'pt';}catch{return 'pt';}
 }
+const bootLanguage=initialLanguage();
+document.documentElement.lang=bootLanguage==='en'?'en':'pt-BR';
+document.documentElement.dataset.language=bootLanguage;
 
 function DeferredExtras(){
   const [stage,setStage] = useState(0);
@@ -40,7 +43,11 @@ function DeferredExtras(){
   useEffect(()=>{
     const onHashChange = () => setBlocked(isDedicatedDatabaseRoute());
     window.addEventListener('hashchange',onHashChange);
-    return ()=>window.removeEventListener('hashchange',onHashChange);
+    window.addEventListener('app:navigation',onHashChange);
+    return ()=>{
+      window.removeEventListener('hashchange',onHashChange);
+      window.removeEventListener('app:navigation',onHashChange);
+    };
   },[]);
 
   useEffect(()=>{
@@ -68,20 +75,20 @@ function DeferredExtras(){
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <LanguageProvider>
-      <AppV2 />
-      <CreatureLanguageRuntimeLite />
-      <ResourceLanguageRuntimeLite />
-      <ChamberLanguageRuntimeLite />
-      <MechanicLanguageRuntimeLite />
-      <TranslationCoverageLite />
-      <UxBehaviorRuntime />
-      <AccessibilityPolishRuntime />
-      <ProgressiveDisclosureRuntime />
-      <ViewTransitionRuntime />
-      <InteractionMotionRuntime />
-      <LocalizedTutorialRuntime />
-      <DeferredExtras />
-      <SiteSettings />
+      <AppErrorBoundary>
+        <AppV2 />
+        <CreatureLanguageRuntimeLite />
+        <ResourceLanguageRuntimeLite />
+        <TranslationCoverageLite />
+        <UxBehaviorRuntime />
+        <AccessibilityPolishRuntime />
+        <ProgressiveDisclosureRuntime />
+        <ViewTransitionRuntime />
+        <InteractionMotionRuntime />
+        <LocalizedTutorialRuntime />
+        <DeferredExtras />
+        <SiteSettings />
+      </AppErrorBoundary>
     </LanguageProvider>
   </React.StrictMode>
 );
