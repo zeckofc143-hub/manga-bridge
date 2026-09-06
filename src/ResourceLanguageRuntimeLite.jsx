@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { useLanguage } from './LanguageProviderLite';
+import { currentHash } from './routeUtils';
 
 const TOKEN_LABELS = {
   map: ['Mapa','Map'],
@@ -36,7 +37,7 @@ const TOKEN_LABELS = {
   'clan-wars': ['Guerras de clã','Clan Wars']
 };
 
-const isResourceRoute = () => /^#\/resources(?:\/|$|\?)/i.test(window.location.hash || '#/');
+const isResourceRoute = () => /^#\/resources(?:\/|$|\?)/i.test(currentHash());
 
 function tokenFromText(value=''){
   const text=String(value).trim();
@@ -75,14 +76,12 @@ export default function ResourceLanguageRuntimeLite(){
 
   useEffect(()=>{
     let frame=0;
-    let timer=0;
     const sync=()=>{
       if(frame) cancelAnimationFrame(frame);
-      if(timer) window.clearTimeout(timer);
+      if(!isResourceRoute()) return;
       frame=requestAnimationFrame(()=>{
         frame=0;
         syncResourceLanguage(language);
-        timer=window.setTimeout(()=>syncResourceLanguage(language),80);
       });
     };
 
@@ -93,7 +92,6 @@ export default function ResourceLanguageRuntimeLite(){
       window.removeEventListener('hashchange',sync);
       window.removeEventListener('app:navigation',sync);
       if(frame) cancelAnimationFrame(frame);
-      if(timer) window.clearTimeout(timer);
     };
   },[language]);
 
