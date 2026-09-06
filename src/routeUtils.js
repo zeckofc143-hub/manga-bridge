@@ -52,7 +52,7 @@ export function databaseRouteClass(kind){
 export function getDatabaseRoute(hash=currentHash()){
   const value=hash || '#/';
   for(const kind of DATABASE_KINDS){
-    const match=value.match(new RegExp(`^#\\/${escapeRegExp(kind)}(?:\\/([^?/#]+))?`,'i'));
+    const match=value.match(new RegExp(`^#\\/${escapeRegExp(kind)}(?:\\/([^?/#]+))?\\/?(?:\\?|$)`,'i'));
     if(match){
       let id=null;
       if(match[1]){
