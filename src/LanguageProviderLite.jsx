@@ -97,7 +97,7 @@ export function SiteSettings(){
         </section>
 
         <section className="pa-settings-section pa-comfort-section">
-          <div className="pa-settings-section-title"><Eye size={18}/><div><strong>{t('Conforto visual','Visual comfort')}</strong><span>{t('Ajuste leitura e densidade sem mudar o conteúdo.','Tune reading comfort and density without changing content.')}</span></div></div>
+          <div className="pa-settings-section-title"><Eye size={18}/><div><strong>{t('Conforto visual','Visual comfort')}</strong><span>{t('Ajuste leitura, espaço e movimento sem mudar o conteúdo.','Tune reading, spacing and motion without changing content.')}</span></div></div>
 
           <div className="pa-comfort-row">
             <div className="pa-comfort-label"><strong>{t('Tamanho do texto','Text size')}</strong><span>{t('Aumente a leitura sem usar zoom do navegador.','Increase readability without browser zoom.')}</span></div>
@@ -116,10 +116,10 @@ export function SiteSettings(){
           </div>
 
           <div className="pa-comfort-row">
-            <div className="pa-comfort-label"><strong>{t('Efeitos visuais','Visual effects')}</strong><span>{t('Reduz transparência, sombras e movimento decorativo.','Reduce transparency, shadows and decorative motion.')}</span></div>
-            <div className="pa-segmented" role="group" aria-label={t('Efeitos visuais','Visual effects')}>
-              <button className={comfort.effects==='normal'?'active':''} onClick={()=>updateComfort('effects','normal')} aria-pressed={comfort.effects==='normal'}>{t('Normal','Normal')}</button>
-              <button className={comfort.effects==='reduced'?'active':''} onClick={()=>updateComfort('effects','reduced')} aria-pressed={comfort.effects==='reduced'}>{t('Reduzidos','Reduced')}</button>
+            <div className="pa-comfort-label"><strong>{t('Movimento e efeitos','Motion & effects')}</strong><span>{t('Equilibrado mantém animações fluidas e leves; reduzido corta movimento não essencial, transparência e sombras.','Balanced keeps motion fluid and lightweight; reduced cuts non-essential motion, transparency and shadows.')}</span></div>
+            <div className="pa-segmented" role="group" aria-label={t('Movimento e efeitos','Motion and effects')}>
+              <button className={comfort.effects==='normal'?'active':''} onClick={()=>updateComfort('effects','normal')} aria-pressed={comfort.effects==='normal'}>{t('Equilibrado','Balanced')}</button>
+              <button className={comfort.effects==='reduced'?'active':''} onClick={()=>updateComfort('effects','reduced')} aria-pressed={comfort.effects==='reduced'}>{t('Reduzido','Reduced')}</button>
             </div>
           </div>
         </section>
