@@ -2,22 +2,13 @@ import React,{useEffect,useMemo,useState} from 'react';
 import {AlertTriangle,BookOpen,ChevronLeft,ChevronRight,ExternalLink,Filter,Image as ImageIcon,Info,Search,ShieldCheck,Sparkles} from 'lucide-react';
 import {useLanguage} from './LanguageProviderLite';
 import {REFERENCE_META,REFERENCE_SECTIONS,referenceRecord} from './referenceResearchData';
+import {referenceMedia} from './referenceMediaData';
 import './resourceDatabasePage.css';
 import './referenceDatabasePage.css';
 
 const tr=(value,language)=>value&&typeof value==='object'?(language==='en'?(value.en??value.pt):(value.pt??value.en)):value;
 const normalize=(value='')=>String(value).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
 const readQuery=()=>new URLSearchParams((window.location.hash.split('?')[1]||'')).get('dbq')||'';
-
-const REFERENCE_VISUALS={
-  'world:environment':{
-    src:'https://pocketants.fandom.com/wiki/Special:Redirect/file/Sandbox_Map_3.png',
-    source:'https://pocketants.fandom.com/wiki/Screenshots_Guide',
-    alt:{pt:'Mapa normal do mundo principal de Pocket Ants',en:'Normal main-world map in Pocket Ants'},
-    title:{pt:'Mapa normal do mundo principal',en:'Normal main-world map'},
-    caption:{pt:'Imagem real do jogo catalogada pela PocketAnts Wiki como “Sandbox Map 3”. Use para localizar visualmente as áreas principais do mapa.',en:'Real in-game image cataloged by the PocketAnts Wiki as “Sandbox Map 3”. Use it to visually locate the main areas of the map.'}
-  }
-};
 
 function confidenceLabel(value,t){
   return ({high:t('Revisado','Reviewed'),medium:t('Parcialmente revisado','Partly reviewed'),review:t('Em revisão','Under review')})[value]||t('Revisado','Reviewed');
@@ -35,14 +26,21 @@ function SourceList({sources,t}){
   return <div className="ref-sources">{sources.map((href,index)=><a key={`${href}-${index}`} href={href} target="_blank" rel="noreferrer"><BookOpen size={14}/>{t('Fonte','Source')} {index+1}<ExternalLink size={11}/></a>)}</div>;
 }
 
-function ReferenceVisual({kind,id,language,t}){
-  const visual=REFERENCE_VISUALS[`${kind}:${id}`];
+function ReferenceMedia({media,language,t}){
+  const [src,setSrc]=useState(media?.image||'');
   const [failed,setFailed]=useState(false);
-  if(!visual)return null;
-  return <figure className="ref-visual-card">
-    <div className="ref-visual-head"><ImageIcon size={17}/><div><small>{t('Imagem real do jogo','Real in-game image')}</small><b>{tr(visual.title,language)}</b></div></div>
-    {!failed?<a className="ref-visual-image-link" href={visual.src} target="_blank" rel="noreferrer" aria-label={t('Abrir imagem em tamanho maior','Open larger image')}><img src={visual.src} alt={tr(visual.alt,language)} loading="eager" decoding="async" referrerPolicy="no-referrer" onError={()=>setFailed(true)}/></a>:<div className="ref-visual-fallback"><ImageIcon size={26}/><b>{t('A imagem não carregou neste navegador','The image did not load in this browser')}</b><span>{t('Abra a fonte abaixo para ver o arquivo original.','Open the source below to view the original file.')}</span></div>}
-    <figcaption><p>{tr(visual.caption,language)}</p><a href={visual.source} target="_blank" rel="noreferrer"><BookOpen size={14}/>{t('Página-fonte da imagem','Image source page')}<ExternalLink size={11}/></a></figcaption>
+  useEffect(()=>{setSrc(media?.image||'');setFailed(false);},[media]);
+  if(!media)return null;
+
+  const onError=()=>{
+    if(media.fallback&&src!==media.fallback){setSrc(media.fallback);return;}
+    setFailed(true);
+  };
+
+  return <figure className={`ref-visual-card${media.featured?' ref-visual-featured':''}`}>
+    <div className="ref-visual-head"><ImageIcon size={17}/><div><small>{t('Imagem real do jogo','Real in-game image')}</small><b>{tr(media.sourceLabel,language)||t('Referência visual','Visual reference')}</b></div></div>
+    {!failed?<a className="ref-visual-image-link" href={media.image} target="_blank" rel="noreferrer" aria-label={t('Abrir imagem em tamanho maior','Open larger image')}><img src={src} alt={tr(media.alt,language)} loading={media.featured?'eager':'lazy'} decoding="async" fetchPriority={media.featured?'high':'auto'} onError={onError}/></a>:<div className="ref-visual-fallback"><ImageIcon size={26}/><b>{t('A prévia não carregou neste navegador','The preview did not load in this browser')}</b><span>{t('A fonte continua disponível no botão abaixo.','The source is still available through the button below.')}</span></div>}
+    <figcaption><div><p>{tr(media.caption,language)}</p><small>{t('Imagem real/documentada — nenhuma imagem desta seção foi gerada por IA.','Real/documented image — no image in this section was AI-generated.')}</small></div><div className="ref-visual-actions"><a href={media.image} target="_blank" rel="noreferrer"><ImageIcon size={14}/>{t('Abrir imagem','Open image')}</a>{media.source&&<a href={media.source} target="_blank" rel="noreferrer"><BookOpen size={14}/>{t('Ver fonte','View source')}<ExternalLink size={11}/></a>}</div></figcaption>
   </figure>;
 }
 
@@ -50,6 +48,7 @@ function ReferenceDetail({kind,id}){
   const {language,t}=useLanguage();
   const section=REFERENCE_SECTIONS[kind];
   const item=referenceRecord(kind,id);
+  const media=referenceMedia(kind,id);
   if(!section||!item)return <div className="rdb-page ref-page"><a className="rdb-back" href={`#/${kind}`}><ChevronLeft size={17}/>{t('Voltar','Back')}</a><div className="rdb-empty"><Info size={28}/><b>{t('Ficha não encontrada','Entry not found')}</b><span>{t('A rota existe, mas esta ficha não está catalogada.','The route exists, but this entry is not cataloged.')}</span></div></div>;
 
   const quickFacts=item.facts.slice(0,3);
@@ -61,12 +60,14 @@ function ReferenceDetail({kind,id}){
       <div className="rdb-detail-copy"><div className="rdb-detail-badges"><span>{categoryLabel(item.category,t)}</span><span><ShieldCheck size={13}/>{confidenceLabel(item.confidence,t)}</span><span>{stageLabel(item.stage,t)}</span></div><h1>{tr(item.title,language)}</h1><p>{tr(item.summary,language)}</p></div>
     </section>
 
-    <ReferenceVisual kind={kind} id={id} language={language} t={t}/>
+    {media?.featured&&<ReferenceMedia media={media} language={language} t={t}/>} 
 
     <section className="ref-scan" aria-label={t('Resumo rápido','Quick summary')}>
       <div className="ref-scan-head"><Sparkles size={17}/><div><small>{t('Em 20 segundos','In 20 seconds')}</small><b>{t('O que vale guardar na cabeça','What is worth remembering')}</b></div></div>
       <div className="ref-scan-grid">{quickFacts.map((fact,index)=><article key={index}><span>{index+1}</span><p>{tr(fact,language)}</p></article>)}</div>
     </section>
+
+    {!media?.featured&&media&&<ReferenceMedia media={media} language={language} t={t}/>} 
 
     {item.warning&&<div className="ref-warning"><AlertTriangle size={19}/><div><b>{t('Atenção à confiança','Confidence note')}</b><p>{tr(item.warning,language)}</p></div></div>}
 
