@@ -2,6 +2,7 @@ import React, { Suspense, lazy, useEffect, useState } from 'react';
 import ReactDOM from 'react-dom/client';
 import './creatureAuditRuntime';
 import './mechanicResearchExpansion';
+import './mechanicDecisionExpansion';
 import AppV2 from './AppV2';
 import CreatureLanguageRuntimeLite from './CreatureLanguageRuntimeLite';
 import ResourceLanguageRuntimeLite from './ResourceLanguageRuntimeLite';
